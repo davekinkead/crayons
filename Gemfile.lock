@@ -48,6 +48,7 @@ PLATFORMS
 DEPENDENCIES
   debug (~> 1.0)
   dotenv (~> 3.0)
+  pp
   rspec (~> 3.0)
 
 CHECKSUMS

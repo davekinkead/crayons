@@ -7,6 +7,8 @@ RSpec.describe 'Z.ai Integration' do
       { role: 'user', content: 'What is 2 + 2? Answer with just the number.' }
     ])
 
+    pp response
+
     expect(response).to eq('4')
   end
 end

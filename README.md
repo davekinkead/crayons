@@ -135,8 +135,8 @@ your-project/                          # Your project (external to this repo)
 ├── ARCHITECTURE.md                    # Project-specific architecture
 ├── TESTING.md                         # Project-specific testing rules
 └── agents/
-    ├── SPEC_AGENT.md                  # Spec generation instructions
-    ├── CODER_AGENT.md                 # Coder instructions
+    ├── SPEC.md                        # Spec generation instructions
+    ├── CODER.md                       # Coder instructions
     └── ...
 ```
 
@@ -164,7 +164,13 @@ The Coder Agent is easy - they just follow the contract. The Spec Agent does the
 Each agent has its own instruction file:
 
 ```markdown
-# CODER_AGENT.md
+---
+name: CODER
+description: An agent for writing or editing code
+tools:
+  - bash
+  - files
+---
 
 You are a Coder Agent. Your job is to implement code that passes the specs.
 
@@ -177,14 +183,9 @@ After editing ANY code, you MUST:
 3. If verification fails: extract ONLY the failing cases, identify root cause
 4. NEVER output full test suite output - that wastes tokens
 
-## Tool Calling
+## Task completion
 
-You have access to:
-- `bash` - Run commands (use this for running tests)
-- `files` - Read/write files
-- `git` - Version control operations
-
-Choose tools based on your current goal. Prefer `bash` for running tests, `files` for editing.
+If, and only if, your work is complete return `<promise>COMPLETE</promise>`
 ```
 
 The LLM is responsible for interpreting these instructions and calling tools appropriately.

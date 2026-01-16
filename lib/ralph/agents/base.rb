@@ -1,16 +1,25 @@
+require 'yaml'
+
 module Ralph
   module Agents
     class Base
-      def verify(context)
-        raise NotImplementedError
+      attr_reader :name, :config, :context
+
+      def initialize(agent_path)
+        @agent_path = agent_path
+        @config = parse_frontmatter(agent_path)
+        @name = @config['name']
+        @context = {}
       end
 
-      def execute(context)
-        raise NotImplementedError
-      end
+      private
 
-      def complete?(context)
-        raise NotImplementedError
+      def parse_frontmatter(path)
+        content = File.read(path)
+        match = content.match(/^---$(.*?)^---$/m)
+        return {} unless match
+
+        YAML.load(match[1])
       end
     end
   end

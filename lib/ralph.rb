@@ -1,3 +1,4 @@
+require 'dotenv/load'
 require_relative 'ralph/agent'
 
 module Ralph

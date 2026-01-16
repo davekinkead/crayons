@@ -33,6 +33,7 @@ Instantiate with `Ralph::Agent.new("agent_name")`.
 
 ## Key Principles
 
+- YAGNI! Write the absolute minimum code needed to get the job done
 - Less context = better outcomes
 - Never auto-compact
 - Verify after every change
@@ -44,3 +45,5 @@ Instantiate with `Ralph::Agent.new("agent_name")`.
 - [Coder Agent](agents/CODER.md) - Implement code to pass specs
 - [Tester Agent](agents/TESTER.md) - Run tests efficiently
 - [Reviewer Agent](agents/REVIEWER.md) - Review code quality
+
+If you need background to the project, checkout the [README](README.md).

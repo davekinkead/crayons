@@ -4,9 +4,9 @@ require 'yaml'
 module Ralph
   class Agent < Agents::Base
     class << self
-      def new(name)
+      def new(name, client:)
         path = find_agent_file(name)
-        super(path)
+        super(path, client:)
       end
 
       private

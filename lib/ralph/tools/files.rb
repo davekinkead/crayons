@@ -1,16 +1,32 @@
+require_relative '../tool'
+
 module Ralph
   module Tools
-    class Files
-      def self.read(path)
+    class Files < Ralph::Tool
+      class << self
+        def read(path)
+          new.read(path:)
+        end
+
+        def write(path, content)
+          new.write(path:, content:)
+        end
+
+        def edit(path, old_string, new_string, replace_all: false)
+          new.edit(path:, old_string:, new_string:, replace_all:)
+        end
+      end
+
+      def read(path:)
         File.read(path)
       end
 
-      def self.write(path, content)
+      def write(path:, content:)
         File.write(path, content)
       end
 
-      def self.edit(path, old_string, new_string, replace_all: false)
-        content = read(path)
+      def edit(path:, old_string:, new_string:, replace_all: false)
+        content = read(path:)
 
         raise 'old_string not found in file' unless content.include?(old_string)
 
@@ -19,7 +35,7 @@ module Ralph
         end
 
         new_content = replace_all ? content.gsub(old_string, new_string) : content.sub(old_string, new_string)
-        write(path, new_content)
+        write(path:, content: new_content)
       end
     end
   end

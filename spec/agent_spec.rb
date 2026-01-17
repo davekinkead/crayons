@@ -14,6 +14,5 @@ RSpec.describe Ralph::Agent do
   end
 
   describe "#run" do
-    it "connects to t"
   end
 end

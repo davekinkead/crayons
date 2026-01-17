@@ -6,6 +6,8 @@ tools:
   - read_file
   - write_file
   - edit_file
+  - grep
+  - glob
 ---
 
 You are an expert Ruby coding agent.

@@ -38,12 +38,10 @@ Instantiate with `Ralph::Agent.new("agent_name")`.
 - Never auto-compact
 - Verify after every change
 - Report ONLY failing tests, never full output
+- Use dependency inject to decouple classes
 
 ## Available Agents
 
-- [Spec Agent](agents/SPEC.md) - Generate test descriptions, implement tests
 - [Coder Agent](agents/CODER.md) - Implement code to pass specs
-- [Tester Agent](agents/TESTER.md) - Run tests efficiently
-- [Reviewer Agent](agents/REVIEWER.md) - Review code quality
 
 If you need background to the project, checkout the [README](README.md).

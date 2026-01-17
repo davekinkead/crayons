@@ -11,7 +11,7 @@ RSpec.describe Ralph::Agent do
 
     it 'loads tools from agent frontmatter' do
       agent = Ralph::Agent.new('CODER')
-      expect(agent.tools).to contain_exactly('bash', 'read_file', 'write_file', 'edit_file')
+      expect(agent.tools).to contain_exactly('bash', 'read_file', 'write_file', 'edit_file', 'grep', 'glob')
     end
 
     it 'loads agent instructions from markdown content' do
@@ -26,15 +26,10 @@ RSpec.describe Ralph::Agent do
   end
 
   describe '#call' do
-    let(:agent) { Ralph::Agent.new('HAIKU') }
-    let(:client) { instance_double(Ralph::Client) }
+    let(:client) { double("client", chat: chat) }
     let(:chat) { instance_double(RubyLLM::Chat) }
     let(:message) { double("message", content: "A haiku here") }
-
-    before do
-      allow(Ralph::Client).to receive(:new).and_return(client)
-      allow(client).to receive(:chat).and_return(chat)
-    end
+    let(:agent) { Ralph::Agent.new('HAIKU', client: client) }
 
     it 'sends instructions to LLM and returns response content' do
       allow(chat).to receive(:with_tool).and_return(chat)

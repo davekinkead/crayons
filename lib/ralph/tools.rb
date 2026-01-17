@@ -1,10 +1,12 @@
 require 'ruby_llm'
 
-require_relative "tools/bash_tool"
-require_relative "tools/read_file_tool"
-require_relative "tools/write_file_tool"
-require_relative "tools/edit_file_tool"
-require_relative "tools/haiku_tool"
+require_relative "tools/bash"
+require_relative "tools/read_file"
+require_relative "tools/write_file"
+require_relative "tools/edit_file"
+require_relative "tools/haiku"
+require_relative "tools/grep"
+require_relative "tools/glob"
 
 module Ralph
   class Tools
@@ -25,6 +27,8 @@ module Ralph
         register(:write_file, Ralph::WriteFileTool)
         register(:edit_file, Ralph::EditFileTool)
         register(:haiku, Ralph::HaikuTool)
+        register(:grep, Ralph::GrepTool)
+        register(:glob, Ralph::GlobTool)
       end
     end
 

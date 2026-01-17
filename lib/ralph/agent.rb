@@ -2,16 +2,17 @@ module Ralph
   class Agent
     attr_reader :name, :description, :tools, :instructions
 
-    def initialize(agent_name)
+    def initialize(agent_name, client: nil)
       agent_file = File.join(File.dirname(__FILE__), "../../agents/#{agent_name}.md")
       raise "Agent file not found: #{agent_file}" unless File.exist?(agent_file)
 
       load_agent_config(agent_file)
+      @client = client || Ralph::Client.new
     end
 
     def call(prompt)
-      chat = Ralph::Client.new.chat
-      
+      chat = @client.chat
+
       attach_tools(chat)
       response = chat.ask "#{@instructions}\n\n#{prompt}"
       response.content

@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+#
+# This is a full integration test that checks the system can implement a PRD
 require 'dotenv/load'
 require_relative '../../lib/ralph'
 
@@ -29,7 +31,7 @@ if File.exist?('./hello_world.rb')
   puts "✓ hello_world.rb was created"
   content = File.read('./hello_world.rb')
   puts content
-  
+
   if content.include?('HelloWorld') && content.include?('hello') && content.include?('Hello, World. I am alive!')
     puts "\n✓ HelloWorld class exists"
     puts "✓ .hello class method exists"

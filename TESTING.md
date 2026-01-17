@@ -6,6 +6,18 @@ This document describes how to test the Ralph system itself.
 
 Tests are located in `spec/` directory.
 
+## Testing Process
+
+1. Start by reading the individual PRD you have been given
+2. Write acceptance criterica using empty `it "does something"` statements
+3. Stop and reflect ...
+  - do these specs accurately reflect what's required by the PRD?
+  - am I testing the right things - outputs & behaviours, not implementation
+  - am I testing the right areas - unit tests for isolated behaviour
+4. Update your tests if needed
+5. Implement the tests so that they fail
+6. Implement the code so the tests pass
+
 ## Running Tests
 
 ```bash
@@ -23,11 +35,10 @@ bundle exec rspec
 - Agent orchestration
 - End-to-end workflows
 - Context window management
-
-### LLM Integration Tests (Optional)
 - Requires API keys
+- Maunually run
 - Tests actual LLM agent behavior
-- Marked with `:llm_integration` tag
+- do not use the `_spec.rb` suffix
 
 ## Test Requirements
 

@@ -2,43 +2,43 @@ require 'spec_helper'
 require_relative '../../lib/ralph'
 
 RSpec.describe Ralph::Agent do
-  let(:agents_dir) { File.expand_path('../../agents', __dir__) }
-
   describe '#initialize' do
     it 'loads agent configuration from markdown file' do
-      agent = Ralph::Agent.new('coder', agents_dir:)
+      agent = Ralph::Agent.new('CODER')
       expect(agent.name).to eq('CODER')
       expect(agent.description).to eq('An agent for writing or editing code')
     end
 
     it 'loads tools from agent frontmatter' do
-      agent = Ralph::Agent.new('coder', agents_dir:)
+      agent = Ralph::Agent.new('CODER')
       expect(agent.tools).to contain_exactly('bash', 'read_file', 'write_file', 'edit_file')
     end
 
     it 'loads agent instructions from markdown content' do
-      agent = Ralph::Agent.new('haiku', agents_dir:)
+      agent = Ralph::Agent.new('HAIKU')
       expect(agent.instructions).to include('You are a Haiku bot')
     end
 
     it 'raises error for non-existent agent' do
-      expect { Ralph::Agent.new('nonexistent', agents_dir:) }
+      expect { Ralph::Agent.new('nonexistent') }
         .to raise_error(/Agent file not found/)
     end
   end
 
   describe '#call' do
-    let(:agent) { Ralph::Agent.new('haiku', agents_dir:) }
+    let(:agent) { Ralph::Agent.new('HAIKU') }
     let(:client) { instance_double(Ralph::Client) }
     let(:chat) { instance_double(RubyLLM::Chat) }
+    let(:message) { double("message", content: "A haiku here") }
 
     before do
       allow(Ralph::Client).to receive(:new).and_return(client)
       allow(client).to receive(:chat).and_return(chat)
     end
 
-    it 'sends instructions to LLM and returns response' do
-      allow(chat).to receive(:ask).and_return("A haiku here")
+    it 'sends instructions to LLM and returns response content' do
+      allow(chat).to receive(:with_tool).and_return(chat)
+      allow(chat).to receive(:ask).and_return(message)
       
       response = agent.call('Write me a haiku')
       expect(response).to eq("A haiku here")
@@ -46,7 +46,8 @@ RSpec.describe Ralph::Agent do
     end
 
     it 'includes agent instructions in context' do
-      allow(chat).to receive(:ask).and_return("Response")
+      allow(chat).to receive(:with_tool).and_return(chat)
+      allow(chat).to receive(:ask).and_return(double("message", content: "Response"))
 
       response = agent.call('Write me a haiku')
       expect(response).to eq("Response")

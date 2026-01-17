@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+require_relative '../lib/ralph'
+
+if ARGV.empty? || ARGV[0] == '--help' || ARGV[0] == '-h'
+  puts "Usage: ./bin/run_coder <prd-file>"
+  puts ""
+  puts "Arguments:"
+  puts "  prd-file       Path to PRD file"
+  puts ""
+  puts "Example:"
+  puts "  ./bin/run_coder prds/test-01.md"
+  exit 0
+end
+
+client = Ralph::Clients::OpenAI.new
+agent = Ralph::Agent.new('coder', client:)
+
+prd = File.read(ARGV[0])
+failing_tests = ARGV[1] || ''
+
+puts "Starting Coder Agent..."
+puts "=" * 50
+
+result = agent.run(prd:, failing_tests:)
+
+puts result

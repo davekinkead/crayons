@@ -1,33 +1,41 @@
-require 'yaml'
-require_relative 'clients/openai'
-require_relative 'tools/bash'
-require_relative 'tools/files'
+require "yaml"
+require_relative "clients/openai"
+require_relative "tools/bash"
+require_relative "tools/files"
 
 module Ralph
   class Agent
-    attr_reader :name, :config, :context, :client, :messages
+    attr_reader :name, :description, :tools, :config, :context, :client, :messages
 
     def initialize(agent_path, client:)
       @agent_path = agent_path
       @config = parse_frontmatter(agent_path)
-      @name = @config['name']
+      @name = @config["name"]
+      @description = @config["description"]
+      @tools = @config["tools"]
       @context = {}
       @client = client
       @messages = []
     end
 
-    def run(prd:, failing_tests:, max_turns: 10)
+    def run(max_turns: 10)
       load_system_prompt
-      load_initial_task(prd, failing_tests)
 
       max_turns.times do |turn|
-        response = @client.chat(messages: @messages)
-        @messages << { role: 'assistant', content: response }
+        response = @client.chat(messages: @messages, tools: build_tools)
 
-        return success_result(turn) if complete?(response)
+        if response["tool_calls"]
+          @messages << { role: "assistant", tool_calls: response["tool_calls"] }
 
-        tool_results = execute_tools(response)
-        @messages << { role: 'user', content: format_tool_results(tool_results) }
+          tool_responses = execute_tools(response["tool_calls"])
+          @messages.concat(tool_responses)
+
+          next
+        end
+
+        @messages << { role: "assistant", content: response["content"] }
+
+        return success_result(turn) if complete?(response["content"])
       end
 
       max_turns_result
@@ -42,7 +50,7 @@ module Ralph
       private
 
       def find_agent_file(name)
-        path = File.join('agents', "#{name.upcase}.md")
+        path = File.join("agents", "#{name.upcase}.md")
         raise Ralph::Error, "Agent file not found: #{path}" unless File.exist?(path)
 
         path
@@ -56,65 +64,81 @@ module Ralph
       match = content.match(/^---$(.*?)^---$(.*)/m)
       instructions = match[2].strip
 
-      available_tools = @config['tools']&.map { |t| t.upcase }&.join(', ') || 'None'
+      available_tools = @config["tools"]&.map { |t| t.upcase }&.join(", ") || "None"
       full_prompt = "#{instructions}\n\nAvailable tools: #{available_tools}"
 
-      @messages << { role: 'system', content: full_prompt }
+      @messages << { role: "system", content: full_prompt }
     end
 
-    def load_initial_task(prd, failing_tests)
-      task = <<~TASK
-        PRD:
-        #{prd}
+    def build_tools
+      tools = []
 
-        Failing tests:
-        #{failing_tests}
-
-        Start by reading the relevant files to understand the codebase, then implement the solution.
-      TASK
-
-      @messages << { role: 'user', content: task }
-    end
-
-    def complete?(response)
-      response.include?('<promise>COMPLETE</promise>')
-    end
-
-    def execute_tools(response)
-      results = []
-
-      response.scan(/BASH:\s*(.+)/).each do |match|
-        command = match[0].strip
-        results << "BASH: #{command}"
-        results << Tools::Bash.run(command)
+      if @config["tools"]&.include?("bash")
+        tools << {
+          type: "function",
+          function: {
+            name: "bash",
+            description: "Execute a bash command in the terminal",
+            parameters: {
+              type: "object",
+              properties: {
+                command: {
+                  type: "string",
+                  description: "The bash command to execute"
+                }
+              },
+              required: ["command"]
+            }
+          }
+        }
       end
 
-      response.scan(/FILES:\s*READ\s+(.+)/).each do |match|
-        path = match[0].strip
-        results << "FILES: READ #{path}"
-        results << Tools::Files.read(path)
+      if @config["tools"]&.include?("files")
+        tools << {
+          type: "function",
+          function: {
+            name: "read_file",
+            description: "Read the contents of a file",
+            parameters: {
+              type: "object",
+              properties: {
+                path: {
+                  type: "string",
+                  description: "The path to the file to read"
+                }
+              },
+              required: ["path"]
+            }
+          }
+        }
       end
 
-      response.scan(/FILES:\s*WRITE\s+(.+?)\n(.+)/).each do |match|
-        path = match[0].strip
-        content = match[1].strip
-        results << "FILES: WRITE #{path}"
-        Tools::Files.write(path, content)
-      end
-
-      results
+      tools
     end
 
-    def format_tool_results(results)
-      results.map { |r| r.is_a?(Hash) ? format_result(r) : r }.join("\n")
+    def execute_tools(tool_calls)
+      tool_calls.map do |call|
+        result = case call["function"]["name"]
+                 when "bash"
+                   args = JSON.parse(call["function"]["arguments"])
+                   Tools::Bash.run(args["command"])
+                 when "read_file"
+                   args = JSON.parse(call["function"]["arguments"])
+                   Tools::Files.read(args["path"])
+                 else
+                   "Unknown tool: #{call["function"]["name"]}"
+                 end
+
+        {
+          role: "tool",
+          tool_call_id: call["id"],
+          content: result.to_s
+        }
+      end
     end
 
-    def format_result(result)
-      if result[:success]
-        '✓ Success'
-      else
-        "✗ Failed: #{result[:stderr]}"
-      end
+    def complete?(content)
+      content.include?("<promise>COMPLETE</promise>")
     end
 
     def success_result(turns)
@@ -128,7 +152,7 @@ module Ralph
     def max_turns_result
       {
         status: :max_turns,
-        turns: @messages.length / 2,
+        turns: @messages.length,
         messages: @messages
       }
     end

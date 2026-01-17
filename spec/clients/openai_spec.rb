@@ -1,7 +1,5 @@
-require_relative '../../../lib/ralph/clients/openai'
-require_relative '../../../lib/ralph/tools/haiku'
-require_relative '../../../lib/ralph/tools/bash'
-require_relative '../../../lib/ralph/tools/files'
+require_relative '../../lib/ralph'
+require_relative '../../lib/ralph/clients/openai'
 
 RSpec.describe Ralph::Clients::OpenAI do
   describe '.tools' do

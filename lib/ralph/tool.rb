@@ -5,7 +5,7 @@ module Ralph
         @description = text
       end
 
-      def param(name, type: 'string', description: nil, required: true)
+      def param(name, type: 'string', description: nil, required: false)
         @params ||= {}
         @params[name.to_sym] = {
           type: type,
@@ -14,13 +14,17 @@ module Ralph
         }
       end
 
+      def params
+        @params || {}
+      end
+
       def schema
         return nil unless @description
 
         {
           type: 'function',
           function: {
-            name: to_s.split('::').last.downcase,
+            name: to_s.split('::').last.gsub(/([A-Z])/, '_\1').downcase.sub(/^_/, ''),
             description: @description,
             parameters: {
               type: 'object',
@@ -41,6 +45,18 @@ module Ralph
 
     def call(**kwargs)
       raise NotImplementedError, 'Subclasses must implement #call'
+    end
+
+    def name
+      self.class.to_s.split('::').last
+    end
+
+    def description
+      self.class.instance_variable_get(:@description)
+    end
+
+    def params
+      self.class.params
     end
   end
 end

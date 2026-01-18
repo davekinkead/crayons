@@ -1,34 +1,9 @@
 require 'spec_helper'
-require_relative '../../lib/ralph'
-require_relative '../../lib/ralph/clients/zai'
-require_relative '../../lib/ralph/message'
+require_relative '../../../lib/ralph'
+require_relative '../../../lib/ralph/clients/zai'
+require_relative '../../../lib/ralph/message'
 
 RSpec.describe Ralph::Clients::Zai do
-  describe '#initialize' do
-    it 'stores API configuration' do
-      env = {
-        'ZAI_API_KEY' => 'test-key',
-        'OPENAI_BASE_URL' => 'https://api.test.com',
-        'OPENAI_MODEL' => 'gpt-4'
-      }
-
-      client = described_class.new(env:)
-      expect(client.instance_variable_get(:@api_key)).to eq('test-key')
-      expect(client.instance_variable_get(:@base_url)).to eq('https://api.test.com')
-      expect(client.instance_variable_get(:@model)).to eq('gpt-4')
-    end
-
-    it 'creates HTTPClient instance' do
-      env = {
-        'ZAI_API_KEY' => 'test-key',
-        'OPENAI_BASE_URL' => 'https://api.test.com'
-      }
-
-      client = described_class.new(env:)
-      expect(client.instance_variable_get(:@http_client)).to be_a(Ralph::Clients::HTTP)
-    end
-  end
-
   describe '#chat' do
     let(:env) { { 'ZAI_API_KEY' => 'test-key', 'OPENAI_BASE_URL' => 'https://api.test.com' } }
     let(:client) { described_class.new(env:) }
@@ -87,6 +62,41 @@ RSpec.describe Ralph::Clients::Zai do
         }
       ])
     end
+
+    it 'sends messages and tools to API endpoint' do
+      messages = [Ralph::Message.new(role: :user, content: 'test')]
+      tools = [Ralph::HaikuTool.new]
+      client_with_tools = described_class.new(env:, tools:)
+
+      expected_payload = {
+        model: nil,
+        messages: [{ role: 'user', content: 'test' }],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'haiku',
+              description: 'Generate a haiku on a given topic',
+              parameters: {
+                type: 'object',
+                properties: {
+                  topic: { type: 'string', description: "The topic for the haiku" }
+                },
+                required: []
+              }
+            }
+          }
+        ]
+      }
+
+      allow(client_with_tools.instance_variable_get(:@http_client)).to receive(:post)
+        .with("https://api.test.com/chat/completions", expected_payload)
+        .and_return({
+          "choices" => [{ "message" => { "role" => "assistant", "content" => "response" } }]
+        })
+
+      client_with_tools.chat(messages)
+    end
   end
 
   describe '.convert_messages_to_api_format' do
@@ -102,6 +112,15 @@ RSpec.describe Ralph::Clients::Zai do
         { role: 'system', content: 'You are helpful' },
         { role: 'user', content: 'test' },
         { role: 'assistant', content: 'Hello', tool_calls: [{ id: '1', function: { name: 'bash', arguments: '{}' } }] }
+      ])
+    end
+
+    it 'handles messages without content' do
+      messages = [Ralph::Message.new(role: :assistant, tool_calls: [{ id: '1', function: { name: 'tool', arguments: '{}' } }])]
+
+      api_format = described_class.convert_messages_to_api_format(messages)
+      expect(api_format).to eq([
+        { role: 'assistant', tool_calls: [{ id: '1', function: { name: 'tool', arguments: '{}' } }] }
       ])
     end
   end

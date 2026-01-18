@@ -1,4 +1,4 @@
-require 'ruby_llm'
+require_relative "tool"
 
 require_relative "tools/bash"
 require_relative "tools/read_file"

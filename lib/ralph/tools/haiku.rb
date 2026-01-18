@@ -1,5 +1,5 @@
 module Ralph
-  class HaikuTool < RubyLLM::Tool
+  class HaikuTool < Tool
     description "Generate a haiku on a given topic"
 
     params do

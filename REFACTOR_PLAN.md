@@ -148,10 +148,10 @@ lib/ralph/
   - [ ] Implement
   - [ ] Run tests
   - [ ] Commit
-- [ ] Update Tools
-  - [ ] Update 8 tool files
-  - [ ] Run tests
-  - [ ] Commit
+- [x] Update Tools
+  - [x] Update 8 tool files
+  - [x] Run tests
+  - [x] Commit
 - [ ] Update Agent
   - [ ] Update Agent implementation
   - [ ] Run tests

@@ -1,5 +1,5 @@
 module Ralph
-  class ReadFileTool < RubyLLM::Tool
+  class ReadFileTool < Tool
     description "Read the contents of a file"
 
     params do

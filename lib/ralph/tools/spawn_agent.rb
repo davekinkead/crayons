@@ -1,5 +1,5 @@
 module Ralph
-  class SpawnAgentTool < RubyLLM::Tool
+  class SpawnAgentTool < Tool
     description "Spawn and execute another agent (CODER, REVIEWER, etc.) with fresh context"
 
     params do

@@ -1,5 +1,5 @@
 module Ralph
-  class GrepTool < RubyLLM::Tool
+  class GrepTool < Tool
     description "Execute ripgrep commands (rg) to search for patterns in files"
 
     params do

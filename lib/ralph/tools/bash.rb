@@ -1,5 +1,5 @@
 module Ralph
-  class BashTool < RubyLLM::Tool
+  class BashTool < Tool
     description "Execute bash commands in the project directory"
 
     params do

@@ -1,5 +1,5 @@
 module Ralph
-  class GlobTool < RubyLLM::Tool
+  class GlobTool < Tool
     description "Execute find commands to locate files"
 
     params do

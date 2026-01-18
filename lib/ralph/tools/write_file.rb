@@ -1,5 +1,5 @@
 module Ralph
-  class WriteFileTool < RubyLLM::Tool
+  class WriteFileTool < Tool
     description "Write content to a file (overwrites existing content)"
 
     params do

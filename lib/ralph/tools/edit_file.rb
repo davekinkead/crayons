@@ -1,5 +1,5 @@
 module Ralph
-  class EditFileTool < RubyLLM::Tool
+  class EditFileTool < Tool
     description "Edit a file by replacing old_string with new_string"
 
     params do

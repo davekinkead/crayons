@@ -1,65 +1,41 @@
 # Son of Ralph
 
-Son of Ralph is a project for autonymous agentic software development that follows the Ralph Wiggum process.
+Autonomous agent development system. Agents defined in markdown files connect to LLM services and use tools to accomplish tasks.
 
-It uses simple agents defined in markdown files that connect to LLM services via RubyLLM. Each agent has its own persona, instructions, and tools.
+## Key Documentation
 
-The system consists of three core components: Agents (personas from markdown), Clients (LLM API connections), and Tools (RubyLLM DSL utilities).
+- **ARCHITECTURE.md** - System architecture, components, configuration
+- **TESTING.md** - Testing guidelines and TDD process
+- **BACKGROUND.md** - Project background and Ralph Wiggum technique
+- **README.md** - Project overview
 
-**WARNING**: This is experimental and will change without warning. For learning purposes only.
+## Verification
 
-## Tech Stack
+Always run `bundle exec rspec` after changes. Ensure all tests pass.
 
-- **Ruby** ~3.0 - Core language
-- **RubyLLM** - LLM client library and tool DSL
-- **RSpec** - Test framework
-- **YAML** - Agent frontmatter parsing
+## How Agents Work
 
-## Detailed Documents
-
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture: components, tools, and configuration
-- [TESTING.md](TESTING.md) - Testing guidelines: test structure and verification process
-- [BACKGROUND.md](BACKGROUND.md) - Project background: Ralph Wiggum technique and principles
-- [README.md](README.md) - Project Overview
-
-Always run `bundle exec rspec` after making changes and ensure all tests pass.
-
-## Ralph Agents
-
-Agents are defined in `agents/` as markdown files with YAML frontmatter.
+Agents are defined in `agents/*.md` with YAML frontmatter specifying name, description, and tools.
 
 ```ruby
 agent = Ralph::Agent.new :coder
-response = agent.call "your instructions here"
-```
-
-```
-agents/
-├── CODER.md (for writing code)
-└── HAIKU.md (for internal testing)
-```
-
-## Agent Format
-
-```yaml
----
-name: AGENT_NAME
-description: Brief description
-tools:
-  - bash
-  - read_file
----
-
-You are an agent. Your instructions go here.
-
-## Task completion
-
-Return `<promise>COMPLETE</promise>` when finished.
+response = agent.call "your instructions"
 ```
 
 ## Available Agents
 
+- [Ralph](agents/RALPH.md) - Orchestrator
 - [Coder](agents/CODER.md) - Implement code to pass specs
-- [Haiku](agents/HAIKU.md) - Generate haikus
+- [Reviewer](agents/REVIEWER.md) - Evaluates specs & PRDs
+- [Haiku](agents/HAIKU.md) - Generate haikus for testing
 
-Copyright 2026 Dave Kinkead
+## Behavioral Guidelines
+
+1. **ALWAYS Confirm before editing**: Present intended changes and wait for user approval
+2. **Sprint on YOLO**: If the user says YOLO keep going until you are told to stop
+3. **Start with summaries**: Provide high-level overview first, elaborate on request
+4. **Ask when unclear**: Seek clarification for ambiguous or complex requests
+5. **Think before acting**: Plan and reflect before implementing changes
+6. **Verify work**: Test and confirm changes work correctly
+7. **Match code style**: Follow existing patterns and conventions
+8. **Stay focused**: Address the specific request without adding extras

@@ -84,6 +84,82 @@ Examples:
 - **Git not initialized**: Return FAILURE with error details
 - **Commit fails** (permissions, conflicts): Return FAILURE with error details
 
+## PRD State Management
+
+Track PRD progress through statuses and iterations throughout the development lifecycle.
+
+### PRD Frontmatter Fields
+Each PRD should have these frontmatter fields:
+- `status`: `planned`, `in_progress`, `completed`, or `failed`
+- `iteration`: Integer starting at 1
+
+### Status Lifecycle
+```
+planned → in_progress → completed
+            ↘ failed
+```
+
+### Status Transitions
+- **Start working on a PRD**: Update status from `planned` to `in_progress`
+- **Tests pass after REVIEWER**: Update status from `in_progress` to `completed`
+- **Max iterations (5) reached**: Update status from `in_progress` to `failed`
+
+### Iteration Management
+- Start at iteration 1 when beginning work on a PRD
+- Increment iteration count before each retry after CODER/REVIEWER failure
+- Increment iteration count before each retry after test failure
+
+### Reading PRD Status
+Use `read_file` tool to read the PRD file, then parse the YAML frontmatter to extract:
+- `status` field
+- `iteration` field
+
+If a PRD is missing frontmatter or has invalid values:
+- Missing frontmatter: Treat as `status=planned`, `iteration=1`
+- Invalid status: Default to `planned`
+- Non-integer iteration: Default to `1`
+
+### Updating PRD Status
+Use `edit_file` tool to update the PRD frontmatter:
+- When starting work: Set `status: in_progress`
+- When tests pass: Set `status: completed`
+- When max iterations reached: Set `status: failed`
+- When retrying: Increment `iteration` by 1
+
+### Feedback History
+
+Add feedback entries to PRDs to accumulate debugging information:
+
+#### When to Add Feedback
+- CODER returns `FAILURE`: Add CODER feedback to PRD
+- REVIEWER returns `FAILURE`: Add REVIEWER feedback to PRD
+- Tests fail: Add test failure output to PRD
+
+#### Feedback Format
+```markdown
+## Feedback History
+
+### [Agent Name] (Iteration [N]): [COMPLETE/FAILURE/FAILED]
+**Date:** [YYYY-MM-DD HH:MM:SS]
+
+[Specific feedback or test output]
+```
+
+#### Adding Feedback
+Use `edit_file` tool to:
+1. Check if "## Feedback History" section exists at the end of the PRD
+2. If not, create it at the end of the file
+3. Append new feedback entries to the existing Feedback History section
+
+#### Updating Feedback History
+When adding commit hash for completed PRDs:
+```markdown
+### Git Commit (Iteration [N]): [commit_hash]
+**Date:** [YYYY-MM-DD HH:MM:SS]
+
+[PRD_NAME] [STATUS] iteration [N] - [summary]
+```
+
 ## Completing Successful PRDs
 
 When tests pass:

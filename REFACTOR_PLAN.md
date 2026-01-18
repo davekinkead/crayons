@@ -133,11 +133,11 @@ lib/ralph/
   - [x] Implement
   - [x] Run tests
   - [x] Commit
-- [ ] Message class
-  - [ ] Write tests
-  - [ ] Implement
-  - [ ] Run tests
-  - [ ] Commit
+- [x] Message class
+  - [x] Write tests
+  - [x] Implement
+  - [x] Run tests
+  - [x] Commit
 - [ ] Tool DSL
   - [ ] Write tests
   - [ ] Implement

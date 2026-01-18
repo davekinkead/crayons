@@ -6,6 +6,8 @@ module Ralph
           config.openai_api_key = ENV['ZAI_API_KEY'] || ENV['OPENAI_API_KEY']
           config.openai_api_base = ENV['OPENAI_BASE_URL']
           config.default_model = ENV['OPENAI_MODEL'] if ENV['OPENAI_MODEL']
+          config.log_level = :debug
+          config.log_stream_debug = true
         end
       end
 

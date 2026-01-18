@@ -6,19 +6,16 @@ RSpec.describe Ralph::SpawnAgentTool do
 
   describe '#execute' do
     context 'with valid agent name' do
-      let(:client_instance) { instance_double(Ralph::Clients::Zai) }
-      let(:chat) { instance_double(RubyLLM::Chat) }
+      let(:client_instance) { instance_double(Ralph::Clients::Zai, chat: nil) }
 
       before do
         allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(chat)
       end
 
       it 'spawns CODER with instructions and returns response' do
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask)
-          .and_return(double("message", content: "Working on it..."))
-          .and_return(double("message", content: "<promise>COMPLETE</promise>"))
+        allow(client_instance).to receive(:chat)
+          .and_return(Ralph::Message.new(role: :assistant, content: "Working on it..."))
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
         result = tool.execute(agent_name: 'CODER', instructions: 'Implement a feature')
 
@@ -26,10 +23,9 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'spawns REVIEWER with instructions and returns response' do
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask)
-          .and_return(double("message", content: "Reviewing code..."))
-          .and_return(double("message", content: "<promise>COMPLETE</promise>"))
+        allow(client_instance).to receive(:chat)
+          .and_return(Ralph::Message.new(role: :assistant, content: "Reviewing code..."))
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
         result = tool.execute(agent_name: 'REVIEWER', instructions: 'Review this PRD')
 
@@ -37,11 +33,10 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'returns FAILURE when spawned agent fails' do
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask)
-          .and_return(double("message", content: "Working..."))
-          .and_return(double("message", content: "Can't do it"))
-          .and_return(double("message", content: "Too hard"))
+        allow(client_instance).to receive(:chat)
+          .and_return(Ralph::Message.new(role: :assistant, content: "Working..."))
+          .and_return(Ralph::Message.new(role: :assistant, content: "Can't do it"))
+          .and_return(Ralph::Message.new(role: :assistant, content: "Too hard"))
 
         result = tool.execute(agent_name: 'CODER', instructions: 'Impossible task')
 
@@ -49,20 +44,16 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'spawns agent with fresh context (independent from parent)' do
-        # First agent spawn
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask)
-          .and_return(double("message", content: "<promise>COMPLETE</promise>"))
+        allow(client_instance).to receive(:chat)
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
+        # First agent spawn
         result1 = tool.execute(agent_name: 'CODER', instructions: 'Task 1')
-        
+
         # Second agent spawn should have fresh context
-        chat2 = instance_double(RubyLLM::Chat)
-        allow(client_instance).to receive(:chat).and_return(chat2)
-        allow(chat2).to receive(:with_tool).and_return(chat2)
-        allow(chat2).to receive(:ask)
-          .and_return(double("message", content: "<promise>COMPLETE</promise>"))
-        
+        allow(client_instance).to receive(:chat)
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
+
         result2 = tool.execute(agent_name: 'CODER', instructions: 'Task 2')
 
         expect(result1).to include("<promise>COMPLETE</promise>")
@@ -70,15 +61,14 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'passes instructions to spawned agent' do
-        allow(chat).to receive(:with_tool).and_return(chat)
-        
+        allow(client_instance).to receive(:chat) do |messages|
+          # Check that instructions are in the messages
+          expect(messages.map(&:content).join).to include('Implement a user authentication system')
+          Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+        end
+
         instructions = 'Implement a user authentication system'
-        allow(chat).to receive(:ask).and_return(double("message", content: "<promise>COMPLETE</promise>"))
-
         tool.execute(agent_name: 'CODER', instructions: instructions)
-
-        # Verify instructions were passed to the agent
-        expect(chat).to have_received(:ask).with(/#{Regexp.escape(instructions)}/m)
       end
     end
 
@@ -103,13 +93,12 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'handles string agent name' do
-        client_instance = instance_double(Ralph::Clients::Zai)
-        chat = instance_double(RubyLLM::Chat)
-        
+        client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
+
         allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(chat)
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask).and_return(double("message", content: "<promise>COMPLETE</promise>"))
+        allow(client_instance).to receive(:chat).and_return(
+          Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+        )
 
         result = tool.execute(agent_name: 'CODER', instructions: 'Test')
 
@@ -117,13 +106,12 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'handles symbol agent name' do
-        client_instance = instance_double(Ralph::Clients::Zai)
-        chat = instance_double(RubyLLM::Chat)
-        
+        client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
+
         allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(chat)
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask).and_return(double("message", content: "<promise>COMPLETE</promise>"))
+        allow(client_instance).to receive(:chat).and_return(
+          Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+        )
 
         result = tool.execute(agent_name: :CODER, instructions: 'Test')
 
@@ -145,13 +133,12 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'handles empty instructions gracefully' do
-        client_instance = instance_double(Ralph::Clients::Zai)
-        chat = instance_double(RubyLLM::Chat)
-        
+        client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
+
         allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(chat)
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask).and_return(double("message", content: "<promise>FAILURE: No instructions provided</promise>"))
+        allow(client_instance).to receive(:chat).and_return(
+          Ralph::Message.new(role: :assistant, content: "<promise>FAILURE: No instructions provided</promise>")
+        )
 
         result = tool.execute(agent_name: 'CODER', instructions: '')
 
@@ -163,19 +150,16 @@ RSpec.describe Ralph::SpawnAgentTool do
   describe 'integration tests' do
     context 'RALPH spawns CODER which returns COMPLETE' do
       it 'successfully spawns CODER and gets COMPLETE response' do
-        # This is an integration test that verifies the full flow
+        # This is an integration test that verifies full flow
         # In real usage, this would involve actual LLM calls
-        # For now, we mock the client
-        
-        client_instance = instance_double(Ralph::Clients::Zai)
-        chat = instance_double(RubyLLM::Chat)
-        
+        # For now, we mock client
+
+        client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
+
         allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(chat)
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask)
-          .and_return(double("message", content: "I'll implement this feature"))
-          .and_return(double("message", content: "<promise>COMPLETE</promise>"))
+        allow(client_instance).to receive(:chat)
+          .and_return(Ralph::Message.new(role: :assistant, content: "I'll implement this feature"))
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
         result = tool.execute(agent_name: 'CODER', instructions: 'Implement a feature')
 
@@ -185,16 +169,13 @@ RSpec.describe Ralph::SpawnAgentTool do
 
     context 'RALPH spawns CODER which returns FAILURE' do
       it 'successfully spawns CODER and gets FAILURE response' do
-        client_instance = instance_double(Ralph::Clients::Zai)
-        chat = instance_double(RubyLLM::Chat)
-        
+        client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
+
         allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(chat)
-        allow(chat).to receive(:with_tool).and_return(chat)
-        allow(chat).to receive(:ask)
-          .and_return(double("message", content: "This is too complex"))
-          .and_return(double("message", content: "I cannot complete this"))
-          .and_return(double("message", content: "The task requires more context"))
+        allow(client_instance).to receive(:chat)
+          .and_return(Ralph::Message.new(role: :assistant, content: "This is too complex"))
+          .and_return(Ralph::Message.new(role: :assistant, content: "I cannot complete this"))
+          .and_return(Ralph::Message.new(role: :assistant, content: "The task requires more context"))
 
         result = tool.execute(agent_name: 'CODER', instructions: 'Impossible task')
 

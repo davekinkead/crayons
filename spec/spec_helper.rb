@@ -1,6 +1,5 @@
 require 'dotenv/load'
 require 'rspec'
-require 'ruby_llm'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

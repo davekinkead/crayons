@@ -4,9 +4,11 @@ require_relative '../../lib/ralph'
 RSpec.describe Ralph::Tools do
   describe '.register' do
     it 'registers a tool class' do
-      tool_class = Class.new(RubyLLM::Tool) do
+      tool_class = Class.new(Ralph::Tool) do
         description "Test tool"
-        param :input, desc: "Test input"
+        params do
+          string :input, description: "Test input"
+        end
         def execute(input:); end
       end
 
@@ -17,9 +19,11 @@ RSpec.describe Ralph::Tools do
 
   describe '.get' do
     it 'returns registered tool class' do
-      tool_class = Class.new(RubyLLM::Tool) do
+      tool_class = Class.new(Ralph::Tool) do
         description "Another test tool"
-        param :value, desc: "Test value"
+        params do
+          string :value, description: "Test value"
+        end
         def execute(value:); end
       end
 
@@ -32,3 +36,4 @@ RSpec.describe Ralph::Tools do
     end
   end
 end
+

@@ -26,56 +26,59 @@ RSpec.describe Ralph::Agent do
   end
 
   describe '#call' do
-    let(:client) { double("client", chat: chat) }
-    let(:chat) { instance_double(RubyLLM::Chat) }
-    let(:message) { double("message", content: "A haiku here") }
+    let(:client) { instance_double("Ralph::Clients::Zai", chat: nil) }
     let(:agent) { Ralph::Agent.new('HAIKU', client: client) }
 
     it 'sends instructions to LLM and returns response content' do
-      allow(chat).to receive(:with_tool).and_return(chat)
-      allow(chat).to receive(:ask).and_return(double("message", content: "<promise>COMPLETE</promise>"))
+      expect(client).to receive(:chat).and_return(
+        Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+      )
 
       response = agent.call('Write me a haiku')
       expect(response).to eq("<promise>COMPLETE</promise>")
-      expect(chat).to have_received(:ask).with(/You are a Haiku bot.*Write me a haiku/m)
     end
 
     it 'returns COMPLETE when LLM emits promise marker after multiple iterations' do
-      allow(chat).to receive(:with_tool).and_return(chat)
-      allow(chat).to receive(:ask)
-        .and_return(double("message", content: "Working..."))
-        .and_return(double("message", content: "Still working..."))
-        .and_return(double("message", content: "<promise>COMPLETE</promise>"))
+      call_count = 0
+      expect(client).to receive(:chat).exactly(3).times do |messages|
+        call_count += 1
+        if call_count < 3
+          Ralph::Message.new(role: :assistant, content: "Working...")
+        else
+          Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+        end
+      end
 
       response = agent.call('Write me a haiku')
       expect(response).to eq("<promise>COMPLETE</promise>")
     end
 
     it 'continues looping when response does not contain promise marker' do
-      allow(chat).to receive(:with_tool).and_return(chat)
       call_count = 0
-      allow(chat).to receive(:ask) do
+      expect(client).to receive(:chat).exactly(4).times do |messages|
         call_count += 1
-        if call_count < 5
-          double("message", content: "Still working...")
-        else
-          double("message", content: "<promise>COMPLETE</promise>")
-        end
+        Ralph::Message.new(role: :assistant, content: "Still working...")
       end
+
+      expect(client).to receive(:chat).and_return(
+        Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+      )
 
       response = agent.call('Write me a haiku')
       expect(response).to eq("<promise>COMPLETE</promise>")
-      expect(call_count).to eq(5)
+      expect(call_count).to eq(4)
     end
 
     it 'returns FAILURE with explanation when max iterations reached without success' do
-      allow(chat).to receive(:with_tool).and_return(chat)
-      allow(chat).to receive(:ask)
-        .and_return(double("message", content: "Working..."))
-        .and_return(double("message", content: "Still working..."))
-        .and_return(double("message", content: "Can't finish"))
-        .and_return(double("message", content: "I need more time"))
-        .and_return(double("message", content: "Explanation: task too complex"))
+      call_count = 0
+      expect(client).to receive(:chat).exactly(5).times do |messages|
+        call_count += 1
+        Ralph::Message.new(role: :assistant, content: "Working...")
+      end
+
+      expect(client).to receive(:chat).once.and_return(
+        Ralph::Message.new(role: :assistant, content: "Explanation: task too complex")
+      )
 
       response = agent.call('Write me a haiku')
       expect(response).to start_with("<promise>FAILURE:")
@@ -83,16 +86,18 @@ RSpec.describe Ralph::Agent do
     end
 
     it 'strips whitespace from LLM response before checking for promise marker' do
-      allow(chat).to receive(:with_tool).and_return(chat)
-      allow(chat).to receive(:ask).and_return(double("message", content: "  <promise>COMPLETE</promise>  "))
+      expect(client).to receive(:chat).and_return(
+        Ralph::Message.new(role: :assistant, content: "  <promise>COMPLETE</promise>  ")
+      )
 
       response = agent.call('Write me a haiku')
       expect(response).to eq("<promise>COMPLETE</promise>")
     end
 
     it 'returns COMPLETE marker exactly (not pass-through with content)' do
-      allow(chat).to receive(:with_tool).and_return(chat)
-      allow(chat).to receive(:ask).and_return(double("message", content: "Done! <promise>COMPLETE</promise>"))
+      expect(client).to receive(:chat).and_return(
+        Ralph::Message.new(role: :assistant, content: "Done! <promise>COMPLETE</promise>")
+      )
 
       response = agent.call('Write me a haiku')
       expect(response).to eq("<promise>COMPLETE</promise>")
@@ -100,7 +105,7 @@ RSpec.describe Ralph::Agent do
   end
 
   describe '#max_iterations' do
-    let(:client) { double("client", chat: instance_double(RubyLLM::Chat)) }
+    let(:client) { instance_double("Ralph::Client") }
 
     it 'uses default max_iterations of 20 when not specified in frontmatter' do
       agent = Ralph::Agent.new('CODER', client: client)

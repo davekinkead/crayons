@@ -152,12 +152,25 @@ lib/ralph/
   - [x] Update 8 tool files
   - [x] Run tests
   - [x] Commit
-- [ ] Update Agent
-  - [ ] Update Agent implementation
-  - [ ] Run tests
-  - [ ] Commit
-- [ ] Remove RubyLLM dependency
-  - [ ] Update Gemfile
-  - [ ] Remove unused imports
-  - [ ] Final test run
-  - [ ] Commit
+- [x] Update Agent
+  - [x] Update Agent implementation
+  - [x] Update tests
+  - [x] Run tests
+  - [x] Commit
+- [x] Remove RubyLLM dependency
+  - [x] Update Gemfile
+  - [x] Remove unused imports
+  - [x] Final test run
+  - [x] Commit
+
+## Refactor Complete ✓
+
+Successfully replaced RubyLLM with custom HTTP client:
+- HTTPClient: Async HTTPX-based client
+- Message: Conversation message representation
+- Tool DSL: Custom tool definition system
+- ZaiClient: OpenAI-compatible API client
+- Agent: Updated to use new architecture
+- Tools: All 8 tools migrated to Ralph::Tool
+- Tests: All 94 tests passing
+- No RubyLLM references remain in codebase

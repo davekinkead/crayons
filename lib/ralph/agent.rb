@@ -1,3 +1,5 @@
+require_relative 'message'
+
 module Ralph
   class Agent
     DEFAULT_MAX_ITERATIONS = 20
@@ -15,35 +17,61 @@ module Ralph
 
     def call(prompt)
       puts "[#{@id}] Starting agent execution"
-      chat = @client.chat
-
-      attach_tools(chat)
+      @messages = []
+      @messages << Message.new(role: :system, content: @instructions)
 
       iteration = 0
-      @max_iterations.times do
+      loop do
+        response = chat(prompt)
         iteration += 1
-        response = chat.ask "#{@instructions}\n\n#{prompt}"
-        content = response.content.strip
 
-        if content.include?("<promise>COMPLETE</promise>")
+        if response.tool_call?
+          response.tool_calls.each { |tool_call| execute_tool(tool_call) }
+          next
+        end
+
+        if response.content&.strip&.include?("<promise>COMPLETE</promise>")
           puts "[#{@id}] Complete - <promise>COMPLETE</promise>"
           return "<promise>COMPLETE</promise>"
         end
+
+        break if iteration >= @max_iterations
       end
 
       puts "[#{@id}] Max iterations reached"
       final_prompt = "You've reached the maximum number of turns without completing the task. Please explain why you couldn't complete it and what went wrong."
-      final_response = chat.ask final_prompt
+      final_response = chat(final_prompt)
       "<promise>FAILURE: #{final_response.content}</promise>"
     end
 
     private
 
-    def attach_tools(chat)
-      @tools.each do |tool_name|
-        tool_class = Ralph::Tools.get(tool_name.to_sym)
-        chat.with_tool(tool_class) if tool_class
-      end
+    def chat(prompt)
+      @messages << Message.new(role: :user, content: prompt)
+      response = @client.chat(@messages)
+      @messages << response
+      response
+    end
+
+    def execute_tool(tool_call)
+      tool_name = tool_call['function']['name']
+      tool_args = JSON.parse(tool_call['function']['arguments'])
+
+      puts "[#{@id}] TOOL_CALL #{tool_name} #{tool_args}"
+
+      tool_class = Ralph::Tools.get(tool_name.to_sym)
+      return unless tool_class
+
+      tool_instance = tool_class.new
+      result = tool_instance.execute(**tool_args)
+
+      puts "[#{@id}] TOOL_RESPONSE #{tool_name} #{result}"
+
+      @messages << Message.new(
+        role: :tool,
+        tool_call_id: tool_call['id'],
+        content: result.to_json
+      )
     end
 
     def load_agent_config(file_path)

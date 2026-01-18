@@ -2,7 +2,7 @@ module Ralph
   class Agent
     DEFAULT_MAX_ITERATIONS = 20
 
-    attr_reader :name, :description, :tools, :instructions, :max_iterations
+    attr_reader :name, :description, :tools, :instructions, :max_iterations, :id
 
     def initialize(agent_name, client: nil)
       agent_file = File.join(File.dirname(__FILE__), "../../agents/#{agent_name}.md")
@@ -10,20 +10,28 @@ module Ralph
 
       load_agent_config(agent_file)
       @client = client || Ralph::Client.new
+      @id = "[#{@name}:#{object_id}]"
     end
 
     def call(prompt)
+      puts "[#{@id}] Starting agent execution"
       chat = @client.chat
 
       attach_tools(chat)
 
+      iteration = 0
       @max_iterations.times do
+        iteration += 1
         response = chat.ask "#{@instructions}\n\n#{prompt}"
         content = response.content.strip
 
-        return "<promise>COMPLETE</promise>" if content.include?("<promise>COMPLETE</promise>")
+        if content.include?("<promise>COMPLETE</promise>")
+          puts "[#{@id}] Complete - <promise>COMPLETE</promise>"
+          return "<promise>COMPLETE</promise>"
+        end
       end
 
+      puts "[#{@id}] Max iterations reached"
       final_prompt = "You've reached the maximum number of turns without completing the task. Please explain why you couldn't complete it and what went wrong."
       final_response = chat.ask final_prompt
       "<promise>FAILURE: #{final_response.content}</promise>"

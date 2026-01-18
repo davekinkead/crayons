@@ -1,3 +1,8 @@
+---
+status: completed
+iteration: 1
+---
+
 # Agent Loop Logging (MVP) - PRD
 
 ## Overview

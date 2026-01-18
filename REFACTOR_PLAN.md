@@ -125,3 +125,39 @@ lib/ralph/
 └── tools/
     └── *.rb               (UPDATE - 8 files)
 ```
+
+## Progress Tracking
+
+- [x] HTTPClient
+  - [x] Write tests
+  - [x] Implement
+  - [x] Run tests
+  - [x] Commit
+- [ ] Message class
+  - [ ] Write tests
+  - [ ] Implement
+  - [ ] Run tests
+  - [ ] Commit
+- [ ] Tool DSL
+  - [ ] Write tests
+  - [ ] Implement
+  - [ ] Run tests
+  - [ ] Commit
+- [ ] ZaiClient
+  - [ ] Write tests
+  - [ ] Implement
+  - [ ] Run tests
+  - [ ] Commit
+- [ ] Update Tools
+  - [ ] Update 8 tool files
+  - [ ] Run tests
+  - [ ] Commit
+- [ ] Update Agent
+  - [ ] Update Agent implementation
+  - [ ] Run tests
+  - [ ] Commit
+- [ ] Remove RubyLLM dependency
+  - [ ] Update Gemfile
+  - [ ] Remove unused imports
+  - [ ] Final test run
+  - [ ] Commit

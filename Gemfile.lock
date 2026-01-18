@@ -20,6 +20,9 @@ GEM
       net-http (~> 0.5)
     faraday-retry (2.4.0)
       faraday (~> 2.0)
+    http-2 (1.1.1)
+    httpx (1.7.0)
+      http-2 (>= 1.0.0)
     io-console (0.8.2)
     irb (1.16.0)
       pp (>= 0.6.0)
@@ -79,6 +82,7 @@ PLATFORMS
 DEPENDENCIES
   debug (~> 1.0)
   dotenv (~> 3.0)
+  httpx
   pp
   rspec (~> 3.0)
   ruby_llm
@@ -95,6 +99,8 @@ CHECKSUMS
   faraday-multipart (1.2.0) sha256=7d89a949693714176f612323ca13746a2ded204031a6ba528adee788694ef757
   faraday-net_http (3.4.2) sha256=f147758260d3526939bf57ecf911682f94926a3666502e24c69992765875906c
   faraday-retry (2.4.0) sha256=7b79c48fb7e56526faf247b12d94a680071ff40c9fda7cf1ec1549439ad11ebe
+  http-2 (1.1.1) sha256=1141a5a03c2f4e6b8d2fa62394de581e1ff6387711cd7ed577212e9d95562bba
+  httpx (1.7.0) sha256=e219689555951f9c13c40862da120cdd2535e1454189bed589f04d7059557154
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   irb (1.16.0) sha256=2abe56c9ac947cdcb2f150572904ba798c1e93c890c256f8429981a7675b0806
   json (2.18.0) sha256=b10506aee4183f5cf49e0efc48073d7b75843ce3782c68dbeb763351c08fd505

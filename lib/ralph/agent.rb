@@ -11,7 +11,8 @@ module Ralph
       raise "Agent file not found: #{agent_file}" unless File.exist?(agent_file)
 
       load_agent_config(agent_file)
-      @client = client || Ralph::Client.new
+      tool_classes = @tools.map { |t| Ralph::Tools.get(t.to_sym) }.compact
+      @client = client || Ralph::Client.new(tools: tool_classes)
       @id = "[#{@name}:#{object_id}]"
     end
 

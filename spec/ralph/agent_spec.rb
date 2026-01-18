@@ -4,22 +4,26 @@ require_relative '../../lib/ralph'
 RSpec.describe Ralph::Agent do
   describe '#initialize' do
     it 'loads agent configuration from markdown file' do
+      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       agent = Ralph::Agent.new('CODER')
       expect(agent.name).to eq('CODER')
       expect(agent.description).to eq('An agent for writing or editing code')
     end
 
     it 'loads tools from agent frontmatter' do
+      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       agent = Ralph::Agent.new('CODER')
       expect(agent.tools).to contain_exactly('bash', 'read_file', 'write_file', 'edit_file', 'grep', 'glob')
     end
 
     it 'loads agent instructions from markdown content' do
+      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       agent = Ralph::Agent.new('HAIKU')
       expect(agent.instructions).to include('You are a Haiku bot')
     end
 
     it 'raises error for non-existent agent' do
+      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       expect { Ralph::Agent.new('nonexistent') }
         .to raise_error(/Agent file not found/)
     end
@@ -106,6 +110,10 @@ RSpec.describe Ralph::Agent do
 
   describe '#max_iterations' do
     let(:client) { instance_double("Ralph::Client") }
+
+    before do
+      allow(Ralph::Client).to receive(:new).with(tools: anything).and_return(client)
+    end
 
     it 'uses default max_iterations of 20 when not specified in frontmatter' do
       agent = Ralph::Agent.new('CODER', client: client)

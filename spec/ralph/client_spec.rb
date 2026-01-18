@@ -107,4 +107,24 @@ RSpec.describe Ralph::Clients::Zai do
       ])
     end
   end
+
+  describe '#convert_tools_to_schemas' do
+    let(:env) { { 'ZAI_API_KEY' => 'test-key', 'OPENAI_BASE_URL' => 'https://api.test.com' } }
+    let(:client) { described_class.new(env:) }
+
+    it 'converts tool classes to OpenAI schemas' do
+      tool_classes = [Ralph::HaikuTool, Ralph::BashTool]
+      client_with_tools = described_class.new(env:, tools: tool_classes)
+
+      schemas = client_with_tools.send(:convert_tools_to_schemas)
+
+      expect(schemas).to be_an(Array)
+      expect(schemas.length).to eq(2)
+
+      haiku_schema = schemas.find { |s| s[:function][:name] == 'Haiku' }
+      expect(haiku_schema).to be_a(Hash)
+      expect(haiku_schema[:type]).to eq('function')
+      expect(haiku_schema[:function][:description]).to eq('Generate a haiku on a given topic')
+    end
+  end
 end

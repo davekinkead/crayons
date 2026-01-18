@@ -38,7 +38,7 @@ RSpec.describe Ralph::Clients::HTTP do
         expect(HTTPX).to receive(:post).with(
           endpoint,
           hash_including(
-            headers: hash_including('Authorization' => "Bearer #{api_key}")
+            headers: { 'Authorization': "Bearer #{api_key}", 'Content-Type': 'application/json' }
           )
         ).and_return(mock_response)
 
@@ -51,7 +51,7 @@ RSpec.describe Ralph::Clients::HTTP do
         expect(HTTPX).to receive(:post).with(
           endpoint,
           hash_including(
-            headers: hash_including('Content-Type' => 'application/json')
+            headers: { 'Authorization': "Bearer #{api_key}", 'Content-Type': 'application/json' }
           )
         ).and_return(mock_response)
 

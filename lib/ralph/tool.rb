@@ -13,6 +13,10 @@ module Ralph
         @params_dsl = DSL.new(@parameters)
         @params_dsl.instance_eval(&block)
       end
+
+      def tool_name
+        name&.split('::')&.last&.gsub(/Tool$/, '') || 'Unknown'
+      end
     end
 
     def execute(**kwargs)
@@ -23,7 +27,7 @@ module Ralph
       {
         type: 'function',
         function: {
-          name: self.class.name&.split('::')&.last || 'Unknown',
+          name: self.class.tool_name,
           description: self.class.description,
           parameters: {
             type: 'object',

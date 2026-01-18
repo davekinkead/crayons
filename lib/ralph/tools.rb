@@ -7,6 +7,7 @@ require_relative "tools/edit_file"
 require_relative "tools/haiku"
 require_relative "tools/grep"
 require_relative "tools/glob"
+require_relative "tools/spawn_agent"
 
 module Ralph
   class Tools
@@ -29,6 +30,7 @@ module Ralph
         register(:haiku, Ralph::HaikuTool)
         register(:grep, Ralph::GrepTool)
         register(:glob, Ralph::GlobTool)
+        register(:spawn_agent, Ralph::SpawnAgentTool)
       end
     end
 

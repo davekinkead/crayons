@@ -138,11 +138,11 @@ lib/ralph/
   - [x] Implement
   - [x] Run tests
   - [x] Commit
-- [ ] Tool DSL
-  - [ ] Write tests
-  - [ ] Implement
-  - [ ] Run tests
-  - [ ] Commit
+- [x] Tool DSL
+  - [x] Write tests
+  - [x] Implement
+  - [x] Run tests
+  - [x] Commit
 - [ ] ZaiClient
   - [ ] Write tests
   - [ ] Implement

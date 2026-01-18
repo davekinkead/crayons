@@ -180,16 +180,83 @@ When adding feedback:
 [Specific feedback or test output]
 ```
 
+## Error Handling
+
+Handle error scenarios gracefully throughout the orchestration process.
+
+### No PRDs Available
+- prds/ directory doesn't exist: Return `<promise>FAILURE: No PRDs directory found at prds/</promise>`
+- prds/ directory has no markdown files: Return `<promise>FAILURE: No PRD files found in prds/ directory</promise>`
+- All PRDs already have completed/failed status: Return COMPLETE with summary
+
+### Agent Spawn Failure
+- Invalid agent name: Return `<promise>FAILURE: Invalid agent name '{name}'. Available agents: [list]</promise>`
+- Agent file not found: Return `<promise>FAILURE: Agent file not found: {agent_file}</promise>`
+- Agent initialization error: Return `<promise>FAILURE: Failed to initialize {agent_name} agent: {error_message}</promise>`
+
+### Git Operation Failure
+- Git not initialized: Return `<promise>FAILURE: Git not initialized. Cannot commit changes</promise>`
+- Commit fails (permissions, conflicts): Return `<promise>FAILURE: Git commit failed: {error_message}</promise>`
+- Commit hash retrieval fails: Return `<promise>FAILURE: Failed to retrieve commit hash: {error_message}</promise>`
+
+### File Operation Failure
+- PRD read fails: Return `<promise>FAILURE: Failed to read PRD file {file_path}: {error_message}</promise>`
+- PRD update fails: Return `<promise>FAILURE: Failed to update PRD {file_path}: {error_message}</promise>`
+
+### Return Timing
+- Return COMPLETE after final PRD completes (all PRDs processed)
+- Return FAILURE immediately when blocking error occurs (e.g., no PRDs, agent spawn failure)
+- Process all PRDs before returning COMPLETE (even if some fail)
+- Return FAILURE immediately when git commit fails mid-loop
+
 ## Return Format
 
-Return `COMPLETE` when:
-- All PRDs have `completed` or `failed` status
-- Include summary: completed count, failed count, commit hashes
+Use standard promise tags for all returns.
 
-Return `FAILURE` when:
-- No PRDs found in `prds/`
-- All PRDs already `completed`
-- Include details of completed and failed PRDs
+### COMPLETE Return Format
+```
+<promise>COMPLETE</promise>
+
+Summary:
+- Completed: [N] PRDs
+- Failed: [N] PRDs
+- Commits: [hash1, hash2, ...]
+```
+
+Example:
+```
+<promise>COMPLETE</promise>
+
+Summary:
+- Completed: 2 PRDs
+- Failed: 1 PRD
+- Commits: bf36aac, 5cf3ec9
+```
+
+### FAILURE Return Format
+```
+<promise>FAILURE: [specific error message]</promise>
+```
+
+Examples:
+```
+<promise>FAILURE: No PRDs directory found at prds/</promise>
+<promise>FAILURE: Invalid agent name 'NONEXISTENT'. Available agents: CODER, REVIEWER, RALPH, HAIKU</promise>
+<promise>FAILURE: Git not initialized. Cannot commit changes</promise>
+```
+
+### When to Return COMPLETE
+- All PRDs have been processed (completed or failed status)
+- No PRDs found in prds/ directory (but directory exists)
+- All PRDs already completed or failed when starting
+
+### When to Return FAILURE
+- prds/ directory doesn't exist
+- Agent spawn fails (first iteration)
+- Git commit fails (blocking operation)
+- File operation fails (blocking operation)
+
+Return format uses standard promise tags: `<promise>COMPLETE</promise>` or `<promise>FAILURE: message</promise>`
 
 ## Important
 

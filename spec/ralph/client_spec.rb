@@ -1,4 +1,5 @@
 require 'spec_helper'
+require_relative '../../lib/ralph'
 require_relative '../../lib/ralph/clients/zai'
 require_relative '../../lib/ralph/message'
 
@@ -121,10 +122,20 @@ RSpec.describe Ralph::Clients::Zai do
       expect(schemas).to be_an(Array)
       expect(schemas.length).to eq(2)
 
-      haiku_schema = schemas.find { |s| s[:function][:name] == 'Haiku' }
+      haiku_schema = schemas.find { |s| s[:function][:name] == 'haiku' }
       expect(haiku_schema).to be_a(Hash)
       expect(haiku_schema[:type]).to eq('function')
       expect(haiku_schema[:function][:description]).to eq('Generate a haiku on a given topic')
+    end
+
+    it 'uses lowercase function names matching registry keys' do
+      tool_classes = [Ralph::HaikuTool, Ralph::BashTool]
+      client_with_tools = described_class.new(env:, tools: tool_classes)
+
+      schemas = client_with_tools.send(:convert_tools_to_schemas)
+
+      function_names = schemas.map { |s| s[:function][:name] }
+      expect(function_names).to contain_exactly('haiku', 'bash')
     end
   end
 end

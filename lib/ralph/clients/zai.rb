@@ -41,7 +41,21 @@ module Ralph
       end
 
       def convert_tools_to_schemas
-        @tools.map { |tool| tool.new.schema }
+        @tools.map do |tool_class|
+          tool = tool_class.new
+          {
+            type: 'function',
+            function: {
+              name: tool.name,
+              description: tool.description,
+              parameters: {
+                type: 'object',
+                properties: tool.parameters || {},
+                required: []
+              }
+            }
+          }
+        end
       end
 
       def parse_response(response)

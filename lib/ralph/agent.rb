@@ -23,7 +23,7 @@ module Ralph
 
       iteration = 0
       loop do
-        response = chat(prompt)
+        response = chat(iteration == 0 ? prompt : nil)
         iteration += 1
 
         if response.tool_call?
@@ -48,7 +48,7 @@ module Ralph
     private
 
     def chat(prompt)
-      @messages << Message.new(role: :user, content: prompt)
+      @messages << Message.new(role: :user, content: prompt) if prompt
       response = @client.chat(@messages)
       @messages << response
       response
@@ -56,7 +56,7 @@ module Ralph
 
     def execute_tool(tool_call)
       tool_name = tool_call['function']['name']
-      tool_args = JSON.parse(tool_call['function']['arguments'])
+      tool_args = JSON.parse(tool_call['function']['arguments']).transform_keys(&:to_sym)
 
       puts "[#{@id}] TOOL_CALL #{tool_name} #{tool_args}"
 

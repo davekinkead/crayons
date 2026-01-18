@@ -13,29 +13,30 @@ module Ralph
         @params_dsl = DSL.new(@parameters)
         @params_dsl.instance_eval(&block)
       end
+    end
 
-      def tool_name
-        name&.split('::')&.last&.gsub(/Tool$/, '') || 'Unknown'
-      end
+    attr_reader :name, :description, :parameters
+
+    def initialize
+      @name = extract_name
+      @description = self.class.description
+      @parameters = self.class.parameters
+    end
+
+    private
+
+    def extract_name
+      return 'unknown' unless self.class.name
+
+      self.class.name
+        .split('::')
+        .last
+        .gsub(/Tool$/, '')
+        .downcase
     end
 
     def execute(**kwargs)
       raise NotImplementedError
-    end
-
-    def schema
-      {
-        type: 'function',
-        function: {
-          name: self.class.tool_name,
-          description: self.class.description,
-          parameters: {
-            type: 'object',
-            properties: self.class.parameters || {},
-            required: []
-          }
-        }
-      }
     end
 
     class DSL

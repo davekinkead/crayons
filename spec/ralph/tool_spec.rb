@@ -1,49 +1,26 @@
 require 'spec_helper'
-require_relative '../../lib/ralph/tool'
+require_relative '../../lib/ralph'
 
 RSpec.describe Ralph::Tool do
-  describe '.description' do
-    it 'sets description' do
-      test_tool = Class.new(described_class) do
-        description "Test tool description"
-      end
-
-      expect(test_tool.description).to eq("Test tool description")
+  describe '#name' do
+    it 'returns lowercase tool name' do
+      tool = Ralph::HaikuTool.new
+      expect(tool.name).to eq('haiku')
     end
   end
 
-  describe '.params' do
-    it 'sets params schema' do
-      test_tool = Class.new(described_class) do
-        description "Test tool"
-        params do
-          string :command, description: "A command"
-        end
-      end
-
-      expect(test_tool.parameters).to eq({
-        command: { type: 'string', description: "A command" }
-      })
+  describe '#description' do
+    it 'returns tool description' do
+      tool = Ralph::HaikuTool.new
+      expect(tool.description).to eq('Generate a haiku on a given topic')
     end
   end
 
-  describe '#schema' do
-    it 'generates OpenAI-compatible JSON Schema' do
-      test_tool = Class.new(described_class) do
-        description "Test tool"
-        params do
-          string :command, description: "A command"
-        end
-      end
-
-      tool_instance = test_tool.new
-      schema = tool_instance.schema
-
-      expect(schema[:type]).to eq('function')
-      expect(schema[:function][:description]).to eq('Test tool')
-      expect(schema[:function][:parameters][:type]).to eq('object')
-      expect(schema[:function][:parameters][:properties]).to eq({
-        command: { type: 'string', description: "A command" }
+  describe '#parameters' do
+    it 'returns tool parameters' do
+      tool = Ralph::HaikuTool.new
+      expect(tool.parameters).to eq({
+        topic: { type: 'string', description: "The topic for the haiku" }
       })
     end
   end
@@ -52,6 +29,9 @@ RSpec.describe Ralph::Tool do
     it 'calls subclass execute method' do
       test_tool = Class.new(described_class) do
         description "Test tool"
+        params do
+          string :command, description: "A command"
+        end
 
         def execute(command:)
           { result: command }

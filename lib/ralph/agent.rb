@@ -1,6 +1,8 @@
 module Ralph
   class Agent
-    attr_reader :name, :description, :tools, :instructions
+    DEFAULT_MAX_ITERATIONS = 20
+
+    attr_reader :name, :description, :tools, :instructions, :max_iterations
 
     def initialize(agent_name, client: nil)
       agent_file = File.join(File.dirname(__FILE__), "../../agents/#{agent_name}.md")
@@ -14,8 +16,17 @@ module Ralph
       chat = @client.chat
 
       attach_tools(chat)
-      response = chat.ask "#{@instructions}\n\n#{prompt}"
-      response.content
+
+      @max_iterations.times do
+        response = chat.ask "#{@instructions}\n\n#{prompt}"
+        content = response.content.strip
+
+        return "<promise>COMPLETE</promise>" if content.include?("<promise>COMPLETE</promise>")
+      end
+
+      final_prompt = "You've reached the maximum number of turns without completing the task. Please explain why you couldn't complete it and what went wrong."
+      final_response = chat.ask final_prompt
+      "<promise>FAILURE: #{final_response.content}</promise>"
     end
 
     private
@@ -35,6 +46,15 @@ module Ralph
       @description = frontmatter['description']
       @tools = Array(frontmatter['tools'])
       @instructions = body.strip
+
+      @max_iterations = frontmatter['max_iterations'] || DEFAULT_MAX_ITERATIONS
+      validate_max_iterations!
+    end
+
+    def validate_max_iterations!
+      unless @max_iterations.is_a?(Integer) && @max_iterations > 0
+        raise "max_iterations must be a positive integer, got: #{@max_iterations.inspect}"
+      end
     end
 
     def parse_frontmatter(content)

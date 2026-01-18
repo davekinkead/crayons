@@ -89,10 +89,7 @@ RSpec.describe Ralph::Clients::Zai do
     end
   end
 
-  describe '#convert_messages_to_api_format' do
-    let(:env) { { 'ZAI_API_KEY' => 'test-key', 'OPENAI_BASE_URL' => 'https://api.test.com' } }
-    let(:client) { described_class.new(env:) }
-
+  describe '.convert_messages_to_api_format' do
     it 'converts Message objects to API format' do
       messages = [
         Ralph::Message.new(role: :system, content: 'You are helpful'),
@@ -100,7 +97,7 @@ RSpec.describe Ralph::Clients::Zai do
         Ralph::Message.new(role: :assistant, content: 'Hello', tool_calls: [{ id: '1', function: { name: 'bash', arguments: '{}' } }])
       ]
 
-      api_format = client.send(:convert_messages_to_api_format, messages)
+      api_format = described_class.convert_messages_to_api_format(messages)
       expect(api_format).to eq([
         { role: 'system', content: 'You are helpful' },
         { role: 'user', content: 'test' },
@@ -109,15 +106,11 @@ RSpec.describe Ralph::Clients::Zai do
     end
   end
 
-  describe '#convert_tools_to_schemas' do
-    let(:env) { { 'ZAI_API_KEY' => 'test-key', 'OPENAI_BASE_URL' => 'https://api.test.com' } }
-    let(:client) { described_class.new(env:) }
+  describe '.convert_tools_to_schemas' do
+    it 'converts tool instances to OpenAI schemas' do
+      tools = [Ralph::HaikuTool.new, Ralph::BashTool.new]
 
-    it 'converts tool classes to OpenAI schemas' do
-      tool_classes = [Ralph::HaikuTool, Ralph::BashTool]
-      client_with_tools = described_class.new(env:, tools: tool_classes)
-
-      schemas = client_with_tools.send(:convert_tools_to_schemas)
+      schemas = described_class.convert_tools_to_schemas(tools)
 
       expect(schemas).to be_an(Array)
       expect(schemas.length).to eq(2)
@@ -129,13 +122,63 @@ RSpec.describe Ralph::Clients::Zai do
     end
 
     it 'uses lowercase function names matching registry keys' do
-      tool_classes = [Ralph::HaikuTool, Ralph::BashTool]
-      client_with_tools = described_class.new(env:, tools: tool_classes)
+      tools = [Ralph::HaikuTool.new, Ralph::BashTool.new]
 
-      schemas = client_with_tools.send(:convert_tools_to_schemas)
+      schemas = described_class.convert_tools_to_schemas(tools)
 
       function_names = schemas.map { |s| s[:function][:name] }
       expect(function_names).to contain_exactly('haiku', 'bash')
+    end
+  end
+
+  describe '.parse_response' do
+    it 'parses API response to Message object' do
+      api_response = {
+        "choices" => [{
+          "message" => {
+            "role" => "assistant",
+            "content" => "Hello!"
+          }
+        }]
+      }
+
+      message = described_class.parse_response(api_response)
+      expect(message).to be_a(Ralph::Message)
+      expect(message.role).to eq(:assistant)
+      expect(message.content).to eq("Hello!")
+    end
+
+    it 'handles tool_calls in response' do
+      api_response = {
+        "choices" => [{
+          "message" => {
+            "role" => "assistant",
+            "tool_calls" => [
+              {
+                "id" => "call_123",
+                "function" => {
+                  "name" => "bash",
+                  "arguments" => '{"command": "ls"}'
+                }
+              }
+            ]
+          }
+        }]
+      }
+
+      message = described_class.parse_response(api_response)
+      expect(message).to be_a(Ralph::Message)
+      expect(message.role).to eq(:assistant)
+      expect(message.tool_call?).to be true
+      expect(message.tool_calls).to eq([
+        {
+          "id" => "call_123",
+          "function" => {
+            "name" => "bash",
+            "arguments" => '{"command": "ls"}'
+          }
+        }
+      ])
     end
   end
 end

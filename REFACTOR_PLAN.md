@@ -143,11 +143,11 @@ lib/ralph/
   - [x] Implement
   - [x] Run tests
   - [x] Commit
-- [ ] ZaiClient
-  - [ ] Write tests
-  - [ ] Implement
-  - [ ] Run tests
-  - [ ] Commit
+- [x] ZaiClient
+  - [x] Write tests
+  - [x] Implement
+  - [x] Run tests
+  - [x] Commit
 - [x] Update Tools
   - [x] Update 8 tool files
   - [x] Run tests

@@ -34,7 +34,9 @@ RSpec.describe Ralph::Agent do
     let(:agent) { Ralph::Agent.new('HAIKU', client: client) }
 
     it 'sends instructions to LLM and returns response content' do
-      expect(client).to receive(:chat).and_return(
+      expect(client).to receive(:chat).with(
+        hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array))
+      ).and_return(
         Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
       )
 
@@ -44,7 +46,7 @@ RSpec.describe Ralph::Agent do
 
     it 'returns COMPLETE when LLM emits promise marker after multiple iterations' do
       call_count = 0
-      expect(client).to receive(:chat).exactly(3).times do |messages|
+      expect(client).to receive(:chat).exactly(3).times do |args|
         call_count += 1
         if call_count < 3
           Ralph::Message.new(role: :assistant, content: "Working...")
@@ -59,7 +61,7 @@ RSpec.describe Ralph::Agent do
 
     it 'continues looping when response does not contain promise marker' do
       call_count = 0
-      expect(client).to receive(:chat).exactly(4).times do |messages|
+      expect(client).to receive(:chat).exactly(4).times do |args|
         call_count += 1
         Ralph::Message.new(role: :assistant, content: "Still working...")
       end
@@ -75,7 +77,7 @@ RSpec.describe Ralph::Agent do
 
     it 'returns FAILURE with explanation when max iterations reached without success' do
       call_count = 0
-      expect(client).to receive(:chat).exactly(5).times do |messages|
+      expect(client).to receive(:chat).exactly(5).times do |args|
         call_count += 1
         Ralph::Message.new(role: :assistant, content: "Working...")
       end
@@ -108,11 +110,52 @@ RSpec.describe Ralph::Agent do
     end
   end
 
+  describe '#chat' do
+    let(:client) { instance_double("Ralph::Clients::Zai", chat: nil) }
+    let(:agent) { Ralph::Agent.new('HAIKU', client: client) }
+
+    it 'adds user message to messages when prompt is provided' do
+      response = Ralph::Message.new(role: :assistant, content: 'Hello')
+      expect(client).to receive(:chat).and_return(response)
+
+      agent.chat('test prompt')
+
+      expect(agent.messages.map(&:role)).to include(:user)
+    end
+
+    it 'adds response to messages' do
+      response = Ralph::Message.new(role: :assistant, content: 'Hello')
+      expect(client).to receive(:chat).and_return(response)
+
+      agent.chat('test prompt')
+
+      expect(agent.messages.last).to eq(response)
+    end
+
+    it 'returns the response from client' do
+      response = Ralph::Message.new(role: :assistant, content: 'Hello')
+      expect(client).to receive(:chat).and_return(response)
+
+      result = agent.chat('test prompt')
+
+      expect(result).to eq(response)
+    end
+
+    it 'does not add user message when prompt is nil' do
+      response = Ralph::Message.new(role: :assistant, content: 'Hello')
+      expect(client).to receive(:chat).and_return(response)
+
+      agent.chat(nil)
+
+      expect(agent.messages.map(&:role)).not_to include(:user)
+    end
+  end
+
   describe '#max_iterations' do
     let(:client) { instance_double("Ralph::Client") }
 
     before do
-      allow(Ralph::Client).to receive(:new).with(tools: anything).and_return(client)
+      allow(Ralph::Client).to receive(:new).and_return(client)
     end
 
     it 'uses default max_iterations of 20 when not specified in frontmatter' do
@@ -139,4 +182,3 @@ RSpec.describe Ralph::Agent do
     end
   end
 end
-

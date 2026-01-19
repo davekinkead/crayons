@@ -5,10 +5,12 @@ require_relative '../../../lib/ralph/message'
 
 RSpec.describe Ralph::Clients::Zai do
   describe '#chat' do
-    let(:env) { { 'ZAI_API_KEY' => 'test-key', 'OPENAI_BASE_URL' => 'https://api.test.com' } }
-    let(:client) { described_class.new(env:) }
+    let(:api_key) { 'test-key' }
+    let(:url) { 'https://api.test.com' }
+    let(:client) { described_class.new(api_key:, url:) }
 
     it 'returns Message object from API response' do
+      system = 'You are helpful'
       messages = [Ralph::Message.new(role: :user, content: 'test')]
       api_response = {
         "choices" => [{
@@ -21,13 +23,14 @@ RSpec.describe Ralph::Clients::Zai do
 
       allow(client.instance_variable_get(:@http_client)).to receive(:post).and_return(api_response)
 
-      response = client.chat(messages)
+      response = client.chat(system:, messages:, tools: [])
       expect(response).to be_a(Ralph::Message)
       expect(response.role).to eq(:assistant)
       expect(response.content).to eq("Hello!")
     end
 
     it 'handles tool_calls in response' do
+      system = 'You are helpful'
       messages = [Ralph::Message.new(role: :user, content: 'test')]
       api_response = {
         "choices" => [{
@@ -48,7 +51,7 @@ RSpec.describe Ralph::Clients::Zai do
 
       allow(client.instance_variable_get(:@http_client)).to receive(:post).and_return(api_response)
 
-      response = client.chat(messages)
+      response = client.chat(system:, messages:, tools: [])
       expect(response).to be_a(Ralph::Message)
       expect(response.role).to eq(:assistant)
       expect(response.tool_call?).to be true
@@ -63,14 +66,15 @@ RSpec.describe Ralph::Clients::Zai do
       ])
     end
 
-    it 'sends messages and tools to API endpoint' do
+    it 'sends system, messages and tools to API endpoint' do
+      system = 'You are helpful'
       messages = [Ralph::Message.new(role: :user, content: 'test')]
       tools = [Ralph::HaikuTool.new]
-      client_with_tools = described_class.new(env:, tools:)
+      client_with_tools = described_class.new(api_key:, url:)
 
       expected_payload = {
-        model: nil,
-        messages: [{ role: 'user', content: 'test' }],
+        model: 'GLM-4.7',
+        messages: [{ role: 'system', content: 'You are helpful' }, { role: 'user', content: 'test' }],
         tools: [
           {
             type: 'function',
@@ -95,7 +99,7 @@ RSpec.describe Ralph::Clients::Zai do
           "choices" => [{ "message" => { "role" => "assistant", "content" => "response" } }]
         })
 
-      client_with_tools.chat(messages)
+      client_with_tools.chat(system:, messages:, tools:)
     end
   end
 

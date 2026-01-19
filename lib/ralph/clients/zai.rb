@@ -1,9 +1,33 @@
+require_relative 'base'
 require_relative 'http'
 require_relative '../message'
 
 module Ralph
   module Clients
-    class Zai
+    class Zai < Base
+      def initialize(api_key: ENV['ZAI_API_KEY'], url: nil, model: nil)
+        @api_key = api_key
+        @base_url = url || 'https://api.z.ai/api/coding/paas/v4'
+        @model = model || 'GLM-4.7'
+        @http_client = HTTP.new(api_key: @api_key, base_url: @base_url)
+        puts "[ZaiClient] Initialized with base_url: #{@base_url}, model: #{@model}"
+      end
+
+      def chat(system:, messages:, tools:)
+        messages_with_system = [Message.new(role: :system, content: system)] + messages
+        payload = {
+          model: @model,
+          messages: self.class.convert_messages_to_api_format(messages_with_system),
+          tools: self.class.convert_tools_to_schemas(tools)
+        }
+
+        puts "[ZaiClient] Sending #{messages_with_system.length} messages with #{payload[:tools]&.length || 0} tools to #{@base_url}/chat/completions"
+
+        response = @http_client.post("#{@base_url}/chat/completions", payload)
+
+        self.class.parse_response(response)
+      end
+
       class << self
         def convert_messages_to_api_format(messages)
           messages.map do |msg|
@@ -43,32 +67,6 @@ module Ralph
           )
         end
       end
-
-      def initialize(env: ENV, tools: [])
-        @env = env
-        @api_key = @env['ZAI_API_KEY'] || @env['OPENAI_API_KEY']
-        @base_url = @env['OPENAI_BASE_URL']
-        @model = @env['OPENAI_MODEL']
-        @tools = tools
-        @http_client = HTTP.new(api_key: @api_key, base_url: @base_url)
-        puts "[ZaiClient] Initialized with base_url: #{@base_url}, model: #{@model}, tools: #{@tools.map(&:name).join(', ')}"
-      end
-
-      def chat(messages)
-        payload = {
-          model: @model,
-          messages: self.class.convert_messages_to_api_format(messages),
-          tools: self.class.convert_tools_to_schemas(@tools)
-        }
-
-        puts "[ZaiClient] Sending #{messages.length} messages with #{payload[:tools]&.length || 0} tools to #{@base_url}/chat/completions"
-
-        response = @http_client.post("#{@base_url}/chat/completions", payload)
-
-        self.class.parse_response(response)
-      end
     end
   end
 end
-
-

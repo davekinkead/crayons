@@ -9,11 +9,12 @@ RSpec.describe Ralph::SpawnAgentTool do
       let(:client_instance) { instance_double(Ralph::Clients::Zai, chat: nil) }
 
       before do
-        allow(Ralph::Clients::Zai).to receive(:new).with(tools: anything).and_return(client_instance)
+        allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
       end
 
       it 'spawns CODER with instructions and returns response' do
         allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Ralph::Message.new(role: :assistant, content: "Working on it..."))
           .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
@@ -24,6 +25,7 @@ RSpec.describe Ralph::SpawnAgentTool do
 
       it 'spawns REVIEWER with instructions and returns response' do
         allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Ralph::Message.new(role: :assistant, content: "Reviewing code..."))
           .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
@@ -34,6 +36,7 @@ RSpec.describe Ralph::SpawnAgentTool do
 
       it 'returns FAILURE when spawned agent fails' do
         allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Ralph::Message.new(role: :assistant, content: "Working..."))
           .and_return(Ralph::Message.new(role: :assistant, content: "Can't do it"))
           .and_return(Ralph::Message.new(role: :assistant, content: "Too hard"))
@@ -45,6 +48,7 @@ RSpec.describe Ralph::SpawnAgentTool do
 
       it 'spawns agent with fresh context (independent from parent)' do
         allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
         # First agent spawn
@@ -52,6 +56,7 @@ RSpec.describe Ralph::SpawnAgentTool do
 
         # Second agent spawn should have fresh context
         allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
         result2 = tool.execute(agent_name: 'CODER', instructions: 'Task 2')
@@ -61,9 +66,9 @@ RSpec.describe Ralph::SpawnAgentTool do
       end
 
       it 'passes instructions to spawned agent' do
-        allow(client_instance).to receive(:chat) do |messages|
-          # Check that instructions are in the messages
-          expect(messages.map(&:content).join).to include('Implement a user authentication system')
+        allow(client_instance).to receive(:chat) do |args|
+          # Check that instructions are in the messages as user prompt
+          expect(args[:messages].map(&:content).join).to include('Implement a user authentication system')
           Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
         end
 
@@ -95,10 +100,10 @@ RSpec.describe Ralph::SpawnAgentTool do
       it 'handles string agent name' do
         client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
 
-        allow(Ralph::Clients::Zai).to receive(:new).with(tools: anything).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(
-          Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
-        )
+        allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
+        allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
         result = tool.execute(agent_name: 'CODER', instructions: 'Test')
 
@@ -108,10 +113,10 @@ RSpec.describe Ralph::SpawnAgentTool do
       it 'handles symbol agent name' do
         client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
 
-        allow(Ralph::Clients::Zai).to receive(:new).with(tools: anything).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(
-          Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
-        )
+        allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
+        allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
         result = tool.execute(agent_name: :CODER, instructions: 'Test')
 
@@ -135,10 +140,10 @@ RSpec.describe Ralph::SpawnAgentTool do
       it 'handles empty instructions gracefully' do
         client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
 
-        allow(Ralph::Clients::Zai).to receive(:new).with(tools: anything).and_return(client_instance)
-        allow(client_instance).to receive(:chat).and_return(
-          Ralph::Message.new(role: :assistant, content: "<promise>FAILURE: No instructions provided</promise>")
-        )
+        allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
+        allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
+          .and_return(Ralph::Message.new(role: :assistant, content: "<promise>FAILURE: No instructions provided</promise>"))
 
         result = tool.execute(agent_name: 'CODER', instructions: '')
 
@@ -156,8 +161,9 @@ RSpec.describe Ralph::SpawnAgentTool do
 
         client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
 
-        allow(Ralph::Clients::Zai).to receive(:new).with(tools: anything).and_return(client_instance)
+        allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
         allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Ralph::Message.new(role: :assistant, content: "I'll implement this feature"))
           .and_return(Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>"))
 
@@ -171,8 +177,9 @@ RSpec.describe Ralph::SpawnAgentTool do
       it 'successfully spawns CODER and gets FAILURE response' do
         client_instance = instance_double(Ralph::Clients::Zai, chat: nil)
 
-        allow(Ralph::Clients::Zai).to receive(:new).with(tools: anything).and_return(client_instance)
+        allow(Ralph::Clients::Zai).to receive(:new).and_return(client_instance)
         allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Ralph::Message.new(role: :assistant, content: "This is too complex"))
           .and_return(Ralph::Message.new(role: :assistant, content: "I cannot complete this"))
           .and_return(Ralph::Message.new(role: :assistant, content: "The task requires more context"))

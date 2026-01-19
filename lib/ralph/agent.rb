@@ -4,7 +4,7 @@ module Ralph
   class Agent
     DEFAULT_MAX_ITERATIONS = 20
 
-    attr_reader :name, :description, :tools, :instructions, :max_iterations, :id
+    attr_reader :name, :description, :tools, :instructions, :max_iterations, :id, :messages
 
     def initialize(agent_name, client: nil)
       agent_file = File.join(File.dirname(__FILE__), "../../agents/#{agent_name}.md")
@@ -12,14 +12,14 @@ module Ralph
 
       load_agent_config(agent_file)
       @tool_instances = @tools.map { |t| Ralph::Tools.get(t.to_sym)&.new }.compact
-      @client = client || Ralph::Client.new(tools: @tool_instances)
+      @client = client || Ralph::Client.new
+      @messages = []
       @id = "[#{@name}:#{object_id}]"
     end
 
     def call(prompt)
       puts "[#{@id}] Starting agent execution"
       @messages = []
-      @messages << Message.new(role: :system, content: @instructions)
 
       iteration = 0
       loop do
@@ -45,14 +45,14 @@ module Ralph
       "<promise>FAILURE: #{final_response.content}</promise>"
     end
 
-    private
-
     def chat(prompt)
       @messages << Message.new(role: :user, content: prompt) if prompt
-      response = @client.chat(@messages)
+      response = @client.chat(system: @instructions, messages: @messages, tools: @tool_instances)
       @messages << response
       response
     end
+
+    private
 
     def execute_tool(tool_call)
       tool_name = tool_call['function']['name']

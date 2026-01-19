@@ -1,5 +1,14 @@
+# Silence Ruby warnings for cleaner output
+Warning[:deprecated] = false
+
 require 'dotenv/load'
 require 'rspec'
+
+# Load custom formatters and support files AFTER rspec is loaded
+Dir[File.join(File.dirname(__FILE__), 'support', '**', '*.rb')].each { |f| require f }
+
+# Debug: Check if QuietFormatter is loaded
+puts "QuietFormatter defined: #{defined?(QuietFormatter)}" if ENV['DEBUG_RSPEC']
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -14,12 +23,14 @@ RSpec.configure do |config|
   config.filter_run_when_matching :focus
   # config.example_status_persistence_file_path = "spec/examples.txt"
   config.disable_monkey_patching!
-  config.warnings = true
-
-  config.default_formatter = "doc" if config.files_to_run.one?
+  config.warnings = false
 
   config.order = :random
   Kernel.srand config.seed
+
+  # Configure output format: use custom QuietFormatter for minimal output
+  # Shows only dots for passing tests and detailed info for failures
+  config.formatter = QuietFormatter
 
   # Set up logging for tests
   config.before(:suite) do

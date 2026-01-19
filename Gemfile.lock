@@ -16,6 +16,7 @@ GEM
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
+    logger (1.7.0)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -52,6 +53,7 @@ DEPENDENCIES
   debug (~> 1.0)
   dotenv (~> 3.0)
   httpx
+  logger
   pp
   rspec (~> 3.0)
 
@@ -65,6 +67,7 @@ CHECKSUMS
   httpx (1.7.0) sha256=e219689555951f9c13c40862da120cdd2535e1454189bed589f04d7059557154
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   irb (1.16.0) sha256=2abe56c9ac947cdcb2f150572904ba798c1e93c890c256f8429981a7675b0806
+  logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
   pp (0.6.3) sha256=2951d514450b93ccfeb1df7d021cae0da16e0a7f95ee1e2273719669d0ab9df6
   prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
   psych (5.3.1) sha256=eb7a57cef10c9d70173ff74e739d843ac3b2c019a003de48447b2963d81b1974

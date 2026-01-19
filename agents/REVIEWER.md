@@ -46,12 +46,12 @@ When evaluating, ask yourself:
 
 ## Return Format
 
-Return `<promise>COMPLETE</promise>` if:
+Return "SUCCESS: {short summary}" if:
 - All PRD criteria are covered
 - Specs follow quality standards
 - No missing edge cases or error cases
 
-Return `<promise>FAILURE: {message}</promise>` with specific feedback if
+Return "FAILURE: {failure reason}" if any issues are found.
 
 Be SPECIFIC in your feedback:
 - What PRD requirement is missing?

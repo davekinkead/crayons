@@ -42,12 +42,12 @@ For the chosen PRD, track iterations starting at 1. Iterate up to 5 times maximu
 
 1. **Spawn CODER**: Use spawn_agent tool to execute the CODER agent with full PRD content as instructions
 2. **Check CODER result**:
-   - If response contains `FAILURE`: Add feedback to PRD Feedback History section, increment iteration count, retry from step 1
-   - If response contains `COMPLETE`: Proceed to spawn REVIEWER
+    - If response starts with `FAILURE:`: Add feedback to PRD Feedback History section, increment iteration count, retry from step 1
+    - If response starts with `SUCCESS:`: Proceed to spawn REVIEWER
 3. **Spawn REVIEWER**: Use spawn_agent tool to execute REVIEWER with PRD content as instructions
 4. **Check REVIEWER result**:
-   - If response contains `FAILURE`: Add specific feedback to PRD Feedback History, increment iteration count, retry from step 1 (CODER)
-   - If response contains `COMPLETE`: Run tests
+    - If response starts with `FAILURE:`: Add specific feedback to PRD Feedback History, increment iteration count, retry from step 1 (CODER)
+    - If response starts with `SUCCESS:`: Run tests
 5. **Run tests**: Execute test suite using bash tool
    - Tests pass? → Commit to git, mark PRD complete, proceed to next PRD
    - Tests fail? → Add test failure details to PRD Feedback History, increment iteration count, retry from step 1 (CODER)
@@ -213,9 +213,9 @@ Handle error scenarios gracefully throughout the orchestration process.
 
 Use standard promise tags for all returns.
 
-### COMPLETE Return Format
+### SUCCESS Return Format
 ```
-<promise>COMPLETE</promise>
+SUCCESS: 
 
 Summary:
 - Completed: [N] PRDs
@@ -225,7 +225,7 @@ Summary:
 
 Example:
 ```
-<promise>COMPLETE</promise>
+SUCCESS: 
 
 Summary:
 - Completed: 2 PRDs
@@ -235,14 +235,14 @@ Summary:
 
 ### FAILURE Return Format
 ```
-<promise>FAILURE: [specific error message]</promise>
+FAILURE: [specific error message]
 ```
 
 Examples:
 ```
-<promise>FAILURE: No PRDs directory found at prds/</promise>
-<promise>FAILURE: Invalid agent name 'NONEXISTENT'. Available agents: CODER, REVIEWER, RALPH, HAIKU</promise>
-<promise>FAILURE: Git not initialized. Cannot commit changes</promise>
+FAILURE: No PRDs directory found at prds/
+FAILURE: Invalid agent name 'NONEXISTENT'. Available agents: CODER, REVIEWER, RALPH, HAIKU
+FAILURE: Git not initialized. Cannot commit changes
 ```
 
 ### When to Return COMPLETE
@@ -256,7 +256,7 @@ Examples:
 - Git commit fails (blocking operation)
 - File operation fails (blocking operation)
 
-Return format uses standard promise tags: `<promise>COMPLETE</promise>` or `<promise>FAILURE: message</promise>`
+Return format uses standard SUCCESS/FAILURE prefixes: "SUCCESS: message" or "FAILURE: message"
 
 ## Important
 
@@ -266,4 +266,4 @@ Return format uses standard promise tags: `<promise>COMPLETE</promise>` or `<pro
 - Keep context minimal - only what's necessary
 - If you get stuck, ask yourself: "What would make this PRD clearer?"
 
-If, and only if, your work is complete return `<promise>COMPLETE</promise>`
+If, and only if, your work is complete return "SUCCESS: " followed by your summary.

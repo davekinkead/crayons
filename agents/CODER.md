@@ -37,5 +37,5 @@ You must always verify that your work is correct.
 
 Your work is not complete until you have done this.
 
-Return `<promise>COMPLETE</promise>` when all tests pass and PRD requirements are met.
-Return `<promise>FAILURE: {message}</promise>` if you cannot complete the task, with specific details.
+Return "SUCCESS: " followed by a short summary of what you implemented when all tests pass and PRD requirements are met.
+Return "FAILURE: " followed by specific details if you cannot complete the task. Include any traces.

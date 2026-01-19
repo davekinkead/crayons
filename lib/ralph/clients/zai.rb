@@ -59,10 +59,12 @@ module Ralph
         def parse_response(response)
           choice = response['choices'].first
           message_data = choice['message']
+          finish_reason = choice['finish_reason']
 
           Message.new(
             role: message_data['role'].to_sym,
             content: message_data['content'],
+            complete: finish_reason == 'stop',
             tool_calls: message_data['tool_calls']
           )
         end

@@ -19,4 +19,11 @@ puts "Response:"
 puts response
 puts ""
 
+if response.start_with?("SUCCESS:")
+  puts "✓ Agent returned SUCCESS"
+else
+  puts "✗ Agent did not return SUCCESS format"
+end
+
+puts ""
 puts "=== Test Complete ==="

@@ -12,7 +12,7 @@ module Ralph
 
       load_agent_config(agent_file)
       @tool_instances = @tools.map { |t| Ralph::Tools.get(t.to_sym)&.new }.compact
-      @client = client || Ralph::Client.new
+      @client = client || create_client_from_config
       @messages = []
       @id = "[#{@name}:#{object_id}]"
     end
@@ -31,9 +31,9 @@ module Ralph
           next
         end
 
-        if response.content&.strip&.include?("<promise>COMPLETE</promise>")
-          puts "[#{@id}] Complete - <promise>COMPLETE</promise>"
-          return "<promise>COMPLETE</promise>"
+        if response.complete?
+          puts "[#{@id}] Complete - #{response.content}"
+          return response.content
         end
 
         break if iteration >= @max_iterations
@@ -42,7 +42,7 @@ module Ralph
       puts "[#{@id}] Max iterations reached"
       final_prompt = "You've reached the maximum number of turns without completing the task. Please explain why you couldn't complete it and what went wrong."
       final_response = chat(final_prompt)
-      "<promise>FAILURE: #{final_response.content}</promise>"
+      "FAILURE: Max iterations reached. #{final_response.content}"
     end
 
     def chat(prompt)
@@ -53,6 +53,18 @@ module Ralph
     end
 
     private
+
+    def create_client_from_config
+      client_type = @client_type || ENV['RALPH_CLIENT'] || :zai
+      model = @model || ENV['ZAI_MODEL'] || 'GLM-4.7'
+      api_key = ENV['ZAI_API_KEY']
+
+      client_class_name = client_type.to_s.split('_').map(&:capitalize).join
+      client_class = const_get("Ralph::Clients::#{client_class_name}")
+      client_class.new(api_key:, model:)
+    rescue NameError
+      Ralph::Clients::Zai.new(api_key:, model:)
+    end
 
     def execute_tool(tool_call)
       tool_name = tool_call['function']['name']
@@ -82,6 +94,8 @@ module Ralph
       @description = frontmatter['description']
       @tools = Array(frontmatter['tools'])
       @instructions = body.strip
+      @client_type = frontmatter['client']
+      @model = frontmatter['model']
 
       @max_iterations = frontmatter['max_iterations'] || DEFAULT_MAX_ITERATIONS
       validate_max_iterations!

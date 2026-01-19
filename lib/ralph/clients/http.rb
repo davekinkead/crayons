@@ -15,7 +15,7 @@ module Ralph
 
       def post(url, payload)
         puts "[HTTP] POST #{url}"
-        puts "[HTTP] Payload: #{payload.to_json[0..200]}..." if payload.to_json.length > 200
+        puts "[HTTP] Payload: #{payload.to_json}..."
 
         response = HTTPX.post(
           url,

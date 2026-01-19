@@ -4,26 +4,26 @@ require_relative '../../lib/ralph'
 RSpec.describe Ralph::Agent do
   describe '#initialize' do
     it 'loads agent configuration from markdown file' do
-      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
+      allow(Ralph::Clients::Zai).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       agent = Ralph::Agent.new('CODER')
       expect(agent.name).to eq('CODER')
       expect(agent.description).to eq('An agent for writing or editing code')
     end
 
     it 'loads tools from agent frontmatter' do
-      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
+      allow(Ralph::Clients::Zai).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       agent = Ralph::Agent.new('CODER')
       expect(agent.tools).to contain_exactly('bash', 'read_file', 'write_file', 'edit_file', 'grep', 'glob')
     end
 
     it 'loads agent instructions from markdown content' do
-      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
+      allow(Ralph::Clients::Zai).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       agent = Ralph::Agent.new('HAIKU')
       expect(agent.instructions).to include('You are a Haiku bot')
     end
 
     it 'raises error for non-existent agent' do
-      allow(Ralph::Client).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
+      allow(Ralph::Clients::Zai).to receive(:new).and_return(instance_double("Ralph::Clients::Zai"))
       expect { Ralph::Agent.new('nonexistent') }
         .to raise_error(/Agent file not found/)
     end
@@ -37,41 +37,41 @@ RSpec.describe Ralph::Agent do
       expect(client).to receive(:chat).with(
         hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array))
       ).and_return(
-        Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+        Ralph::Message.new(role: :assistant, content: "SUCCESS: All done", complete: true)
       )
 
       response = agent.call('Write me a haiku')
-      expect(response).to eq("<promise>COMPLETE</promise>")
+      expect(response).to eq("SUCCESS: All done")
     end
 
-    it 'returns COMPLETE when LLM emits promise marker after multiple iterations' do
+    it 'returns COMPLETE when LLM emits finish_reason=stop after multiple iterations' do
       call_count = 0
       expect(client).to receive(:chat).exactly(3).times do |args|
         call_count += 1
         if call_count < 3
-          Ralph::Message.new(role: :assistant, content: "Working...")
+          Ralph::Message.new(role: :assistant, content: "Working...", complete: false)
         else
-          Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+          Ralph::Message.new(role: :assistant, content: "SUCCESS: All done", complete: true)
         end
       end
 
       response = agent.call('Write me a haiku')
-      expect(response).to eq("<promise>COMPLETE</promise>")
+      expect(response).to eq("SUCCESS: All done")
     end
 
-    it 'continues looping when response does not contain promise marker' do
+    it 'continues looping when response is not complete' do
       call_count = 0
       expect(client).to receive(:chat).exactly(4).times do |args|
         call_count += 1
-        Ralph::Message.new(role: :assistant, content: "Still working...")
+        Ralph::Message.new(role: :assistant, content: "Still working...", complete: false)
       end
 
       expect(client).to receive(:chat).and_return(
-        Ralph::Message.new(role: :assistant, content: "<promise>COMPLETE</promise>")
+        Ralph::Message.new(role: :assistant, content: "SUCCESS: All done", complete: true)
       )
 
       response = agent.call('Write me a haiku')
-      expect(response).to eq("<promise>COMPLETE</promise>")
+      expect(response).to eq("SUCCESS: All done")
       expect(call_count).to eq(4)
     end
 
@@ -79,34 +79,25 @@ RSpec.describe Ralph::Agent do
       call_count = 0
       expect(client).to receive(:chat).exactly(5).times do |args|
         call_count += 1
-        Ralph::Message.new(role: :assistant, content: "Working...")
+        Ralph::Message.new(role: :assistant, content: "Working...", complete: false)
       end
 
       expect(client).to receive(:chat).once.and_return(
-        Ralph::Message.new(role: :assistant, content: "Explanation: task too complex")
+        Ralph::Message.new(role: :assistant, content: "Explanation: task too complex", complete: true)
       )
 
       response = agent.call('Write me a haiku')
-      expect(response).to start_with("<promise>FAILURE:")
+      expect(response).to start_with("FAILURE: Max iterations reached")
       expect(response).to include("Explanation: task too complex")
     end
 
-    it 'strips whitespace from LLM response before checking for promise marker' do
+    it 'returns full content when response is complete' do
       expect(client).to receive(:chat).and_return(
-        Ralph::Message.new(role: :assistant, content: "  <promise>COMPLETE</promise>  ")
+        Ralph::Message.new(role: :assistant, content: "SUCCESS: Done! Here is the haiku...", complete: true)
       )
 
       response = agent.call('Write me a haiku')
-      expect(response).to eq("<promise>COMPLETE</promise>")
-    end
-
-    it 'returns COMPLETE marker exactly (not pass-through with content)' do
-      expect(client).to receive(:chat).and_return(
-        Ralph::Message.new(role: :assistant, content: "Done! <promise>COMPLETE</promise>")
-      )
-
-      response = agent.call('Write me a haiku')
-      expect(response).to eq("<promise>COMPLETE</promise>")
+      expect(response).to eq("SUCCESS: Done! Here is the haiku...")
     end
   end
 
@@ -152,10 +143,10 @@ RSpec.describe Ralph::Agent do
   end
 
   describe '#max_iterations' do
-    let(:client) { instance_double("Ralph::Client") }
+    let(:client) { instance_double("Ralph::Clients::Zai") }
 
     before do
-      allow(Ralph::Client).to receive(:new).and_return(client)
+      allow(Ralph::Clients::Zai).to receive(:new).and_return(client)
     end
 
     it 'uses default max_iterations of 20 when not specified in frontmatter' do

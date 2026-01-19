@@ -20,4 +20,11 @@ RSpec.configure do |config|
 
   config.order = :random
   Kernel.srand config.seed
+
+  # Set up logging for tests
+  config.before(:suite) do
+    # Set test-specific log file
+    ENV['RALPH_LOG_FILE'] = 'logs/test_ralph.log'
+    ENV['RALPH_LOG_LEVEL'] = 'DEBUG'
+  end
 end

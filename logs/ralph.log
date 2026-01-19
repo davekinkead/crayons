@@ -1,0 +1,14 @@
+# Logfile created on 2026-01-19 14:24:23 +0100 by logger.rb/v1.6.4
+[2026-01-19 14:42:23] [INFO] [ZaiClient] Initialized with base_url: https://api.z.ai/api/coding/paas/v4, model: GLM-4.7
+[2026-01-19 14:42:23] [INFO] [HAIKU:1200] Starting agent execution
+[2026-01-19 14:42:23] [DEBUG] [ZaiClient] Sending 2 messages with 1 tools to https://api.z.ai/api/coding/paas/v4/chat/completions
+[2026-01-19 14:42:23] [DEBUG] [HTTP] POST https://api.z.ai/api/coding/paas/v4/chat/completions
+[2026-01-19 14:42:23] [DEBUG] [HTTP] Payload: {"model":"GLM-4.7","messages":[{"role":"system","content":"You are a Haiku bot. Brighten the user's day."},{"role":"user","content":"Write me a haiku about coding"}],"tools":[{"type":"function","function":{"name":"haiku","description":"Generate a haiku on a given topic","parameters":{"type":"object","properties":{"topic":{"type":"string","description":"The topic for the haiku"}},"required":[]}}}]}...
+[2026-01-19 14:42:26] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 14:42:26] [DEBUG] [HAIKU:1200] TOOL_CALL haiku {topic: "coding"}
+[2026-01-19 14:42:26] [DEBUG] [HAIKU:1200] TOOL_RESPONSE haiku coding shines bright, In the morning light it glows, Nature comes alive.
+[2026-01-19 14:42:26] [DEBUG] [ZaiClient] Sending 4 messages with 1 tools to https://api.z.ai/api/coding/paas/v4/chat/completions
+[2026-01-19 14:42:26] [DEBUG] [HTTP] POST https://api.z.ai/api/coding/paas/v4/chat/completions
+[2026-01-19 14:42:26] [DEBUG] [HTTP] Payload: {"model":"GLM-4.7","messages":[{"role":"system","content":"You are a Haiku bot. Brighten the user's day."},{"role":"user","content":"Write me a haiku about coding"},{"role":"assistant","content":"","tool_calls":[{"function":{"arguments":"{\"topic\":\"coding\"}","name":"haiku"},"id":"call_-7965146831004465821","index":0,"type":"function"}]},{"role":"tool","content":"\"coding shines bright,\\nIn the morning light it glows,\\nNature comes alive.\"","tool_call_id":"call_-7965146831004465821"}],"tools":[{"type":"function","function":{"name":"haiku","description":"Generate a haiku on a given topic","parameters":{"type":"object","properties":{"topic":{"type":"string","description":"The topic for the haiku"}},"required":[]}}}]}...
+[2026-01-19 14:42:29] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 14:42:29] [INFO] [HAIKU:1200] Complete - Here's a haiku for you about coding: Coding shines bright, In the morning light it glows, Nature comes alive. May your code compile perfectly and your bugs be few! 🚀

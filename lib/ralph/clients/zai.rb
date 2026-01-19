@@ -1,6 +1,7 @@
 require_relative 'base'
 require_relative 'http'
 require_relative '../message'
+require_relative '../logger'
 
 module Ralph
   module Clients
@@ -10,7 +11,8 @@ module Ralph
         @base_url = url || 'https://api.z.ai/api/coding/paas/v4'
         @model = model || 'GLM-4.7'
         @http_client = HTTP.new(api_key: @api_key, base_url: @base_url)
-        puts "[ZaiClient] Initialized with base_url: #{@base_url}, model: #{@model}"
+        @logger = Ralph::Logger.instance
+        @logger.info('ZaiClient', "Initialized with base_url: #{@base_url}, model: #{@model}")
       end
 
       def chat(system:, messages:, tools:)
@@ -21,7 +23,7 @@ module Ralph
           tools: self.class.convert_tools_to_schemas(tools)
         }
 
-        puts "[ZaiClient] Sending #{messages_with_system.length} messages with #{payload[:tools]&.length || 0} tools to #{@base_url}/chat/completions"
+        @logger.debug('ZaiClient', "Sending #{messages_with_system.length} messages with #{payload[:tools]&.length || 0} tools to #{@base_url}/chat/completions")
 
         response = @http_client.post("#{@base_url}/chat/completions", payload)
 

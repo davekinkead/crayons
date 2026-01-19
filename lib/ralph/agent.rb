@@ -1,4 +1,5 @@
 require_relative 'message'
+require_relative 'logger'
 
 module Ralph
   class Agent
@@ -14,11 +15,12 @@ module Ralph
       @tool_instances = @tools.map { |t| Ralph::Tools.get(t.to_sym)&.new }.compact
       @client = client || create_client_from_config
       @messages = []
-      @id = "[#{@name}:#{object_id}]"
+      @id = "#{@name}:#{object_id}"
+      @logger = Ralph::Logger.instance
     end
 
     def call(prompt)
-      puts "[#{@id}] Starting agent execution"
+      @logger.info(@id, "Starting agent execution")
       @messages = []
 
       iteration = 0
@@ -32,14 +34,14 @@ module Ralph
         end
 
         if response.complete?
-          puts "[#{@id}] Complete - #{response.content}"
+          @logger.info(@id, "Complete - #{response.content}")
           return response.content
         end
 
         break if iteration >= @max_iterations
       end
 
-      puts "[#{@id}] Max iterations reached"
+      @logger.warn(@id, "Max iterations reached")
       final_prompt = "You've reached the maximum number of turns without completing the task. Please explain why you couldn't complete it and what went wrong."
       final_response = chat(final_prompt)
       "FAILURE: Max iterations reached. #{final_response.content}"
@@ -70,14 +72,18 @@ module Ralph
       tool_name = tool_call['function']['name']
       tool_args = JSON.parse(tool_call['function']['arguments']).transform_keys(&:to_sym)
 
-      puts "[#{@id}] TOOL_CALL #{tool_name} #{tool_args}"
+      @logger.debug(@id, "TOOL_CALL #{tool_name} #{tool_args}")
 
       tool_instance = @tool_instances.find { |t| t.name == tool_name }
-      return unless tool_instance
+
+      unless tool_instance
+        @logger.warn(@id, "Tool not found: #{tool_name}")
+        return
+      end
 
       result = tool_instance.execute(**tool_args)
 
-      puts "[#{@id}] TOOL_RESPONSE #{tool_name} #{result}"
+      @logger.debug(@id, "TOOL_RESPONSE #{tool_name} #{result}")
 
       @messages << Message.new(
         role: :tool,

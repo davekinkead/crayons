@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Ralph
   class EditFileTool < Tool
     description "Edit a file by replacing old_string with new_string"
@@ -9,25 +10,19 @@ module Ralph
     end
 
     def execute(file_path:, old_string:, new_string:)
-      unless File.exist?(file_path)
-        return { error: "File not found: #{file_path}", success: false }
-      end
+      return { error: "File not found: #{file_path}", success: false } unless File.exist?(file_path)
 
       content = File.read(file_path)
       
-      unless content.include?(old_string)
-        return { error: "String not found in file", success: false }
-      end
+      return { error: "String not found in file", success: false } unless content.include?(old_string)
 
-      if content.scan(old_string).length > 1
-        return { error: "String found multiple times - use replace_all parameter", success: false }
-      end
+      return { error: "String found multiple times - use replace_all parameter", success: false } if content.scan(old_string).length > 1
 
       new_content = content.sub(old_string, new_string)
       File.write(file_path, new_content)
       
       { success: true, file_path: file_path }
-    rescue => e
+    rescue StandardError => e
       { error: e.message, success: false }
     end
   end

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative "tool"
 
 require_relative "tools/bash"

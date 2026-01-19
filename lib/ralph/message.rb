@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Ralph
   class Message
     attr_reader :role, :content, :complete, :tool_calls, :tool_call_id

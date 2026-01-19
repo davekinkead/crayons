@@ -1,18 +1,19 @@
-require_relative 'base'
-require_relative 'http'
-require_relative '../message'
-require_relative '../logger'
+# frozen_string_literal: true
+require_relative "base"
+require_relative "http"
+require_relative "../message"
+require_relative "../logger"
 
 module Ralph
   module Clients
     class Zai < Base
-      def initialize(api_key: ENV['ZAI_API_KEY'], url: nil, model: nil)
+      def initialize(api_key: ENV.fetch("ZAI_API_KEY", nil), url: nil, model: nil)
         @api_key = api_key
-        @base_url = url || 'https://api.z.ai/api/coding/paas/v4'
-        @model = model || 'GLM-4.7'
+        @base_url = url || "https://api.z.ai/api/coding/paas/v4"
+        @model = model || "GLM-4.7"
         @http_client = HTTP.new(api_key: @api_key, base_url: @base_url)
         @logger = Ralph::Logger.instance
-        @logger.info('ZaiClient', "Initialized with base_url: #{@base_url}, model: #{@model}")
+        @logger.info("ZaiClient", "Initialized with base_url: #{@base_url}, model: #{@model}")
       end
 
       def chat(system:, messages:, tools:)
@@ -23,7 +24,7 @@ module Ralph
           tools: self.class.convert_tools_to_schemas(tools)
         }
 
-        @logger.debug('ZaiClient', "Sending #{messages_with_system.length} messages with #{payload[:tools]&.length || 0} tools to #{@base_url}/chat/completions")
+        @logger.debug("ZaiClient", "Sending #{messages_with_system.length} messages with #{payload[:tools]&.length || 0} tools to #{@base_url}/chat/completions")
 
         response = @http_client.post("#{@base_url}/chat/completions", payload)
 
@@ -44,12 +45,12 @@ module Ralph
         def convert_tools_to_schemas(tools)
           tools.map do |tool|
             {
-              type: 'function',
+              type: "function",
               function: {
                 name: tool.name,
                 description: tool.description,
                 parameters: {
-                  type: 'object',
+                  type: "object",
                   properties: tool.parameters || {},
                   required: []
                 }
@@ -59,15 +60,15 @@ module Ralph
         end
 
         def parse_response(response)
-          choice = response['choices'].first
-          message_data = choice['message']
-          finish_reason = choice['finish_reason']
+          choice = response["choices"].first
+          message_data = choice["message"]
+          finish_reason = choice["finish_reason"]
 
           Message.new(
-            role: message_data['role'].to_sym,
-            content: message_data['content'],
-            complete: finish_reason == 'stop',
-            tool_calls: message_data['tool_calls']
+            role: message_data["role"].to_sym,
+            content: message_data["content"],
+            complete: finish_reason == "stop",
+            tool_calls: message_data["tool_calls"]
           )
         end
       end

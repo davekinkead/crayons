@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Ralph
   class Tool
     class << self
@@ -8,10 +9,10 @@ module Ralph
         @description
       end
 
-      def params(&block)
+      def params(&)
         @parameters = {}
         @params_dsl = DSL.new(@parameters)
-        @params_dsl.instance_eval(&block)
+        @params_dsl.instance_eval(&)
       end
     end
 
@@ -26,12 +27,12 @@ module Ralph
     private
 
     def extract_name
-      return 'unknown' unless self.class.name
+      return "unknown" unless self.class.name
 
       self.class.name
-        .split('::')
+        .split("::")
         .last
-        .gsub(/Tool$/, '')
+        .gsub(/Tool$/, "")
         .downcase
     end
 
@@ -45,7 +46,7 @@ module Ralph
       end
 
       def string(name, description:)
-        @parameters[name] = { type: 'string', description: }
+        @parameters[name] = { type: "string", description: }
       end
     end
   end

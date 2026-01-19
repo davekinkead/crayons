@@ -1,18 +1,19 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 #
 # This is a full integration test that checks the system can implement a PRD
-require 'dotenv/load'
-require_relative '../../lib/ralph'
+require "dotenv/load"
+require_relative "../../lib/ralph"
 
 puts "=== Coder Agent Integration Test ==="
 puts ""
 
-prd_content = File.read(File.expand_path('../../prds/test-01.md', __dir__))
+prd_content = File.read(File.expand_path("../../prds/test-01.md", __dir__))
 puts "Test PRD:"
 puts prd_content
 puts ""
 
-agent = Ralph::Agent.new('CODER')
+agent = Ralph::Agent.new("CODER")
 puts "Loaded agent: #{agent.name}"
 puts "Description: #{agent.description}"
 puts "Tools: #{agent.tools.join(', ')}"
@@ -27,12 +28,12 @@ puts response
 puts ""
 
 puts "=== Verification ==="
-if File.exist?('./hello_world.rb')
+if File.exist?("./hello_world.rb")
   puts "✓ hello_world.rb was created"
-  content = File.read('./hello_world.rb')
+  content = File.read("./hello_world.rb")
   puts content
 
-  if content.include?('HelloWorld') && content.include?('hello') && content.include?('Hello, World. I am alive!')
+  if content.include?("HelloWorld") && content.include?("hello") && content.include?("Hello, World. I am alive!")
     puts "\n✓ HelloWorld class exists"
     puts "✓ .hello class method exists"
     puts "✓ Returns correct string"

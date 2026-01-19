@@ -1,5 +1,6 @@
-require 'fileutils'
-require 'logger'
+# frozen_string_literal: true
+require "fileutils"
+require "logger"
 
 module Ralph
   class Logger
@@ -32,7 +33,7 @@ module Ralph
       context = truncate_context(agent_id.to_s)
       sanitized_message = sanitize_message(message)
       @logger.add(actual_level, "[#{context}] #{sanitized_message}")
-    rescue => _e
+    rescue StandardError => _e
       nil
     end
 
@@ -56,7 +57,7 @@ module Ralph
 
     def create_logger
       log_dir = File.dirname(@log_file_path)
-      FileUtils.mkdir_p(log_dir) unless Dir.exist?(log_dir)
+      FileUtils.mkdir_p(log_dir)
 
       logger = ::Logger.new(@log_file_path)
       logger.level = map_level_to_constant(@level)
@@ -64,24 +65,24 @@ module Ralph
         "[#{datetime.strftime('%Y-%m-%d %H:%M:%S')}] [#{severity}] #{msg}\n"
       end
       logger
-    rescue => _e
+    rescue StandardError => _e
       nil
     end
 
     def determine_log_file_path
-      ENV['RALPH_LOG_FILE'] || 'logs/ralph.log'
+      ENV["RALPH_LOG_FILE"] || "logs/ralph.log"
     end
 
     def determine_log_level
-      env_level = ENV['RALPH_LOG_LEVEL']&.to_s&.downcase&.to_sym
-      return env_level if [:debug, :info, :warn, :error].include?(env_level)
-
+      env_var = ENV.fetch("RALPH_LOG_LEVEL", nil)
+      return :debug unless env_var
+      level = env_var.to_s.downcase.to_sym
+      return level if %i[debug info warn error].include?(level)
       :debug
     end
 
     def map_level_to_constant(level)
       case level
-      when :debug then ::Logger::DEBUG
       when :info then ::Logger::INFO
       when :warn then ::Logger::WARN
       when :error then ::Logger::ERROR
@@ -95,7 +96,13 @@ module Ralph
     end
 
     def sanitize_message(message)
-      message.to_s.gsub(/\r?\n/, ' ').squeeze(' ').strip
+      message.to_s.gsub(/\r?\n/, " ").squeeze(" ").strip
+    end
+
+    def parse_log_level
+      env_var = ENV.fetch("RALPH_LOG_LEVEL", nil)
+      return :debug unless env_var
+      env_var.to_s.downcase.to_sym
     end
   end
 end

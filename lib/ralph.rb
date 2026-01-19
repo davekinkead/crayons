@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative "ralph/version"
 require_relative "ralph/logger"
 require_relative "ralph/agent"

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Ralph
   class ReadFileTool < Tool
     description "Read the contents of a file"
@@ -7,13 +8,11 @@ module Ralph
     end
 
     def execute(file_path:)
-      unless File.exist?(file_path)
-        return { error: "File not found: #{file_path}" }
-      end
+      return { error: "File not found: #{file_path}" } unless File.exist?(file_path)
 
       content = File.read(file_path)
       { content: content, file_path: file_path, success: true }
-    rescue => e
+    rescue StandardError => e
       { error: e.message, success: false }
     end
   end

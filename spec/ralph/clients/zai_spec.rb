@@ -1,17 +1,18 @@
-require 'spec_helper'
-require_relative '../../../lib/ralph'
-require_relative '../../../lib/ralph/clients/zai'
-require_relative '../../../lib/ralph/message'
+# frozen_string_literal: true
+require "spec_helper"
+require_relative "../../../lib/ralph"
+require_relative "../../../lib/ralph/clients/zai"
+require_relative "../../../lib/ralph/message"
 
 RSpec.describe Ralph::Clients::Zai do
-  describe '#chat' do
-    let(:api_key) { 'test-key' }
-    let(:url) { 'https://api.test.com' }
+  describe "#chat" do
+    let(:api_key) { "test-key" }
+    let(:url) { "https://api.test.com" }
     let(:client) { described_class.new(api_key:, url:) }
 
-    it 'returns Message object from API response' do
-      system = 'You are helpful'
-      messages = [Ralph::Message.new(role: :user, content: 'test')]
+    it "returns Message object from API response" do
+      system = "You are helpful"
+      messages = [Ralph::Message.new(role: :user, content: "test")]
       api_response = {
         "choices" => [{
           "message" => {
@@ -29,9 +30,9 @@ RSpec.describe Ralph::Clients::Zai do
       expect(response.content).to eq("Hello!")
     end
 
-    it 'handles tool_calls in response' do
-      system = 'You are helpful'
-      messages = [Ralph::Message.new(role: :user, content: 'test')]
+    it "handles tool_calls in response" do
+      system = "You are helpful"
+      messages = [Ralph::Message.new(role: :user, content: "test")]
       api_response = {
         "choices" => [{
           "message" => {
@@ -66,25 +67,25 @@ RSpec.describe Ralph::Clients::Zai do
       ])
     end
 
-    it 'sends system, messages and tools to API endpoint' do
-      system = 'You are helpful'
-      messages = [Ralph::Message.new(role: :user, content: 'test')]
+    it "sends system, messages and tools to API endpoint" do
+      system = "You are helpful"
+      messages = [Ralph::Message.new(role: :user, content: "test")]
       tools = [Ralph::HaikuTool.new]
       client_with_tools = described_class.new(api_key:, url:)
 
       expected_payload = {
-        model: 'GLM-4.7',
-        messages: [{ role: 'system', content: 'You are helpful' }, { role: 'user', content: 'test' }],
+        model: "GLM-4.7",
+        messages: [{ role: "system", content: "You are helpful" }, { role: "user", content: "test" }],
         tools: [
           {
-            type: 'function',
+            type: "function",
             function: {
-              name: 'haiku',
-              description: 'Generate a haiku on a given topic',
+              name: "haiku",
+              description: "Generate a haiku on a given topic",
               parameters: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  topic: { type: 'string', description: "The topic for the haiku" }
+                  topic: { type: "string", description: "The topic for the haiku" }
                 },
                 required: []
               }
@@ -103,34 +104,34 @@ RSpec.describe Ralph::Clients::Zai do
     end
   end
 
-  describe '.convert_messages_to_api_format' do
-    it 'converts Message objects to API format' do
+  describe ".convert_messages_to_api_format" do
+    it "converts Message objects to API format" do
       messages = [
-        Ralph::Message.new(role: :system, content: 'You are helpful'),
-        Ralph::Message.new(role: :user, content: 'test'),
-        Ralph::Message.new(role: :assistant, content: 'Hello', tool_calls: [{ id: '1', function: { name: 'bash', arguments: '{}' } }])
+        Ralph::Message.new(role: :system, content: "You are helpful"),
+        Ralph::Message.new(role: :user, content: "test"),
+        Ralph::Message.new(role: :assistant, content: "Hello", tool_calls: [{ id: "1", function: { name: "bash", arguments: "{}" } }])
       ]
 
       api_format = described_class.convert_messages_to_api_format(messages)
       expect(api_format).to eq([
-        { role: 'system', content: 'You are helpful' },
-        { role: 'user', content: 'test' },
-        { role: 'assistant', content: 'Hello', tool_calls: [{ id: '1', function: { name: 'bash', arguments: '{}' } }] }
+        { role: "system", content: "You are helpful" },
+        { role: "user", content: "test" },
+        { role: "assistant", content: "Hello", tool_calls: [{ id: "1", function: { name: "bash", arguments: "{}" } }] }
       ])
     end
 
-    it 'handles messages without content' do
-      messages = [Ralph::Message.new(role: :assistant, tool_calls: [{ id: '1', function: { name: 'tool', arguments: '{}' } }])]
+    it "handles messages without content" do
+      messages = [Ralph::Message.new(role: :assistant, tool_calls: [{ id: "1", function: { name: "tool", arguments: "{}" } }])]
 
       api_format = described_class.convert_messages_to_api_format(messages)
       expect(api_format).to eq([
-        { role: 'assistant', tool_calls: [{ id: '1', function: { name: 'tool', arguments: '{}' } }] }
+        { role: "assistant", tool_calls: [{ id: "1", function: { name: "tool", arguments: "{}" } }] }
       ])
     end
   end
 
-  describe '.convert_tools_to_schemas' do
-    it 'converts tool instances to OpenAI schemas' do
+  describe ".convert_tools_to_schemas" do
+    it "converts tool instances to OpenAI schemas" do
       tools = [Ralph::HaikuTool.new, Ralph::BashTool.new]
 
       schemas = described_class.convert_tools_to_schemas(tools)
@@ -138,24 +139,24 @@ RSpec.describe Ralph::Clients::Zai do
       expect(schemas).to be_an(Array)
       expect(schemas.length).to eq(2)
 
-      haiku_schema = schemas.find { |s| s[:function][:name] == 'haiku' }
+      haiku_schema = schemas.find { |s| s[:function][:name] == "haiku" }
       expect(haiku_schema).to be_a(Hash)
-      expect(haiku_schema[:type]).to eq('function')
-      expect(haiku_schema[:function][:description]).to eq('Generate a haiku on a given topic')
+      expect(haiku_schema[:type]).to eq("function")
+      expect(haiku_schema[:function][:description]).to eq("Generate a haiku on a given topic")
     end
 
-    it 'uses lowercase function names matching registry keys' do
+    it "uses lowercase function names matching registry keys" do
       tools = [Ralph::HaikuTool.new, Ralph::BashTool.new]
 
       schemas = described_class.convert_tools_to_schemas(tools)
 
       function_names = schemas.map { |s| s[:function][:name] }
-      expect(function_names).to contain_exactly('haiku', 'bash')
+      expect(function_names).to contain_exactly("haiku", "bash")
     end
   end
 
-  describe '.parse_response' do
-    it 'parses API response to Message object' do
+  describe ".parse_response" do
+    it "parses API response to Message object" do
       api_response = {
         "choices" => [{
           "message" => {
@@ -171,7 +172,7 @@ RSpec.describe Ralph::Clients::Zai do
       expect(message.content).to eq("Hello!")
     end
 
-    it 'handles tool_calls in response' do
+    it "handles tool_calls in response" do
       api_response = {
         "choices" => [{
           "message" => {

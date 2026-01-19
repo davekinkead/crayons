@@ -1,14 +1,15 @@
+# frozen_string_literal: true
 # Silence Ruby warnings for cleaner output
 Warning[:deprecated] = false
 
-require 'dotenv/load'
-require 'rspec'
+require "dotenv/load"
+require "rspec"
 
 # Load custom formatters and support files AFTER rspec is loaded
-Dir[File.join(File.dirname(__FILE__), 'support', '**', '*.rb')].each { |f| require f }
+Dir[File.join(File.dirname(__FILE__), "support", "**", "*.rb")].each { |f| require f }
 
 # Debug: Check if QuietFormatter is loaded
-puts "QuietFormatter defined: #{defined?(QuietFormatter)}" if ENV['DEBUG_RSPEC']
+puts "QuietFormatter defined: #{defined?(QuietFormatter)}" if ENV["DEBUG_RSPEC"]
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -35,7 +36,7 @@ RSpec.configure do |config|
   # Set up logging for tests
   config.before(:suite) do
     # Set test-specific log file
-    ENV['RALPH_LOG_FILE'] = 'logs/test_ralph.log'
-    ENV['RALPH_LOG_LEVEL'] = 'DEBUG'
+    ENV["RALPH_LOG_FILE"] = "logs/test_ralph.log"
+    ENV["RALPH_LOG_LEVEL"] = "DEBUG"
   end
 end

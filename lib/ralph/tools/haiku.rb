@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Ralph
   class HaikuTool < Tool
     description "Generate a haiku on a given topic"
@@ -14,7 +15,7 @@ module Ralph
       ]
       
       haikus.sample
-    rescue => e
+    rescue StandardError => e
       { error: e.message }
     end
   end

@@ -1,5 +1,6 @@
-require_relative 'message'
-require_relative 'logger'
+# frozen_string_literal: true
+require_relative "message"
+require_relative "logger"
 
 module Ralph
   class Agent
@@ -26,7 +27,7 @@ module Ralph
 
       iteration = 0
       loop do
-        response = chat(iteration == 0 ? prompt : nil)
+        response = chat(iteration.zero? ? prompt : nil)
         iteration += 1
 
         if response.tool_call?
@@ -58,11 +59,11 @@ module Ralph
     private
 
     def create_client_from_config
-      client_type = @client_type || ENV['RALPH_CLIENT'] || :zai
-      model = @model || ENV['ZAI_MODEL'] || 'GLM-4.7'
-      api_key = ENV['ZAI_API_KEY']
+      client_type = @client_type || ENV["RALPH_CLIENT"] || :zai
+      model = @model || ENV["ZAI_MODEL"] || "GLM-4.7"
+      api_key = ENV.fetch("ZAI_API_KEY", nil)
 
-      client_class_name = client_type.to_s.split('_').map(&:capitalize).join
+      client_class_name = client_type.to_s.split("_").map(&:capitalize).join
       client_class = const_get("Ralph::Clients::#{client_class_name}")
       client_class.new(api_key:, model:)
     rescue NameError
@@ -70,8 +71,8 @@ module Ralph
     end
 
     def execute_tool(tool_call)
-      tool_name = tool_call['function']['name']
-      tool_args = JSON.parse(tool_call['function']['arguments']).transform_keys(&:to_sym)
+      tool_name = tool_call["function"]["name"]
+      tool_args = JSON.parse(tool_call["function"]["arguments"]).transform_keys(&:to_sym)
 
       @logger.debug(@id, "TOOL_CALL #{tool_name} #{tool_args}")
 
@@ -88,7 +89,7 @@ module Ralph
 
       @messages << Message.new(
         role: :tool,
-        tool_call_id: tool_call['id'],
+        tool_call_id: tool_call["id"],
         content: result.to_json
       )
     end
@@ -97,34 +98,34 @@ module Ralph
       content = File.read(file_path)
       frontmatter, body = parse_frontmatter(content)
 
-      @name = frontmatter['name']
-      @description = frontmatter['description']
-      @tools = Array(frontmatter['tools'])
+      @name = frontmatter["name"]
+      @description = frontmatter["description"]
+      @tools = Array(frontmatter["tools"])
       @instructions = body.strip
-      @client_type = frontmatter['client']
-      @model = frontmatter['model']
+      @client_type = frontmatter["client"]
+      @model = frontmatter["model"]
 
-      @max_iterations = frontmatter['max_iterations'] || DEFAULT_MAX_ITERATIONS
+      @max_iterations = frontmatter["max_iterations"] || DEFAULT_MAX_ITERATIONS
       validate_max_iterations!
     end
 
     def validate_max_iterations!
-      unless @max_iterations.is_a?(Integer) && @max_iterations > 0
+      return if @max_iterations.is_a?(Integer) && @max_iterations.positive?
         raise "max_iterations must be a positive integer, got: #{@max_iterations.inspect}"
-      end
+      
     end
 
     def parse_frontmatter(content)
-      return [{}, content] unless content.start_with?('---')
+      return [{}, content] unless content.start_with?("---")
 
-      parts = content.split('---', 3)
+      parts = content.split("---", 3)
       return [{}, content] if parts.length < 3
 
       frontmatter_content = parts[1]
       body = parts[2]
 
       begin
-        require 'yaml'
+        require "yaml"
         [YAML.safe_load(frontmatter_content), body]
       rescue Psych::SyntaxError
         [{}, content]

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Ralph
   class SpawnAgentTool < Tool
     description "Spawn and execute another agent (CODER, REVIEWER, etc.) with fresh context"
@@ -16,16 +17,16 @@ module Ralph
         agent = Ralph::Agent.new(agent_name_str)
         
         # Call the agent with the instructions
-        response = agent.call(instructions)
+        agent.call(instructions)
         
         # Return the agent's raw response (including promise tags)
-        response
-      rescue => e
+        
+      rescue StandardError => e
         # Handle any errors during agent initialization or execution
         error_message = e.message
         
         # If it's an agent file not found error, include available agents
-        if error_message.include?('Agent file not found')
+        if error_message.include?("Agent file not found")
           available_agents = list_available_agents
           error_message += "\n\nAvailable agents: #{available_agents.join(', ')}"
         end
@@ -41,7 +42,7 @@ module Ralph
       return [] unless Dir.exist?(agents_dir)
 
       Dir.glob("#{agents_dir}/*.md").map do |file|
-        File.basename(file, '.md')
+        File.basename(file, ".md")
       end.sort
     end
   end

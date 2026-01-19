@@ -31,9 +31,10 @@ Follow Ruby conventions and the interfaces defined in ARCHITECTURE.md.
 
 You must always verify that your work is correct.
 
-1. Run the test suite every time you modify code
-2. If verification passes: report number of passing tests
-3. If verification fails: extract ONLY the failing test names
+1. Run rubocop every time you modify code
+2. Run the test suite every time you modify code
+3. If verification passes: report number of passing tests
+4. If verification fails: extract ONLY the failing test names or rubocop offenses
 
 Your work is not complete until you have done this.
 

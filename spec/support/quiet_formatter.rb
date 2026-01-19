@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Define a custom formatter that extends RSpec's ProgressFormatter
 # and suppresses verbose output while keeping details for failures
 class QuietFormatter < RSpec::Core::Formatters::ProgressFormatter

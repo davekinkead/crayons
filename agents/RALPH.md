@@ -38,10 +38,10 @@ For the PRD, track iterations starting at 1. Iterate up to 5 times maximum.
 5. **Spawn REVIEWER**: Use spawn_agent tool to execute REVIEWER with PRD content as instructions
 6. **Check REVIEWER result**:
     - If response starts with `FAILURE:`: Add specific feedback to PRD Feedback History, increment iteration count, retry from step 1 (CODER)
-    - If response starts with `SUCCESS:`: Run tests
-7. **Run tests**: Execute test suite using bash tool
-    - Tests pass? → Commit to git, mark PRD complete, return SUCCESS
-    - Tests fail? → Add test failure details to PRD Feedback History, increment iteration count, retry from step 1 (CODER)
+    - If response starts with `SUCCESS:`: Run rubocop and tests
+7. **Run rubocop and tests**: Execute rubocop and test suite using bash tool
+    - Rubocop passes and tests pass? → Commit to git, mark PRD complete, return SUCCESS
+    - Rubocop fails or tests fail? → Add rubocop or test failure details to PRD Feedback History, increment iteration count, retry from step 1 (CODER)
 
 **Maximum iterations:** Stop after 5 iterations on a PRD. When max iterations reached, mark PRD as failed and return FAILURE.
 

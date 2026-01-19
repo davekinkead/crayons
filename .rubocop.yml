@@ -1,0 +1,43 @@
+AllCops:
+  DisabledByDefault: true
+  NewCops: enable
+
+Style:
+  Enabled: true
+
+Security:
+  Enabled: true
+
+Lint:
+  Enabled: true
+
+Lint/DuplicateMethods:
+  Enabled: false
+
+Lint/MissingSuper:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Layout/ArgumentAlignment:
+  Enabled: false
+
+Layout/HashAlignment:
+  Enabled: false
+
+Layout/ArrayAlignment:
+  Enabled: false
+
+Layout/FirstArrayElementIndentation:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
+  Enabled: false
+
+Layout/ClosingParenthesisIndentation:
+  Enabled: false

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Ralph
   class WriteFileTool < Tool
     description "Write content to a file (overwrites existing content)"
@@ -10,7 +11,7 @@ module Ralph
     def execute(file_path:, content:)
       File.write(file_path, content)
       { success: true, file_path: file_path, bytes_written: content.bytesize }
-    rescue => e
+    rescue StandardError => e
       { error: e.message, success: false }
     end
   end

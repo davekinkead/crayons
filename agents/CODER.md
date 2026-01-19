@@ -37,5 +37,5 @@ You must always verify that your work is correct.
 
 Your work is not complete until you have done this.
 
-Return "SUCCESS: " followed by a short summary of what you implemented when all tests pass and PRD requirements are met.
-Return "FAILURE: " followed by specific details if you cannot complete the task. Include any traces.
+On SUCCESS: provide a short summary of what you implemented when all tests pass and PRD requirements are met.
+On FAILURE: provide specific details if you cannot complete the task. Include any traces.

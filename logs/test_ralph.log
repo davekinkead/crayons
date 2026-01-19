@@ -202,3 +202,173 @@
 [2026-01-19 14:41:00] [DEBUG] [HTTP] POST https://api.test.com/v1/chat/completions
 [2026-01-19 14:41:00] [DEBUG] [HTTP] Payload: {"model":"test-model","messages":[]}...
 [2026-01-19 14:41:00] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 15:02:38] [INFO] [HAIKU:1576] Starting agent execution
+[2026-01-19 15:02:38] [INFO] [HAIKU:1576] Complete - SUCCESS: All done
+[2026-01-19 15:02:38] [INFO] [HAIKU:1592] Starting agent execution
+[2026-01-19 15:02:38] [INFO] [HAIKU:1616] Starting agent execution
+[2026-01-19 15:02:38] [INFO] [HAIKU:1616] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:02:38] [INFO] [HAIKU:1648] Starting agent execution
+[2026-01-19 15:02:38] [INFO] [HAIKU:1648] Complete - SUCCESS: All done
+[2026-01-19 15:02:38] [INFO] [HAIKU:1680] Starting agent execution
+[2026-01-19 15:02:38] [WARN] [HAIKU:1680] Max iterations reached
+[2026-01-19 15:02:38] [INFO] [HAIKU:1696] Starting agent execution
+[2026-01-19 15:02:38] [INFO] [HAIKU:1720] Starting agent execution
+[2026-01-19 15:02:38] [INFO] [HAIKU:1720] Complete - SUCCESS: All done
+[2026-01-19 15:02:49] [INFO] [HAIKU:1320] Starting agent execution
+[2026-01-19 15:02:49] [INFO] [HAIKU:1320] Complete - SUCCESS: Done
+[2026-01-19 15:02:49] [INFO] [HAIKU:1352] Starting agent execution
+[2026-01-19 15:02:49] [INFO] [HAIKU:1352] Complete - SUCCESS: Done
+[2026-01-19 15:02:49] [INFO] [HAIKU:1376] Starting agent execution
+[2026-01-19 15:02:49] [INFO] [HAIKU:1376] Complete - SUCCESS: All done
+[2026-01-19 15:02:49] [INFO] [HAIKU:1400] Starting agent execution
+[2026-01-19 15:02:49] [INFO] [HAIKU:1400] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:02:49] [INFO] [HAIKU:1432] Starting agent execution
+[2026-01-19 15:02:49] [WARN] [HAIKU:1432] Max iterations reached
+[2026-01-19 15:02:49] [INFO] [HAIKU:1456] Starting agent execution
+[2026-01-19 15:02:49] [INFO] [HAIKU:1456] Complete - SUCCESS: All done
+[2026-01-19 15:02:49] [INFO] [HAIKU:1488] Starting agent execution
+[2026-01-19 15:02:49] [INFO] [HAIKU:1488] Complete - SUCCESS: All done
+[2026-01-19 15:03:57] [INFO] [HAIKU:1576] Starting agent execution
+[2026-01-19 15:03:57] [INFO] [HAIKU:1576] Complete - SUCCESS: All done
+[2026-01-19 15:03:57] [INFO] [HAIKU:1600] Starting agent execution
+[2026-01-19 15:03:57] [INFO] [HAIKU:1600] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:03:57] [INFO] [HAIKU:1624] Starting agent execution
+[2026-01-19 15:03:57] [INFO] [HAIKU:1624] Complete - SUCCESS: Done
+[2026-01-19 15:03:57] [INFO] [HAIKU:1656] Starting agent execution
+[2026-01-19 15:03:57] [WARN] [HAIKU:1656] Max iterations reached
+[2026-01-19 15:03:57] [INFO] [HAIKU:1688] Starting agent execution
+[2026-01-19 15:03:57] [INFO] [HAIKU:1688] Complete - SUCCESS: All done
+[2026-01-19 15:03:57] [INFO] [HAIKU:1712] Starting agent execution
+[2026-01-19 15:03:57] [INFO] [HAIKU:1712] Complete - SUCCESS: All done
+[2026-01-19 15:03:57] [INFO] [HAIKU:1736] Starting agent execution
+[2026-01-19 15:03:57] [INFO] [HAIKU:1736] Complete - SUCCESS: Done
+[2026-01-19 15:04:15] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:04:15] [DEBUG] [ZaiClient] Sending 2 messages with 0 tools to https://api.test.com/chat/completions
+[2026-01-19 15:04:15] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:04:15] [DEBUG] [ZaiClient] Sending 2 messages with 0 tools to https://api.test.com/chat/completions
+[2026-01-19 15:04:15] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:04:15] [DEBUG] [ZaiClient] Sending 2 messages with 1 tools to https://api.test.com/chat/completions
+[2026-01-19 15:05:03] [DEBUG] [HTTP] POST https://api.test.com/v1/chat/completions
+[2026-01-19 15:05:03] [DEBUG] [HTTP] Payload: {"model":"test-model","messages":[]}...
+[2026-01-19 15:05:03] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 15:05:03] [DEBUG] [HTTP] POST https://api.test.com/v1/chat/completions
+[2026-01-19 15:05:03] [DEBUG] [HTTP] Payload: {"model":"test-model","messages":[]}...
+[2026-01-19 15:05:03] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 15:05:03] [DEBUG] [HTTP] POST https://api.test.com/v1/chat/completions
+[2026-01-19 15:05:03] [DEBUG] [HTTP] Payload: {"model":"test-model","messages":[]}...
+[2026-01-19 15:05:03] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 15:05:03] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:05:03] [DEBUG] [ZaiClient] Sending 2 messages with 1 tools to https://api.test.com/chat/completions
+[2026-01-19 15:05:03] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:05:03] [DEBUG] [ZaiClient] Sending 2 messages with 0 tools to https://api.test.com/chat/completions
+[2026-01-19 15:05:03] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:05:03] [DEBUG] [ZaiClient] Sending 2 messages with 0 tools to https://api.test.com/chat/completions
+[2026-01-19 15:10:28] [INFO] [HAIKU:1576] Starting agent execution
+[2026-01-19 15:10:28] [INFO] [HAIKU:1576] Complete - SUCCESS: Done
+[2026-01-19 15:10:28] [INFO] [HAIKU:1608] Starting agent execution
+[2026-01-19 15:10:28] [WARN] [HAIKU:1608] Max iterations reached
+[2026-01-19 15:10:28] [INFO] [HAIKU:1632] Starting agent execution
+[2026-01-19 15:10:28] [INFO] [HAIKU:1632] Complete - SUCCESS: Done
+[2026-01-19 15:10:28] [INFO] [HAIKU:1656] Starting agent execution
+[2026-01-19 15:10:28] [INFO] [HAIKU:1656] Complete - SUCCESS: All done
+[2026-01-19 15:10:28] [INFO] [HAIKU:1680] Starting agent execution
+[2026-01-19 15:10:28] [INFO] [HAIKU:1680] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:10:28] [INFO] [HAIKU:1704] Starting agent execution
+[2026-01-19 15:10:28] [INFO] [HAIKU:1704] Complete - SUCCESS: All done
+[2026-01-19 15:10:28] [INFO] [HAIKU:1736] Starting agent execution
+[2026-01-19 15:10:28] [INFO] [HAIKU:1736] Complete - SUCCESS: All done
+[2026-01-19 15:12:10] [INFO] [HAIKU:1328] Starting agent execution
+[2026-01-19 15:12:10] [INFO] [HAIKU:1328] Complete - SUCCESS: All done
+[2026-01-19 15:12:10] [INFO] [HAIKU:1360] Starting agent execution
+[2026-01-19 15:12:10] [INFO] [HAIKU:1360] Complete - SUCCESS: All done
+[2026-01-19 15:12:10] [INFO] [HAIKU:1384] Starting agent execution
+[2026-01-19 15:12:10] [INFO] [HAIKU:1384] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:12:10] [INFO] [HAIKU:1416] Starting agent execution
+[2026-01-19 15:12:10] [WARN] [HAIKU:1416] Max iterations reached
+[2026-01-19 15:12:10] [INFO] [HAIKU:1440] Starting agent execution
+[2026-01-19 15:12:10] [INFO] [HAIKU:1440] Complete - SUCCESS: Done
+[2026-01-19 15:12:10] [INFO] [HAIKU:1464] Starting agent execution
+[2026-01-19 15:12:10] [INFO] [HAIKU:1464] Complete - SUCCESS: All done
+[2026-01-19 15:12:10] [INFO] [HAIKU:1488] Starting agent execution
+[2026-01-19 15:12:10] [INFO] [HAIKU:1488] Complete - SUCCESS: Done
+[2026-01-19 15:14:05] [INFO] [HAIKU:1576] Starting agent execution
+[2026-01-19 15:14:05] [INFO] [HAIKU:1576] Complete - SUCCESS: Done
+[2026-01-19 15:14:05] [INFO] [HAIKU:1600] Starting agent execution
+[2026-01-19 15:14:05] [INFO] [HAIKU:1600] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:14:05] [INFO] [HAIKU:1624] Starting agent execution
+[2026-01-19 15:14:05] [INFO] [HAIKU:1624] Complete - SUCCESS: All done
+[2026-01-19 15:14:05] [INFO] [HAIKU:1656] Starting agent execution
+[2026-01-19 15:14:05] [WARN] [HAIKU:1656] Max iterations reached
+[2026-01-19 15:14:05] [INFO] [HAIKU:1680] Starting agent execution
+[2026-01-19 15:14:05] [INFO] [HAIKU:1680] Complete - SUCCESS: All done
+[2026-01-19 15:14:05] [INFO] [HAIKU:1712] Starting agent execution
+[2026-01-19 15:14:05] [INFO] [HAIKU:1712] Complete - SUCCESS: All done
+[2026-01-19 15:14:05] [INFO] [HAIKU:1736] Starting agent execution
+[2026-01-19 15:14:05] [INFO] [HAIKU:1736] Complete - SUCCESS: Done
+[2026-01-19 15:47:01] [DEBUG] [HTTP] POST https://api.test.com/v1/chat/completions
+[2026-01-19 15:47:01] [DEBUG] [HTTP] Payload: {"model":"test-model","messages":[]}...
+[2026-01-19 15:47:01] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 15:47:01] [DEBUG] [HTTP] POST https://api.test.com/v1/chat/completions
+[2026-01-19 15:47:01] [DEBUG] [HTTP] Payload: {"model":"test-model","messages":[]}...
+[2026-01-19 15:47:01] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 15:47:01] [DEBUG] [HTTP] POST https://api.test.com/v1/chat/completions
+[2026-01-19 15:47:01] [DEBUG] [HTTP] Payload: {"model":"test-model","messages":[]}...
+[2026-01-19 15:47:01] [DEBUG] [HTTP] Response status: 200
+[2026-01-19 15:47:01] [INFO] [CODER:928] Starting agent execution
+[2026-01-19 15:47:01] [WARN] [CODER:928] Max iterations reached
+[2026-01-19 15:47:01] [INFO] [CODER:960] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:960] Complete - SUCCESS: Feature implemented
+[2026-01-19 15:47:01] [INFO] [CODER:992] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:992] Complete - SUCCESS: Auth system implemented
+[2026-01-19 15:47:01] [INFO] [CODER:1024] Starting agent execution
+[2026-01-19 15:47:01] [WARN] [CODER:1024] Max iterations reached
+[2026-01-19 15:47:01] [INFO] [REVIEWER:1056] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [REVIEWER:1056] Complete - SUCCESS: Review complete
+[2026-01-19 15:47:01] [INFO] [CODER:1088] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:1088] Complete - SUCCESS: Task 1 done
+[2026-01-19 15:47:01] [INFO] [CODER:1104] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:1104] Complete - SUCCESS: Task 2 done
+[2026-01-19 15:47:01] [INFO] [CODER:1136] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:1136] Complete - SUCCESS: Feature implemented
+[2026-01-19 15:47:01] [INFO] [CODER:1168] Starting agent execution
+[2026-01-19 15:47:01] [WARN] [CODER:1168] Max iterations reached
+[2026-01-19 15:47:01] [INFO] [CODER:1200] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:1200] Complete - SUCCESS: Done
+[2026-01-19 15:47:01] [INFO] [CODER:1232] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:1232] Complete - SUCCESS: Done
+[2026-01-19 15:47:01] [INFO] [CODER:1264] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [CODER:1264] Complete - FAILURE: No instructions provided
+[2026-01-19 15:47:01] [INFO] [HAIKU:1624] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [HAIKU:1624] Complete - SUCCESS: All done
+[2026-01-19 15:47:01] [INFO] [HAIKU:1656] Starting agent execution
+[2026-01-19 15:47:01] [WARN] [HAIKU:1656] Max iterations reached
+[2026-01-19 15:47:01] [INFO] [HAIKU:1688] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [HAIKU:1688] Complete - SUCCESS: All done
+[2026-01-19 15:47:01] [INFO] [HAIKU:1712] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [HAIKU:1712] Complete - SUCCESS: Done
+[2026-01-19 15:47:01] [INFO] [HAIKU:1736] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [HAIKU:1736] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:47:01] [INFO] [HAIKU:1760] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [HAIKU:1760] Complete - SUCCESS: Done
+[2026-01-19 15:47:01] [INFO] [HAIKU:1784] Starting agent execution
+[2026-01-19 15:47:01] [INFO] [HAIKU:1784] Complete - SUCCESS: All done
+[2026-01-19 15:47:01] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:47:01] [DEBUG] [ZaiClient] Sending 2 messages with 0 tools to https://api.test.com/chat/completions
+[2026-01-19 15:47:01] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:47:01] [DEBUG] [ZaiClient] Sending 2 messages with 1 tools to https://api.test.com/chat/completions
+[2026-01-19 15:47:01] [INFO] [ZaiClient] Initialized with base_url: https://api.test.com, model: GLM-4.7
+[2026-01-19 15:47:01] [DEBUG] [ZaiClient] Sending 2 messages with 0 tools to https://api.test.com/chat/completions
+[2026-01-19 15:49:02] [INFO] [HAIKU:1480] Starting agent execution
+[2026-01-19 15:49:02] [INFO] [HAIKU:1480] Complete - SUCCESS: Done! Here is the haiku...
+[2026-01-19 15:49:02] [INFO] [HAIKU:1512] Starting agent execution
+[2026-01-19 15:49:02] [INFO] [HAIKU:1512] Complete - SUCCESS: All done
+[2026-01-19 15:49:02] [INFO] [HAIKU:1544] Starting agent execution
+[2026-01-19 15:49:02] [WARN] [HAIKU:1544] Max iterations reached
+[2026-01-19 15:49:02] [INFO] [HAIKU:1568] Starting agent execution
+[2026-01-19 15:49:02] [INFO] [HAIKU:1568] Complete - SUCCESS: Done
+[2026-01-19 15:49:02] [INFO] [HAIKU:1592] Starting agent execution
+[2026-01-19 15:49:02] [INFO] [HAIKU:1592] Complete - SUCCESS: All done
+[2026-01-19 15:49:02] [INFO] [HAIKU:1616] Starting agent execution
+[2026-01-19 15:49:02] [INFO] [HAIKU:1616] Complete - SUCCESS: All done
+[2026-01-19 15:49:02] [INFO] [HAIKU:1640] Starting agent execution
+[2026-01-19 15:49:02] [INFO] [HAIKU:1640] Complete - SUCCESS: Done

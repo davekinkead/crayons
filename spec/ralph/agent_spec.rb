@@ -33,6 +33,23 @@ RSpec.describe Ralph::Agent do
     let(:client) { instance_double("Ralph::Clients::Zai", chat: nil) }
     let(:agent) { Ralph::Agent.new('HAIKU', client: client) }
 
+    it 'appends default system prompt to instructions' do
+      expect(client).to receive(:chat).and_return(
+        Ralph::Message.new(role: :assistant, content: "SUCCESS: Done", complete: true)
+      )
+      agent.call('Write me a haiku')
+      expect(agent.instructions).to include('SUCCESS:')
+      expect(agent.instructions).to include('FAILURE:')
+    end
+
+    it 'preserves original agent instructions' do
+      expect(client).to receive(:chat).and_return(
+        Ralph::Message.new(role: :assistant, content: "SUCCESS: Done", complete: true)
+      )
+      agent.call('Write me a haiku')
+      expect(agent.instructions).to include('You are a Haiku bot')
+    end
+
     it 'sends instructions to LLM and returns response content' do
       expect(client).to receive(:chat).with(
         hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array))

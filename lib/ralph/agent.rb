@@ -22,6 +22,7 @@ module Ralph
     def call(prompt)
       @logger.info(@id, "Starting agent execution")
       @messages = []
+      @instructions += default_system_prompt
 
       iteration = 0
       loop do
@@ -128,6 +129,15 @@ module Ralph
       rescue Psych::SyntaxError
         [{}, content]
       end
+    end
+
+    def default_system_prompt
+      <<~PROMPT
+
+        **CRITICAL**: Always return your response in this format:
+        - "SUCCESS: {short summary}" when task is complete
+        - "FAILURE: {detailed explanation}" when task cannot be completed
+      PROMPT
     end
   end
 end

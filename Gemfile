@@ -3,6 +3,7 @@ source "https://rubygems.org"
 
 ruby "~> 3.0"
 
+gem "async"
 gem "debug", "~> 1.0"
 gem "dotenv", "~> 3.0"
 gem "httpx"

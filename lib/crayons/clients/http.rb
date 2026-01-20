@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require "async"
 require "httpx"
 require "json"
 require_relative "../logger"
@@ -20,17 +21,19 @@ module Crayons
         @logger.debug("HTTP", "POST #{url}")
         @logger.debug("HTTP", format_payload_summary(payload))
 
-        response = HTTPX.post(
-          url,
-          headers: {
-            Authorization: "Bearer #{@api_key}",
-            "Content-Type": "application/json"
-          },
-          body: payload.to_json,
-          timeout: { connect_timeout: 10, operation_timeout: 60 }
-        )
+        Async do
+          response = HTTPX.post(
+            url,
+            headers: {
+              Authorization: "Bearer #{@api_key}",
+              "Content-Type": "application/json"
+            },
+            body: payload.to_json,
+            timeout: { connect_timeout: 10, operation_timeout: 60 }
+          )
 
-        handle_response(response)
+          handle_response(response)
+        end.wait
       rescue HTTPX::TimeoutError, HTTPX::ConnectionError, Errno::ECONNREFUSED => e
         @logger.error("HTTP", "Network error: #{e.message}")
         raise NetworkError, "Network error: #{e.message}"

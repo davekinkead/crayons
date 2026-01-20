@@ -74,6 +74,8 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 
 ## User Feedback
 
+- [ ] BUG: NEVER log during specs - if tests pass, they should only show the test summary.
+- [x] Implement async. use the async gem and httpx plugin. Wrap agent instantiation in spawn_agent tool as this is where blocking starts.
 - [x] Better HTTPX error management. We need to get the actual error from ErrorResponse and throw that, not `undefined method 'status' for an instance of HTTPX::ErrorResponse`
 - [x] Runtime error still occurring. See `[2026-01-20 17:17:38] [ERROR] [AGENT:BART:488]` in logs.
     ```
@@ -83,7 +85,6 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
     The implementation needs to properly check for HTTPX::ErrorResponse type before attempting to call `.status` on the response object. The error indicates that line 83 is still trying to call `.status` on an HTTPX::ErrorResponse object without proper type checking.
     It might be a very good idea to create a small wrapper for the response that normalizes the different HTTPX::Response and HTTPX::ErrorResponse objects.
 - [ ] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
-- [ ] Implement async. use the async gem and httpx plugin. Wrap agent instantiation in spawn_agent tool as this is where blocking starts.
 - [ ] CLANCY is not commiting all the changed files in the final git commit. Ensure the prompt refects the require to commit work on SUCCESS.
 - [ ] Dont create unit tests for processes. Unit tests should match the class they are testing
 
@@ -115,3 +116,5 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Updated logging format: tool CALL/RESPONSE format, HTTP payload summary, 500-char truncation for non-ERROR logs
 - Fixed HTTPX ErrorResponse type checking before accessing status method to prevent 'undefined method' errors
 - Added comprehensive error message extraction for ErrorResponse objects with multiple fallback strategies
+- Implemented async/await support using async gem with fiber-based concurrency in HTTP client and SpawnAgentTool
+- Maintained synchronous interface for callers while enabling non-blocking I/O operations internally

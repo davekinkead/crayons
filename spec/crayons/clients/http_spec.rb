@@ -81,6 +81,84 @@ RSpec.describe Crayons::Clients::HTTP do
     end
 
     context "HTTPX ErrorResponse handling" do
+      it "raises NetworkError for HTTPX::ErrorResponse with error having message" do
+        # Create a mock that behaves like HTTPX::ErrorResponse
+        error = StandardError.new("Connection reset by peer")
+        error_response = double("HTTPX::ErrorResponse",
+                                error: error,
+                                to_s: error.message)
+
+        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
+
+        allow(HTTPX).to receive(:post).and_return(error_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Connection reset by peer/)
+      end
+
+      it "raises NetworkError for HTTPX::ErrorResponse when error doesn't have message method" do
+        # Create an error object that doesn't respond to :message
+        error_without_message = Object.new
+        error_response = double("HTTPX::ErrorResponse",
+                                error: error_without_message,
+                                to_s: "Fallback error message from to_s")
+
+        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
+
+        allow(HTTPX).to receive(:post).and_return(error_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Fallback error message from to_s/)
+      end
+
+      it "raises NetworkError when ErrorResponse doesn't respond to :error attribute" do
+        # Create a mock ErrorResponse without error attribute
+        error_response = double("HTTPX::ErrorResponse",
+                                to_s: "Error from to_s method")
+
+        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
+        allow(error_response).to receive(:respond_to?).with(:error).and_return(false)
+
+        allow(HTTPX).to receive(:post).and_return(error_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Error from to_s method/)
+      end
+
+      it "raises NetworkError when ErrorResponse error is nil" do
+        # Create a mock ErrorResponse with nil error
+        error_response = double("HTTPX::ErrorResponse",
+                                error: nil,
+                                to_s: "Error with nil error object")
+
+        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
+
+        allow(HTTPX).to receive(:post).and_return(error_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Error with nil error object/)
+      end
+
+      it "raises NetworkError for HTTPX::ErrorResponse with empty error message" do
+        # Create an error with empty message
+        error = StandardError.new("")
+        error_response = double("HTTPX::ErrorResponse",
+                                error: error,
+                                to_s: "Error representation")
+
+        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
+
+        allow(HTTPX).to receive(:post).and_return(error_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: $/)
+      end
+
       it "raises NetworkError when response object is missing required methods" do
         # Simulate any object that doesn't respond to :status
         invalid_object = Object.new

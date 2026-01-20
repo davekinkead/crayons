@@ -40,9 +40,18 @@ But agents still need to be designed so they ALWAYS return a SUCCESS or FAILURE 
 
 It is very important for the user to see agent processes as they run. This will initially be realised via logging that can be streamed by an external service.
 
+Logging follows a structured format:
+- DEBUG: tool calls and responses in the format `[agent-id] [tool] CALL|RESPONSE {param|result}`
+- INFO: agent lifecycle events showing start/complete with prompt/return message
+- ERROR: maximum detail with no truncation limit
+
+Non-ERROR log lines are truncated to 500 characters. Large payloads (like HTTP requests) should be summarized with key fields instead of full JSON dumps.
+
 ## Concurrency
 
-Performance will be enhanced through the use of `async` Ruby so that calls to LLMs and agent completions do not block the process.
+Performance will be enhanced through the use of `async` Ruby so that calls to LLMs and agent completions do not block the process. HTTP clients will leverage Ruby's async capabilities with fiber-based concurrency, maintaining a synchronous interface for callers while enabling non-blocking I/O operations under the hood to improve throughput when multiple agents run concurrently.
+
+HTTP clients must handle errors gracefully by rescuing from StandardError and raising appropriate NetworkError exceptions with meaningful context, avoiding direct exposure of library-specific error objects.
 
 Concurrent agents should be possible throught the use of git worktrees. This means that agents need to be instantiated with a required 'workdir' param, this value is injected into ALL took execution. For security purposes, tool calls with argument paths not containing the workdir MUST be rejected with an appropriate message.
 
@@ -50,27 +59,34 @@ CLANCY will need to create git worktrees for BART. The worktree names should ref
 
 ## Git
 
-CLANCY needs to create git worktrees when he creates PRD. When he spawns BART, he needs to provide worktree and PRD information (the names should match)
+Concurrent agents require a specific git workflow involving git worktrees.
 
-BART should be working in the context of a worktree. The allows BART to commit frequently as a way of persisting memory between agent processes (agents are ephemeral and have no memory). Bart can commit code on success or just udpates to the PRD on failure.
+CLANCY works from `main` and should be created with `dir: "./"`.  CLANCY creates git worktrees that match the PRD file name. He can then spawn BART with the worktree as the dir param.
+
+BART should be working in the context of a worktree. The allows BART to commit frequently as a way of persisting memory between agent processes (agents are ephemeral and have no memory). All tooling must therefore enforce `dir` compliance.
+
+Bart can commit all code on success or just udpates to the PRD on failure. This way BART can keep a record of failures until he returns SUCCESS
 
 CLANCY should decide what to merge based on BART's success or failure. If BART succeeds, CLANCY should squash-merge the worktree back into main as a single commit with a comprehensive message. If BART fails, CLANCY can commit document updates for memory and just spawn another BART.
+
 
 ---
 
 ## User Feedback
 
-- [ ] Agents are getting stuck in run away tool use. The current max-iterations counter is for conversations, not internal message count. Let's start with a 10 message limit and go from there.
-- [ ] The system is running slow. Focus on `async` first.
-- [x] BUG: HTTPX ErrorResponse object doesn't have a .status method. Update `handle_response` rescue from any StandardError and raise a NetworkError
-- [ ] Better HTTPX error management. We need to get the actual error from ErrorResponse and throw that, not `undefined method 'status' for an instance of HTTPX::ErrorResponse`
-- [x] Logging updates ...
-  - [x] DEBUG: tool calls and responses like `[agent-id] [tool] CALL|RESPONSE {param|result}`
-  - [x] INFO: show agent start/complete with prompt/return message
-  - [x] ERROR: give as much detail as possible. no limit.
-  - [x] No more message json - swap `@logger.debug("HTTP", "Payload: #{payload.to_json}...")` for `[DEBUG] [HTTP] Payload: model=GLM-4.7, messages=3, tools=5`
-  - [x] truncate all log lines to 500 chars
-  - [x] Everything else stays as-is.
+- [x] Better HTTPX error management. We need to get the actual error from ErrorResponse and throw that, not `undefined method 'status' for an instance of HTTPX::ErrorResponse`
+- [x] Runtime error still occurring. See `[2026-01-20 17:17:38] [ERROR] [AGENT:BART:488]` in logs.
+    ```
+    Crayons::Clients::HTTP::NetworkError: Network error: undefined method 'status' for an instance of HTTPX::ErrorResponse
+    /Users/davekinkead/Projects/crayons/lib/crayons/clients/http.rb:83:in 'Crayons::Clients::HTTP#handle_response'
+    ```
+    The implementation needs to properly check for HTTPX::ErrorResponse type before attempting to call `.status` on the response object. The error indicates that line 83 is still trying to call `.status` on an HTTPX::ErrorResponse object without proper type checking.
+    It might be a very good idea to create a small wrapper for the response that normalizes the different HTTPX::Response and HTTPX::ErrorResponse objects.
+- [ ] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
+- [ ] Implement async. use the async gem and httpx plugin. Wrap agent instantiation in spawn_agent tool as this is where blocking starts.
+- [ ] CLANCY is not commiting all the changed files in the final git commit. Ensure the prompt refects the require to commit work on SUCCESS.
+- [ ] Dont create unit tests for processes. Unit tests should match the class they are testing
+
 
 ## Agent Questions
 
@@ -97,3 +113,5 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Verified full CLANCY → BART → MARGE → APU → LISA workflow with HelloWorld class implementation
 - Fixed HTTPX ErrorResponse handling to rescue from StandardError and raise NetworkError
 - Updated logging format: tool CALL/RESPONSE format, HTTP payload summary, 500-char truncation for non-ERROR logs
+- Fixed HTTPX ErrorResponse type checking before accessing status method to prevent 'undefined method' errors
+- Added comprehensive error message extraction for ErrorResponse objects with multiple fallback strategies

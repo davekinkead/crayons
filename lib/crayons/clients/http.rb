@@ -54,6 +54,13 @@ module Crayons
       end
 
       def handle_response(response)
+        # Check if response is an HTTPX::ErrorResponse (doesn't have status method)
+        if response.is_a?(HTTPX::ErrorResponse)
+          error_message = extract_error_message(response)
+          @logger.error("HTTP", "ErrorResponse: #{error_message}")
+          raise NetworkError, "Network error: #{error_message}"
+        end
+
         status = response.status
         body = response.body.to_s
 
@@ -73,6 +80,17 @@ module Crayons
       rescue StandardError => e
         @logger.error("HTTP", "Response handling error: #{e.message}")
         raise NetworkError, "Network error: #{e.message}"
+      end
+
+      def extract_error_message(error_response)
+        # HTTPX::ErrorResponse has an error attribute with the wrapped exception
+        if error_response.respond_to?(:error)
+          error = error_response.error
+          return error.message if error.respond_to?(:message)
+        end
+
+        # Fallback to to_s if error method doesn't work
+        error_response.to_s
       end
     end
   end

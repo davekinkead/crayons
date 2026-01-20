@@ -74,6 +74,8 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 
 ## User Feedback
 
+- [x] Bash sanitization isn't correct. Allow cp mv brew wget curl. Allow `rm` but not with recursive flags. Extract this logic into a stand alone module that can be used by bash, glob and grep tools
+- [ ] Dont create unit tests for processes. Unit tests should match the class they are testing
 - [x] URGENT: Somewhere a long the way the santization of the bash tool was removed. Forbid dangerous actions that agents with full access should be banned from.
 - [x] BUG: NEVER log during specs - if tests pass, they should only show the test summary. See http_spec.rb
 - [x] Implement async. use the async gem and httpx plugin. Wrap agent instantiation in spawn_agent tool as this is where blocking starts.
@@ -86,8 +88,6 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
     The implementation needs to properly check for HTTPX::ErrorResponse type before attempting to call `.status` on the response object. The error indicates that line 83 is still trying to call `.status` on an HTTPX::ErrorResponse object without proper type checking.
     It might be a very good idea to create a small wrapper for the response that normalizes the different HTTPX::Response and HTTPX::ErrorResponse objects.
 - [ ] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
-- [ ] CLANCY is not commiting all the changed files in the final git commit. Ensure the prompt refects the require to commit work on SUCCESS.
-- [ ] Dont create unit tests for processes. Unit tests should match the class they are testing
 
 
 ## Agent Questions
@@ -121,3 +121,5 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Maintained synchronous interface for callers while enabling non-blocking I/O operations internally
 - Fixed Async logging during specs by handling exceptions inside Async blocks to prevent stderr warnings
 - Added command sanitization to BashTool to forbid dangerous commands (rm, rmdir, dd, mkfs, kill, sudo, chmod, chown, apt-get, yum, brew, mv, cp) while allowing safe development commands (echo, ls, cat, grep, find, git, ruby, rspec)
+- Extracted command sanitization logic into Crayons::CommandSanitizer module for reuse across bash, grep, and glob tools
+- Refined sanitization rules: now allow cp, mv, brew, wget, curl; allow rm without recursive flags but block rm -r, -rf, etc.

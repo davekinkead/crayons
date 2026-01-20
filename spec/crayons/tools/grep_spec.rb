@@ -105,7 +105,7 @@ RSpec.describe Crayons::GrepTool do
 
   it "rejects commands with output redirection" do
     result = tool.execute(command: "rg -n hello #{test_dir} > /tmp/output")
-    expect(result[:error]).to include("unsafe output redirection")
+    expect(result[:error]).to include("output redirection")
     expect(result[:matches]).to eq([])
   end
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require_relative "crayons/version"
 require_relative "crayons/logger"
+require_relative "crayons/command_sanitizer"
 require_relative "crayons/agent"
 require_relative "crayons/tools"
 require_relative "crayons/clients/zai"

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require "English"
+require "english"
 module Crayons
   class GrepTool < Tool
     description "Execute ripgrep commands (rg) to search for patterns in files"
@@ -8,7 +8,6 @@ module Crayons
       string :command, description: "The ripgrep command to execute (must start with 'rg')"
     end
 
-    # Simply pass it on to bash if it is safe to do so
     def execute(command:)
       return { error: "Command must start with 'rg'", matches: [] } unless command.strip.start_with?("rg")
 
@@ -27,25 +26,19 @@ module Crayons
     private
 
     def unsafe_command?(command)
-      return "Command contains unsafe operators (;, &, backticks, $, or parentheses)" if command.match?(/[;&`$()]/)
+      error = CommandSanitizer.check_unsafe_operators(command)
+      return error if error
 
-      return "Command contains unsafe output redirection (>)" if command.match?(/>[^>]/)
+      error = CommandSanitizer.check_output_redirection(command)
+      return error if error
 
       if command.match?(/\|[^|]/)
         piped_command = command.split("|", 2)[1].strip
-        allowed_pipe_commands = %w[head tail sort uniq wc grep cut awk sed]
-        piped_cmd_name = piped_command.split.first
-
-        return "Piped command '#{piped_cmd_name}' is not allowed. Allowed: #{allowed_pipe_commands.join(', ')}" unless allowed_pipe_commands.include?(piped_cmd_name)
-
-        return "Piped command contains unsafe operators" if unsafe_command_in_pipe?(piped_command)
+        allowed_pipe_commands = CommandSanitizer::GREP_ALLOWED_PIPE_COMMANDS
+        return CommandSanitizer.check_pipe_command(piped_command, allowed_pipe_commands)
       end
 
       false
-    end
-
-    def unsafe_command_in_pipe?(piped_command)
-      piped_command.match?(/[;&`$()]/) || piped_command.match?(/>[^>]/)
     end
 
     def parse_rg_output(output)

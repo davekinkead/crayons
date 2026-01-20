@@ -16,16 +16,75 @@ RSpec.describe Crayons::BashTool do
     expect(result[:exit_status]).to eq(1)
   end
 
-  it "forbids rm command" do
+  # Tests for refined rm behavior - allow without recursive flags
+  it "allows rm without recursive flags" do
+    result = tool.execute(command: "rm /tmp/nonexistent_test_file_12345")
+    # Command will fail because file doesn't exist, but should not be blocked by sanitizer
+    expect(result[:error]).to be_nil
+  end
+
+  it "blocks rm with -r flag" do
+    result = tool.execute(command: "rm -r /tmp/test")
+    expect(result[:error]).to include("recursive")
+  end
+
+  it "blocks rm with -rf flag" do
     result = tool.execute(command: "rm -rf /tmp/test")
-    expect(result[:error]).to include("Forbidden command: rm")
+    expect(result[:error]).to include("recursive")
   end
 
-  it "forbids rm command with flags" do
-    result = tool.execute(command: "-rm -rf /tmp/test")
-    expect(result[:error]).to include("Forbidden command: rm")
+  it "blocks rm with -R flag" do
+    result = tool.execute(command: "rm -R /tmp/test")
+    expect(result[:error]).to include("recursive")
   end
 
+  it "blocks rm with -fr flag" do
+    result = tool.execute(command: "rm -fr /tmp/test")
+    expect(result[:error]).to include("recursive")
+  end
+
+  it "blocks rm -rf / pattern specifically" do
+    result = tool.execute(command: "rm -rf /")
+    expect(result[:error]).to include("Forbidden command pattern")
+  end
+
+  it "blocks rm -rf /* pattern specifically" do
+    result = tool.execute(command: "rm -rf /*")
+    expect(result[:error]).to include("Forbidden command pattern")
+  end
+
+  # Tests for newly allowed commands
+  it "allows cp command" do
+    result = tool.execute(command: "cp /tmp/nonexistent_src /tmp/nonexistent_dest")
+    # Command will fail but should not be blocked
+    expect(result[:error]).to be_nil
+  end
+
+  it "allows mv command" do
+    result = tool.execute(command: "mv /tmp/nonexistent_src /tmp/nonexistent_dest")
+    # Command will fail but should not be blocked
+    expect(result[:error]).to be_nil
+  end
+
+  it "allows brew command" do
+    result = tool.execute(command: "brew list")
+    # brew list should work if brew is installed, otherwise fails but not blocked
+    expect(result[:error]).to be_nil
+  end
+
+  it "allows wget command" do
+    result = tool.execute(command: "wget --help")
+    # wget --help should work if wget is installed
+    expect(result[:error]).to be_nil
+  end
+
+  it "allows curl command" do
+    result = tool.execute(command: "curl --version")
+    # curl --version should work
+    expect(result[:error]).to be_nil
+  end
+
+  # Tests for still-blocked dangerous commands
   it "forbids rmdir command" do
     result = tool.execute(command: "rmdir /tmp/test")
     expect(result[:error]).to include("Forbidden command: rmdir")
@@ -81,40 +140,29 @@ RSpec.describe Crayons::BashTool do
     expect(result[:error]).to include("Forbidden command: yum")
   end
 
-  it "forbids brew command" do
-    result = tool.execute(command: "brew install package")
-    expect(result[:error]).to include("Forbidden command: brew")
+  it "forbids dnf command" do
+    result = tool.execute(command: "dnf install package")
+    expect(result[:error]).to include("Forbidden command: dnf")
   end
 
-  it "forbids mv command" do
-    result = tool.execute(command: "mv /etc/passwd /tmp/passwd")
-    expect(result[:error]).to include("Forbidden command: mv")
+  it "forbids pacman command" do
+    result = tool.execute(command: "pacman -S package")
+    expect(result[:error]).to include("Forbidden command: pacman")
   end
 
-  it "forbids cp command" do
-    result = tool.execute(command: "cp /etc/passwd /tmp/passwd")
-    expect(result[:error]).to include("Forbidden command: cp")
+  it "forbids shutdown command" do
+    result = tool.execute(command: "shutdown -h now")
+    expect(result[:error]).to include("Forbidden command: shutdown")
+  end
+
+  it "forbids reboot command" do
+    result = tool.execute(command: "reboot")
+    expect(result[:error]).to include("Forbidden command: reboot")
   end
 
   it "forbids dangerous commands in pipe chain" do
-    result = tool.execute(command: "cat file.txt | rm /tmp/test")
-    expect(result[:error]).to include("Forbidden command: rm")
-  end
-
-  it "forbids rm -rf / pattern specifically" do
-    result = tool.execute(command: "rm -rf /")
-    expect(result[:error]).to include("Forbidden command pattern detected")
-  end
-
-  it "forbids rm -rf /* pattern specifically" do
-    result = tool.execute(command: "rm -rf /*")
-    expect(result[:error]).to include("Forbidden command pattern detected")
-  end
-
-  it "forbids dd if=/dev/zero pattern specifically" do
-    result = tool.execute(command: "dd if=/dev/zero of=/dev/sda")
-    # Either pattern or command error is acceptable since dd is blocked
-    expect(result[:error]).to match(/Forbidden/)
+    result = tool.execute(command: "cat README.md | rm -rf /tmp/test")
+    expect(result[:error]).to include("recursive")
   end
 
   it "allows safe commands like echo" do

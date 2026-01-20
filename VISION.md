@@ -74,6 +74,7 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 
 ## User Feedback
 
+- [x] URGENT: Somewhere a long the way the santization of the bash tool was removed. Forbid dangerous actions that agents with full access should be banned from.
 - [x] BUG: NEVER log during specs - if tests pass, they should only show the test summary. See http_spec.rb
 - [x] Implement async. use the async gem and httpx plugin. Wrap agent instantiation in spawn_agent tool as this is where blocking starts.
 - [x] Better HTTPX error management. We need to get the actual error from ErrorResponse and throw that, not `undefined method 'status' for an instance of HTTPX::ErrorResponse`
@@ -119,3 +120,4 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Implemented async/await support using async gem with fiber-based concurrency in HTTP client and SpawnAgentTool
 - Maintained synchronous interface for callers while enabling non-blocking I/O operations internally
 - Fixed Async logging during specs by handling exceptions inside Async blocks to prevent stderr warnings
+- Added command sanitization to BashTool to forbid dangerous commands (rm, rmdir, dd, mkfs, kill, sudo, chmod, chown, apt-get, yum, brew, mv, cp) while allowing safe development commands (echo, ls, cat, grep, find, git, ruby, rspec)

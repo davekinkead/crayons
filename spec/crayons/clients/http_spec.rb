@@ -22,6 +22,84 @@ RSpec.describe Crayons::Clients::HTTP do
     let(:client) { described_class.new(api_key:, base_url:) }
     let(:payload) { { model: "test-model", messages: [] } }
 
+    context "produces no output to stderr" do
+      it "does not write to stderr during successful requests" do
+        mock_response = double("response", status: 200, body: "{}")
+        allow(HTTPX).to receive(:post).and_return(mock_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when APIError is raised" do
+        mock_response = double("response", status: 400, body: "Bad Request")
+        allow(HTTPX).to receive(:post).and_return(mock_response)
+
+        expect do
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::APIError)
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when ResponseError is raised" do
+        mock_response = double("response", status: 200, body: "invalid json")
+        allow(HTTPX).to receive(:post).and_return(mock_response)
+
+        expect do
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::ResponseError)
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when NetworkError is raised for ErrorResponse" do
+        error = StandardError.new("Connection reset by peer")
+        error_response = double("HTTPX::ErrorResponse",
+                                error: error,
+                                to_s: error.message)
+        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
+        allow(HTTPX).to receive(:post).and_return(error_response)
+
+        expect do
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when NetworkError is raised for TimeoutError" do
+        allow(HTTPX).to receive(:post).and_raise(HTTPX::TimeoutError.new(60, "Request timed out"))
+
+        expect do
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when NetworkError is raised for ConnectionError" do
+        allow(HTTPX).to receive(:post).and_raise(HTTPX::ConnectionError.new("Connection failed"))
+
+        expect do
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when NetworkError is raised for ECONNREFUSED" do
+        allow(HTTPX).to receive(:post).and_raise(Errno::ECONNREFUSED, "Connection refused")
+
+        expect do
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when unexpected exception occurs in async block" do
+        # Simulate an unexpected error that happens inside the async block
+        allow(HTTPX).to receive(:post) do
+          # This simulates an error that occurs after HTTPX.post is called but inside the async block
+          raise HTTPX::TimeoutError.new(60, "Unexpected timeout")
+        end
+
+        expect do
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
+        end.to_not output.to_stderr
+      end
+    end
+
     context "successful request" do
       it "returns parsed JSON response" do
         response_body = { "choices" => [{ "message" => { "content" => "test response" } }] }

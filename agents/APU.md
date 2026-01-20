@@ -33,6 +33,7 @@ Start by reviewing [TESTING.md](./TESTING.md) standards and guidelines.
 - Test names describe BEHAVIOR, not implementation
 - Tests use proper RSpec structure (describe/context/it)
 - No hardcoded values that obscure intent
+- NEVER log output during specs. Passing specs should only display the summary.
 
 ### Assertion Strategy
 - Prioritize robust assertions over brittle ones

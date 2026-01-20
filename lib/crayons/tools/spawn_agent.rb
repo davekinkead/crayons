@@ -14,12 +14,15 @@ module Crayons
       # Convert to string if symbol is passed
       agent_name_str = agent_name.to_s
 
+      result = nil
+      error = nil
+
       Async do
         # Create a new agent instance with its own fresh context
         agent = Crayons::Agent.new(agent_name_str)
 
         # Call the agent with the instructions
-        agent.call(instructions)
+        result = agent.call(instructions)
 
         # Return the agent's raw response (including promise tags)
       rescue StandardError => e
@@ -32,8 +35,11 @@ module Crayons
           error_message += "\n\nAvailable agents: #{available_agents.join(', ')}"
         end
 
-        { error: error_message, success: false }
+        error = { error: error_message, success: false }
       end.wait
+
+      return error if error
+      result
     end
 
     private

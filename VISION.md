@@ -74,7 +74,7 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 
 ## User Feedback
 
-- [ ] BUG: NEVER log during specs - if tests pass, they should only show the test summary.
+- [x] BUG: NEVER log during specs - if tests pass, they should only show the test summary. See http_spec.rb
 - [x] Implement async. use the async gem and httpx plugin. Wrap agent instantiation in spawn_agent tool as this is where blocking starts.
 - [x] Better HTTPX error management. We need to get the actual error from ErrorResponse and throw that, not `undefined method 'status' for an instance of HTTPX::ErrorResponse`
 - [x] Runtime error still occurring. See `[2026-01-20 17:17:38] [ERROR] [AGENT:BART:488]` in logs.
@@ -118,3 +118,4 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Added comprehensive error message extraction for ErrorResponse objects with multiple fallback strategies
 - Implemented async/await support using async gem with fiber-based concurrency in HTTP client and SpawnAgentTool
 - Maintained synchronous interface for callers while enabling non-blocking I/O operations internally
+- Fixed Async logging during specs by handling exceptions inside Async blocks to prevent stderr warnings

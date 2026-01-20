@@ -6,6 +6,43 @@ RSpec.describe Crayons::SpawnAgentTool do
   let(:tool) { Crayons::SpawnAgentTool.new }
 
   describe "#execute" do
+    context "produces no output to stderr" do
+      it "does not write to stderr during successful agent spawn" do
+        client_instance = instance_double(Crayons::Clients::Zai, chat: nil)
+        allow(Crayons::Clients::Zai).to receive(:new).and_return(client_instance)
+        allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
+          .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Done", complete: true))
+
+        expect do
+          tool.execute(agent_name: "MARGE", instructions: "Test task")
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when agent file not found" do
+        allow(File).to receive(:exist?).and_return(false)
+
+        expect do
+          result = tool.execute(agent_name: "MARGE", instructions: "Test")
+          expect(result[:error]).to include("not found")
+        end.to_not output.to_stderr
+      end
+
+      it "does not write to stderr when agent returns failure" do
+        client_instance = instance_double(Crayons::Clients::Zai, chat: nil)
+        allow(Crayons::Clients::Zai).to receive(:new).and_return(client_instance)
+        allow(client_instance).to receive(:chat)
+          .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
+          .and_return(Crayons::Message.new(role: :assistant, content: "Can't do it", complete: false))
+          .and_return(Crayons::Message.new(role: :assistant, content: "Too hard", complete: false))
+
+        expect do
+          result = tool.execute(agent_name: "MARGE", instructions: "Impossible task")
+          expect(result).to start_with("FAILURE:")
+        end.to_not output.to_stderr
+      end
+    end
+
     context "with valid agent name" do
       let(:client_instance) { instance_double(Crayons::Clients::Zai, chat: nil) }
 

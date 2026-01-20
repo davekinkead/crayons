@@ -18,7 +18,7 @@ module Crayons
 
       def post(url, payload)
         @logger.debug("HTTP", "POST #{url}")
-        @logger.debug("HTTP", "Payload: #{payload.to_json}...")
+        @logger.debug("HTTP", format_payload_summary(payload))
 
         response = HTTPX.post(
           url,
@@ -37,6 +37,21 @@ module Crayons
       end
 
       private
+
+      def format_payload_summary(payload)
+        summary_parts = []
+
+        # Add model if present
+        summary_parts << "model=#{payload[:model]}" if payload[:model]
+
+        # Add messages count if present
+        summary_parts << "messages=#{payload[:messages].length}" if payload[:messages]
+
+        # Add tools count if present
+        summary_parts << "tools=#{payload[:tools].length}" if payload[:tools]
+
+        summary_parts.join(", ")
+      end
 
       def handle_response(response)
         status = response.status

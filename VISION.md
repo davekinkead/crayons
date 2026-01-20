@@ -30,6 +30,12 @@ Important requirements are that:
 
 **LISA** validates that implementation code meets project quality standards and architectural requirements—checking code style, architecture compliance, error handling, code organization, dependencies, and documentation—without reading specs (APU handles that).
 
+## Agent Context
+
+Agents are disposable and ephemeral. They often get stuck in loops so it is ok to have them fail early and then just re-start them. The system needs to be designed around the inevitablility of agent failure.
+
+But agents still need to be designed so they ALWAYS return a SUCCESS or FAILURE message. The need internal error handling for this which will allow calling agents to know how to respond.
+
 ## Visibility
 
 It is very important for the user to see agent processes as they run. This will initially be realised via logging that can be streamed by an external service.
@@ -54,10 +60,17 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 
 ## User Feedback
 
+- [ ] Agents are getting stuck in run away tool use. The current max-iterations counter is for conversations, not internal message count. Let's start with a 10 message limit and go from there.
 - [ ] The system is running slow. Focus on `async` first.
 - [x] BUG: HTTPX ErrorResponse object doesn't have a .status method. Update `handle_response` rescue from any StandardError and raise a NetworkError
-- [ ] BUG: The glob tool rejects commands with output redirection (2>/dev/null). Allow piping to /dev/null
-- [ ] Update logging so that agent.call logs the prompt message and the return message at INFO level. So rather than the current `[INFO] [MARGE:952] Starting agent execution`, it should be something like `[INFO] [MARGE:952] Stating: {prompt}`
+- [ ] Better HTTPX error management. We need to get the actual error from ErrorResponse and throw that, not `undefined method 'status' for an instance of HTTPX::ErrorResponse`
+- [x] Logging updates ...
+  - [x] DEBUG: tool calls and responses like `[agent-id] [tool] CALL|RESPONSE {param|result}`
+  - [x] INFO: show agent start/complete with prompt/return message
+  - [x] ERROR: give as much detail as possible. no limit.
+  - [x] No more message json - swap `@logger.debug("HTTP", "Payload: #{payload.to_json}...")` for `[DEBUG] [HTTP] Payload: model=GLM-4.7, messages=3, tools=5`
+  - [x] truncate all log lines to 500 chars
+  - [x] Everything else stays as-is.
 
 ## Agent Questions
 
@@ -83,3 +96,4 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Added Rubocop to enfore styles
 - Verified full CLANCY → BART → MARGE → APU → LISA workflow with HelloWorld class implementation
 - Fixed HTTPX ErrorResponse handling to rescue from StandardError and raise NetworkError
+- Updated logging format: tool CALL/RESPONSE format, HTTP payload summary, 500-char truncation for non-ERROR logs

@@ -24,7 +24,12 @@ module Crayons
           tools: self.class.convert_tools_to_schemas(tools)
         }
 
-        @logger.debug("ZaiClient", "Sending #{messages_with_system.length} messages with #{payload[:tools]&.length || 0} tools to #{@base_url}/chat/completions")
+        # Log summary format: model=X, messages=Y, tools=Z
+        summary_parts = []
+        summary_parts << "model=#{@model}" if @model
+        summary_parts << "messages=#{messages_with_system.length}"
+        summary_parts << "tools=#{payload[:tools]&.length || 0}"
+        @logger.debug("ZaiClient", summary_parts.join(", "))
 
         response = @http_client.post("#{@base_url}/chat/completions", payload)
 

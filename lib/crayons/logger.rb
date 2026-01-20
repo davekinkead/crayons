@@ -5,6 +5,7 @@ require "logger"
 module Crayons
   class Logger
     MAX_CONTEXT_LENGTH = 100
+    MAX_MESSAGE_LENGTH = 500
 
     class << self
       def instance
@@ -32,7 +33,8 @@ module Crayons
 
       context = truncate_context(agent_id.to_s)
       sanitized_message = sanitize_message(message)
-      @logger.add(actual_level, "[#{context}] #{sanitized_message}")
+      truncated_message = truncate_message(sanitized_message, actual_level)
+      @logger.add(actual_level, "[#{context}] #{truncated_message}")
     rescue StandardError => _e
       nil
     end
@@ -97,6 +99,15 @@ module Crayons
 
     def sanitize_message(message)
       message.to_s.gsub(/\r?\n/, " ").squeeze(" ").strip
+    end
+
+    def truncate_message(message, level)
+      # ERROR logs are never truncated
+      return message if level == ::Logger::ERROR
+
+      # All other logs are truncated to MAX_MESSAGE_LENGTH (500 chars)
+      return message if message.length <= MAX_MESSAGE_LENGTH
+      message[0...MAX_MESSAGE_LENGTH]
     end
 
     def parse_log_level

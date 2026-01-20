@@ -77,18 +77,18 @@ module Crayons
       tool_name = tool_call["function"]["name"]
       tool_args = JSON.parse(tool_call["function"]["arguments"]).transform_keys(&:to_sym)
 
-      @logger.debug("AGENT:#{@id}", "TOOL_CALL #{tool_name} #{tool_args}")
+      @logger.debug(@id, "[#{tool_name}] CALL #{tool_args.to_json}")
 
       tool_instance = @tool_instances.find { |t| t.name == tool_name }
 
       unless tool_instance
-        @logger.warn("AGENT:#{@id}", "Tool not found: #{tool_name}")
+        @logger.warn(@id, "Tool not found: #{tool_name}")
         return
       end
 
       result = tool_instance.execute(**tool_args)
 
-      @logger.debug("AGENT:#{@id}", "TOOL_RESPONSE #{tool_name} #{result}")
+      @logger.debug(@id, "[#{tool_name}] RESPONSE #{result.to_json}")
 
       @messages << Message.new(
         role: :tool,

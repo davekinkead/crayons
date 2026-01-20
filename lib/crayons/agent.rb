@@ -21,7 +21,7 @@ module Crayons
     end
 
     def call(prompt)
-      @logger.info(@id, "Starting agent execution")
+      @logger.info("AGENT:#{@id}", "Starting: #{prompt}")
       @messages = []
       @instructions += default_system_prompt
 
@@ -36,19 +36,19 @@ module Crayons
         end
 
         if response.complete?
-          @logger.info(@id, "Complete - #{response.content}")
+          @logger.info("AGENT:#{@id}", "Completed: #{response.content}")
           return response.content
         end
 
         break if iteration >= @max_iterations
       end
 
-      @logger.warn(@id, "Max iterations reached")
+      @logger.warn("AGENT:#{@id}", "Max iterations reached")
       final_prompt = "You've reached the maximum number of turns without completing the task. Please explain why you couldn't complete it and what went wrong."
       final_response = chat(final_prompt)
       "FAILURE: Max iterations reached. #{final_response.content}"
     rescue StandardError => e
-      @logger.error(@id, "Agent execution failed: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
+      @logger.error("AGENT:#{@id}", "Agent execution failed: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
       "FAILURE: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
     end
 
@@ -77,18 +77,18 @@ module Crayons
       tool_name = tool_call["function"]["name"]
       tool_args = JSON.parse(tool_call["function"]["arguments"]).transform_keys(&:to_sym)
 
-      @logger.debug(@id, "TOOL_CALL #{tool_name} #{tool_args}")
+      @logger.debug("AGENT:#{@id}", "TOOL_CALL #{tool_name} #{tool_args}")
 
       tool_instance = @tool_instances.find { |t| t.name == tool_name }
 
       unless tool_instance
-        @logger.warn(@id, "Tool not found: #{tool_name}")
+        @logger.warn("AGENT:#{@id}", "Tool not found: #{tool_name}")
         return
       end
 
       result = tool_instance.execute(**tool_args)
 
-      @logger.debug(@id, "TOOL_RESPONSE #{tool_name} #{result}")
+      @logger.debug("AGENT:#{@id}", "TOOL_RESPONSE #{tool_name} #{result}")
 
       @messages << Message.new(
         role: :tool,

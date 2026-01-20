@@ -35,7 +35,7 @@ Cycle through your process until you achieve success or are told you have reache
 
 ## Unit of Work
 
-1. Begin by reading the [VISION document](/VISION.md) to find out what the project should look like. [ARCHITECTURE](/ARCHITECTURE.md) will provide help with system design.
+1. Begin by reading the [VISION.md](./VISION.md) document to find out what the project should look like. [ARCHITECTURE.md](./ARCHITECTURE.md) will provide help with system design.
 2. Read the Progress section to see what's already built
 3. Check User Feedback and Agent Questions sections for direction
 4. Identify the smallest unit of work that moves the vision forward

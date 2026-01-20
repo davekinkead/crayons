@@ -55,6 +55,8 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 ## User Feedback
 
 - [ ] The system is running slow. Focus on `async` first.
+- [x] BUG: HTTPX ErrorResponse object doesn't have a .status method. Update `handle_response` rescue from any StandardError and raise a NetworkError
+- [ ] BUG: The glob tool rejects commands with output redirection (2>/dev/null). Allow piping to /dev/null
 - [ ] Update logging so that agent.call logs the prompt message and the return message at INFO level. So rather than the current `[INFO] [MARGE:952] Starting agent execution`, it should be something like `[INFO] [MARGE:952] Stating: {prompt}`
 
 ## Agent Questions
@@ -80,3 +82,4 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Completed AGENTS.md with agent creation and usage guide
 - Added Rubocop to enfore styles
 - Verified full CLANCY → BART → MARGE → APU → LISA workflow with HelloWorld class implementation
+- Fixed HTTPX ErrorResponse handling to rescue from StandardError and raise NetworkError

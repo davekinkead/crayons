@@ -33,6 +33,78 @@ RSpec.describe Crayons::Agent do
   describe "#call" do
     let(:client) { instance_double("Crayons::Clients::Zai", chat: nil) }
     let(:agent) { Crayons::Agent.new("HAIKU", client: client) }
+    let(:logger) { Crayons::Logger.instance }
+
+    before do
+      # Clear any existing singleton instance
+      Crayons::Logger.remove_instance
+      @original_log_level = ENV.fetch("CRAYONS_LOG_LEVEL", nil)
+      ENV["CRAYONS_LOG_LEVEL"] = "DEBUG"
+    end
+
+    after do
+      ENV["CRAYONS_LOG_LEVEL"] = @original_log_level
+    end
+
+    it "logs the prompt when starting agent execution at INFO level" do
+      return_message = "SUCCESS: Done"
+      expect(client).to receive(:chat).and_return(
+        Crayons::Message.new(role: :assistant, content: return_message, complete: true)
+      )
+
+      expect(logger).to receive(:info).ordered.with(
+        /AGENT:#{agent.id}/,
+        /Starting: Write me a haiku/
+      )
+      expect(logger).to receive(:info).ordered.with(
+        /AGENT:#{agent.id}/,
+        /Completed: #{Regexp.escape(return_message)}/
+      )
+
+      agent.call("Write me a haiku")
+    end
+
+    it "logs the return message when agent completes at INFO level" do
+      return_message = "SUCCESS: Haiku written successfully"
+      expect(client).to receive(:chat).and_return(
+        Crayons::Message.new(role: :assistant, content: return_message, complete: true)
+      )
+
+      expect(logger).to receive(:info).ordered.with(
+        /AGENT:#{agent.id}/,
+        /Starting: Write me a haiku/
+      )
+      expect(logger).to receive(:info).ordered.with(
+        /AGENT:#{agent.id}/,
+        /Completed: #{Regexp.escape(return_message)}/
+      )
+
+      agent.call("Write me a haiku")
+    end
+
+    it "logs both prompt and return message for successful execution" do
+      return_message = "SUCCESS: Haiku written successfully"
+      expect(client).to receive(:chat).and_return(
+        Crayons::Message.new(role: :assistant, content: return_message, complete: true)
+      )
+
+      expect(logger).to receive(:info).ordered.with(/AGENT:#{agent.id}/, /Starting:/)
+      expect(logger).to receive(:info).ordered.with(/AGENT:#{agent.id}/, /Completed:/)
+
+      agent.call("Write me a haiku")
+    end
+
+    it "preserves existing logging behavior for max iterations warning" do
+      call_count = 0
+      expect(client).to receive(:chat).exactly(6).times do
+        call_count += 1
+        Crayons::Message.new(role: :assistant, content: "Working...", complete: false)
+      end
+
+      expect(logger).to receive(:warn).with(/AGENT:#{agent.id}/, /Max iterations reached/)
+
+      agent.call("Write me a haiku")
+    end
 
     it "appends default system prompt to instructions" do
       expect(client).to receive(:chat).and_return(

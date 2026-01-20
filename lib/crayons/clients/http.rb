@@ -53,6 +53,11 @@ module Crayons
       rescue JSON::ParserError => e
         @logger.error("HTTP", "JSON parse error: #{e.message}")
         raise ResponseError, "Invalid JSON response: #{e.message}"
+      rescue APIError, ResponseError
+        raise
+      rescue StandardError => e
+        @logger.error("HTTP", "Response handling error: #{e.message}")
+        raise NetworkError, "Network error: #{e.message}"
       end
     end
   end

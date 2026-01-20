@@ -59,5 +59,64 @@ RSpec.describe Crayons::Clients::HTTP do
         client.post(endpoint, payload)
       end
     end
+
+    context "error responses" do
+      it "raises APIError when response status is 400 or higher" do
+        mock_response = double("response", status: 400, body: "Bad Request")
+        allow(HTTPX).to receive(:post).and_return(mock_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::APIError, /API error \(400\)/)
+      end
+
+      it "raises ResponseError when JSON parsing fails" do
+        mock_response = double("response", status: 200, body: "invalid json")
+        allow(HTTPX).to receive(:post).and_return(mock_response)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::ResponseError, /Invalid JSON response/)
+      end
+    end
+
+    context "HTTPX ErrorResponse handling" do
+      it "raises NetworkError when response object is missing required methods" do
+        # Simulate any object that doesn't respond to :status
+        invalid_object = Object.new
+
+        allow(HTTPX).to receive(:post).and_return(invalid_object)
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+      end
+    end
+
+    context "network errors" do
+      it "raises NetworkError for HTTPX::TimeoutError" do
+        allow(HTTPX).to receive(:post).and_raise(HTTPX::TimeoutError.new(60, "Request timed out"))
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+      end
+
+      it "raises NetworkError for HTTPX::ConnectionError" do
+        allow(HTTPX).to receive(:post).and_raise(HTTPX::ConnectionError.new("Connection failed"))
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+      end
+
+      it "raises NetworkError for Errno::ECONNREFUSED" do
+        allow(HTTPX).to receive(:post).and_raise(Errno::ECONNREFUSED, "Connection refused")
+
+        expect do
+          client.post(endpoint, payload)
+        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+      end
+    end
   end
 end

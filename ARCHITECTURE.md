@@ -6,7 +6,7 @@ Crayons is a Ruby-based autonomous software development system that follows the 
 
 ### Agents
 
-`Agents` use a single agent.rb file to instantiate personas based on markdown files (see `agents/CODER.md`).
+`Agents` use a single agent.rb file to instantiate personas based on markdown files (see `agents/MARGE.md`).
 - load personas from markdown
 - declare `Tool` use in frontmatter
 - have their own context
@@ -86,7 +86,7 @@ crayons/
 │       ├── glob.rb
 │       └── haiku.rb
 ├── agents/                # Agent persona definitions
-│   ├── CODER.md
+│   ├── MARGE.md
 │   └── HAIKU.md
 └── spec/                  # Test suite
 ```

@@ -46,3 +46,8 @@ bundle exec rspec
 - All tests must pass before commits
 - No tests should depend on external state
 - Mock LLM calls unless testing actual integration
+
+## Test Limits
+
+- Agents rely on external LLM APIs.
+- Automated tests of behaviour that relies on LLMs is impossible.

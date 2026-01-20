@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require "dotenv/load"
-require_relative "../lib/ralph"
+require_relative "../lib/crayons"
 require "optparse"
 
 options = {}
@@ -30,7 +30,7 @@ if options[:agent].nil? || options[:instructions].nil?
   exit 1
 end
 
-agent = Ralph::Agent.new(options[:agent])
+agent = Crayons::Agent.new(options[:agent])
 response = agent.call(options[:instructions])
 
 puts response

@@ -13,24 +13,24 @@ RSpec.describe Crayons::SpawnAgentTool do
         allow(Crayons::Clients::Zai).to receive(:new).and_return(client_instance)
       end
 
-      it "spawns CODER with instructions and returns response" do
+      it "spawns MARGE with instructions and returns response" do
         allow(client_instance).to receive(:chat)
           .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Crayons::Message.new(role: :assistant, content: "Working on it...", complete: false))
           .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Feature implemented", complete: true))
 
-        result = tool.execute(agent_name: "CODER", instructions: "Implement a feature")
+        result = tool.execute(agent_name: "MARGE", instructions: "Implement a feature")
 
         expect(result).to start_with("SUCCESS:")
       end
 
-      it "spawns REVIEWER with instructions and returns response" do
+      it "spawns LISA with instructions and returns response" do
         allow(client_instance).to receive(:chat)
           .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Crayons::Message.new(role: :assistant, content: "Reviewing code...", complete: false))
           .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Review complete", complete: true))
 
-        result = tool.execute(agent_name: "REVIEWER", instructions: "Review this PRD")
+        result = tool.execute(agent_name: "LISA", instructions: "Review this PRD")
 
         expect(result).to start_with("SUCCESS:")
       end
@@ -42,7 +42,7 @@ RSpec.describe Crayons::SpawnAgentTool do
           .and_return(Crayons::Message.new(role: :assistant, content: "Can't do it", complete: false))
           .and_return(Crayons::Message.new(role: :assistant, content: "Too hard", complete: false))
 
-        result = tool.execute(agent_name: "CODER", instructions: "Impossible task")
+        result = tool.execute(agent_name: "MARGE", instructions: "Impossible task")
 
         expect(result).to start_with("FAILURE: Max iterations reached")
       end
@@ -53,14 +53,14 @@ RSpec.describe Crayons::SpawnAgentTool do
           .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Task 1 done", complete: true))
 
         # First agent spawn
-        result1 = tool.execute(agent_name: "CODER", instructions: "Task 1")
+        result1 = tool.execute(agent_name: "MARGE", instructions: "Task 1")
 
         # Second agent spawn should have fresh context
         allow(client_instance).to receive(:chat)
           .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Task 2 done", complete: true))
 
-        result2 = tool.execute(agent_name: "CODER", instructions: "Task 2")
+        result2 = tool.execute(agent_name: "MARGE", instructions: "Task 2")
 
         expect(result1).to start_with("SUCCESS:")
         expect(result2).to start_with("SUCCESS:")
@@ -74,7 +74,7 @@ RSpec.describe Crayons::SpawnAgentTool do
         end
 
         instructions = "Implement a user authentication system"
-        tool.execute(agent_name: "CODER", instructions: instructions)
+        tool.execute(agent_name: "MARGE", instructions: instructions)
       end
 
       it "passes instructions to spawned agent" do
@@ -85,7 +85,7 @@ RSpec.describe Crayons::SpawnAgentTool do
         end
 
         instructions = "Implement a user authentication system"
-        tool.execute(agent_name: "CODER", instructions: instructions)
+        tool.execute(agent_name: "MARGE", instructions: instructions)
       end
     end
 
@@ -106,7 +106,7 @@ RSpec.describe Crayons::SpawnAgentTool do
         expect(result[:error]).not_to be_nil
         expect(result[:error]).not_to be_empty
         # Should mention available agents
-        expect(result[:error]).to match(/CODER|REVIEWER|RALPH|HAIKU/)
+        expect(result[:error]).to match(/MARGE|LISA|BART|HAIKU/)
       end
 
       it "handles string agent name" do
@@ -117,7 +117,7 @@ RSpec.describe Crayons::SpawnAgentTool do
           .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Done", complete: true))
 
-        result = tool.execute(agent_name: "CODER", instructions: "Test")
+        result = tool.execute(agent_name: "MARGE", instructions: "Test")
 
         expect(result).to start_with("SUCCESS:")
       end
@@ -130,7 +130,7 @@ RSpec.describe Crayons::SpawnAgentTool do
           .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Done", complete: true))
 
-        result = tool.execute(agent_name: :CODER, instructions: "Test")
+        result = tool.execute(agent_name: :MARGE, instructions: "Test")
 
         expect(result).to start_with("SUCCESS:")
       end
@@ -141,7 +141,7 @@ RSpec.describe Crayons::SpawnAgentTool do
         # Create a scenario where agent initialization fails
         allow(File).to receive(:exist?).and_return(false)
 
-        result = tool.execute(agent_name: "CODER", instructions: "Test")
+        result = tool.execute(agent_name: "MARGE", instructions: "Test")
 
         expect(result).to be_a(Hash)
         expect(result[:error]).not_to be_nil
@@ -157,7 +157,7 @@ RSpec.describe Crayons::SpawnAgentTool do
           .with(hash_including(system: be_a(String), messages: be_an(Array), tools: be_an(Array)))
           .and_return(Crayons::Message.new(role: :assistant, content: "FAILURE: No instructions provided", complete: true))
 
-        result = tool.execute(agent_name: "CODER", instructions: "")
+        result = tool.execute(agent_name: "MARGE", instructions: "")
 
         expect(result).to start_with("FAILURE:")
       end
@@ -165,8 +165,8 @@ RSpec.describe Crayons::SpawnAgentTool do
   end
 
   describe "integration tests" do
-    context "RALPH spawns CODER which returns COMPLETE" do
-      it "successfully spawns CODER and gets COMPLETE response" do
+    context "BART spawns MARGE which returns COMPLETE" do
+      it "successfully spawns MARGE and gets COMPLETE response" do
         # This is an integration test that verifies full flow
         # In real usage, this would involve actual LLM calls
         # For now, we mock client
@@ -179,14 +179,14 @@ RSpec.describe Crayons::SpawnAgentTool do
           .and_return(Crayons::Message.new(role: :assistant, content: "I'll implement this feature", complete: false))
           .and_return(Crayons::Message.new(role: :assistant, content: "SUCCESS: Feature implemented", complete: true))
 
-        result = tool.execute(agent_name: "CODER", instructions: "Implement a feature")
+        result = tool.execute(agent_name: "MARGE", instructions: "Implement a feature")
 
         expect(result).to start_with("SUCCESS:")
       end
     end
 
-    context "RALPH spawns CODER which returns FAILURE" do
-      it "successfully spawns CODER and gets FAILURE response" do
+    context "BART spawns MARGE which returns FAILURE" do
+      it "successfully spawns MARGE and gets FAILURE response" do
         client_instance = instance_double(Crayons::Clients::Zai, chat: nil)
 
         allow(Crayons::Clients::Zai).to receive(:new).and_return(client_instance)
@@ -196,7 +196,7 @@ RSpec.describe Crayons::SpawnAgentTool do
           .and_return(Crayons::Message.new(role: :assistant, content: "I cannot complete this", complete: false))
           .and_return(Crayons::Message.new(role: :assistant, content: "The task requires more context", complete: false))
 
-        result = tool.execute(agent_name: "CODER", instructions: "Impossible task")
+        result = tool.execute(agent_name: "MARGE", instructions: "Impossible task")
 
         expect(result).to start_with("FAILURE: Max iterations reached")
         expect(result).to include("The task requires more context")

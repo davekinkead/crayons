@@ -136,7 +136,7 @@ your-project/                          # Your project (external to this repo)
 ├── TESTING.md                         # Project-specific testing rules
 └── agents/
     ├── SPEC.md                        # Spec generation instructions
-    ├── CODER.md                       # Coder instructions
+    ├── MARGE.md                       # Marge instructions
     └── ...
 ```
 
@@ -165,7 +165,7 @@ Each agent has its own instruction file:
 
 ```markdown
 ---
-name: CODER
+name: MARGE
 description: An agent for writing or editing code
 tools:
   - bash

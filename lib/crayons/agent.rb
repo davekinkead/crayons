@@ -4,7 +4,7 @@ require_relative "logger"
 
 module Crayons
   class Agent
-    DEFAULT_MAX_ITERATIONS = 20
+    DEFAULT_MAX_ITERATIONS = 10
 
     attr_reader :name, :description, :tools, :instructions, :max_iterations, :id, :messages
 
@@ -115,7 +115,7 @@ module Crayons
     def validate_max_iterations!
       return if @max_iterations.is_a?(Integer) && @max_iterations.positive?
         raise "max_iterations must be a positive integer, got: #{@max_iterations.inspect}"
-      
+
     end
 
     def parse_frontmatter(content)
@@ -138,7 +138,7 @@ module Crayons
     def default_system_prompt
       <<~PROMPT
 
-        **CRITICAL**: Always return your response in this format:
+        **CRITICAL**: Always return your final response in this format:
         - "SUCCESS: {short summary}" when task is complete
         - "FAILURE: {detailed explanation}" when task cannot be completed
       PROMPT

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 module Crayons
   class SpawnAgentTool < Tool
-    description "Spawn and execute another agent (CODER, REVIEWER, etc.) with fresh context"
+    description "Spawn and execute another agent (MARGE, LISA, etc.) with fresh context"
 
     params do
-      string :agent_name, description: "Name of agent to spawn (e.g., 'CODER', 'REVIEWER')"
+      string :agent_name, description: "Name of agent to spawn (e.g., 'MARGE', 'LISA')"
       string :instructions, description: "Prompt/instructions for the spawned agent"
     end
 

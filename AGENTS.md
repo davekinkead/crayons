@@ -24,9 +24,10 @@ response = agent.call "your instructions"
 
 ## Available Agents
 
-- [Ralph](agents/RALPH.md) - Orchestrator
-- [Coder](agents/CODER.md) - Implement code to pass specs
-- [Reviewer](agents/REVIEWER.md) - Evaluates specs & PRDs
+- [Bart](agents/BART.md) - Orchestrator
+- [Marge](agents/MARGE.md) - Implement code to pass specs
+- [Lisa](agents/LISA.md) - Evaluates specs & PRDs
+- [Apu](agents/APU.md) - Validates test quality and coverage
 - [Haiku](agents/HAIKU.md) - Generate haikus for testing
 
 ## Behavioral Guidelines

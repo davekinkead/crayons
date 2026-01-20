@@ -112,8 +112,8 @@ export const ralphSpawnTool = Tool.define({
   parameters: {
     agent: {
       type: 'string',
-      description: 'Agent name (e.g., CODER, REVIEWER)',
-      enum: ['CODER', 'REVIEWER', 'RALPH', 'HAIKU']
+      description: 'Agent name (e.g., MARGE, LISA)',
+      enum: ['MARGE', 'LISA', 'RALPH', 'HAIKU']
     },
     prompt: {
       type: 'string',
@@ -314,7 +314,7 @@ function mapRalphEventToMessagePart(event: RalphEvent): MessagePart {
 │                    OpenCode TUI                            │
 │  ┌───────────┐  ┌───────────┐  ┌───────────┐            │
 │  │  Session  │  │  Session  │  │  Session  │            │
-│  │   CODER   │  │  RALPH    │  │ REVIEWER  │            │
+│  │   MARGE   │  │  RALPH    │  │   LISA    │            │
 │  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘            │
 └────────┼──────────────┼──────────────┼───────────────────┘
          │              │              │
@@ -341,7 +341,7 @@ function mapRalphEventToMessagePart(event: RalphEvent): MessagePart {
 ┌─────────────────────────────────────────────────────────────┐
 │               External Processes (Ralph)                    │
 │  ┌───────────┐  ┌───────────┐  ┌───────────┐            │
-│  │ CODER #1  │  │ RALPH #1  │  │REVIEWER#1│            │
+│  │ MARGE #1  │  │ RALPH #1  │  │ LISA #1   │            │
 │  │events.jsonl│  │events.jsonl│  │events.jsonl│            │
 │  └───────────┘  └───────────┘  └───────────┘            │
 └─────────────────────────────────────────────────────────────┘

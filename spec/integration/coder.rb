@@ -13,7 +13,7 @@ puts "Test PRD:"
 puts prd_content
 puts ""
 
-agent = Crayons::Agent.new("CODER")
+agent = Crayons::Agent.new("MARGE")
 puts "Loaded agent: #{agent.name}"
 puts "Description: #{agent.description}"
 puts "Tools: #{agent.tools.join(', ')}"

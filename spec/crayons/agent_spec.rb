@@ -6,14 +6,14 @@ RSpec.describe Crayons::Agent do
   describe "#initialize" do
     it "loads agent configuration from markdown file" do
       allow(Crayons::Clients::Zai).to receive(:new).and_return(instance_double("Crayons::Clients::Zai"))
-      agent = Crayons::Agent.new("CODER")
-      expect(agent.name).to eq("CODER")
-      expect(agent.description).to eq("An agent for writing or editing code")
+      agent = Crayons::Agent.new("MARGE")
+      expect(agent.name).to eq("MARGE")
+      expect(agent.description).to eq("An expert software coding agent")
     end
 
     it "loads tools from agent frontmatter" do
       allow(Crayons::Clients::Zai).to receive(:new).and_return(instance_double("Crayons::Clients::Zai"))
-      agent = Crayons::Agent.new("CODER")
+      agent = Crayons::Agent.new("MARGE")
       expect(agent.tools).to contain_exactly("bash", "read_file", "write_file", "edit_file", "grep", "glob")
     end
 
@@ -181,9 +181,9 @@ RSpec.describe Crayons::Agent do
       allow(Crayons::Clients::Zai).to receive(:new).and_return(client)
     end
 
-    it "uses default max_iterations of 20 when not specified in frontmatter" do
-      agent = Crayons::Agent.new("CODER", client: client)
-      expect(agent.max_iterations).to eq(20)
+    it "uses default max_iterations of 10 when not specified in frontmatter" do
+      agent = Crayons::Agent.new("MARGE", client: client)
+      expect(agent.max_iterations).to eq(10)
     end
 
     it "uses custom max_iterations from agent frontmatter" do

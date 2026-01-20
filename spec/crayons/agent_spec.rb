@@ -62,7 +62,7 @@ RSpec.describe Crayons::Agent do
       expect(response).to eq("SUCCESS: All done")
     end
 
-    it "returns COMPLETE when LLM emits finish_reason=stop after multiple iterations" do
+    it "returns SUCCESS when LLM emits finish_reason=stop after multiple iterations" do
       call_count = 0
       expect(client).to receive(:chat).exactly(3).times do
         call_count += 1
@@ -116,6 +116,20 @@ RSpec.describe Crayons::Agent do
 
       response = agent.call("Write me a haiku")
       expect(response).to eq("SUCCESS: Done! Here is the haiku...")
+    end
+
+    it "catches StandardError and returns FAILURE message with class, message and backtrace" do
+      expect(client).to receive(:chat).and_raise(StandardError.new("Something went wrong"))
+
+      response = agent.call("Write me a haiku")
+      expect(response).to start_with("FAILURE: StandardError: Something went wrong")
+      expect(response).to include("\n")
+    end
+
+    it "does NOT catch Exception and lets it propagate" do
+      expect(client).to receive(:chat).and_raise(Exception.new("System failure"))
+
+      expect { agent.call("Write me a haiku") }.to raise_error(Exception, "System failure")
     end
   end
 

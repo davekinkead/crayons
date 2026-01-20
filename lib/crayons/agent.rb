@@ -47,6 +47,9 @@ module Crayons
       final_prompt = "You've reached the maximum number of turns without completing the task. Please explain why you couldn't complete it and what went wrong."
       final_response = chat(final_prompt)
       "FAILURE: Max iterations reached. #{final_response.content}"
+    rescue StandardError => e
+      @logger.error(@id, "Agent execution failed: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
+      "FAILURE: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
     end
 
     def chat(prompt)

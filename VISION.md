@@ -30,14 +30,17 @@ Important requirements are that:
 
 **LISA** validates that implementation code meets project quality standards and architectural requirements—checking code style, architecture compliance, error handling, code organization, dependencies, and documentation—without reading specs (APU handles that).
 
+## Visibility
+
+It is very important for the user to see agent processes as they run. This will initially be realised via logging that can be streamed by an external service.
 
 ## Concurrency
 
-CLANCY should be able to spawn multiple agents concurrently.
-
 Performance will be enhanced through the use of `async` Ruby so that calls to LLMs and agent completions do not block the process.
 
-CLANCY will need to create git worktrees for BART. The worktree names should reflect the RPD name.
+Concurrent agents should be possible throught the use of git worktrees. This means that agents need to be instantiated with a required 'workdir' param, this value is injected into ALL took execution. For security purposes, tool calls with argument paths not containing the workdir MUST be rejected with an appropriate message.
+
+CLANCY will need to create git worktrees for BART. The worktree names should reflect the RPD name and the `workdir` agent param.
 
 ## Git
 
@@ -51,6 +54,8 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 
 ## User Feedback
 
+- [ ] The system is running slow. Focus on `async` first.
+- [ ] Update logging so that agent.call logs the prompt message and the return message at INFO level. So rather than the current `[INFO] [MARGE:952] Starting agent execution`, it should be something like `[INFO] [MARGE:952] Stating: {prompt}`
 
 ## Agent Questions
 
@@ -74,3 +79,4 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Implemented LISA agent for code quality and architecture compliance
 - Completed AGENTS.md with agent creation and usage guide
 - Added Rubocop to enfore styles
+- Verified full CLANCY → BART → MARGE → APU → LISA workflow with HelloWorld class implementation

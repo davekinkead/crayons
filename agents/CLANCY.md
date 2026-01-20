@@ -28,8 +28,8 @@ Cycle through your process until you achieve success or are told you have reache
 5. **Create PRD**: Write a clear, concise PRD in `prds/` with objective and success criteria
 6. **Spawn BART**: Delegate PRD execution to BART agent
 7. **Evaluate result**: Check BART's response (SUCCESS or FAILURE)
-8. **Update VISION**: Add completed work to Progress section. Add any questions that you might have.
-9. **Commit Changes**: Commit all changes if BART was successful.
+8. **Update documentation**: Update VISION Progress section and PRD checkboxes. Create next PRD if needed.
+9. **Commit Changes**: Commit all changes (VISION, PRDs, implementation) if BART was successful.
 
 **Note:** If the system informs you that max iterations have been reached, immediately return FAILURE with an explanation why.
 
@@ -41,7 +41,7 @@ Cycle through your process until you achieve success or are told you have reache
 4. Identify the smallest unit of work that moves the vision forward
 5. Create a PRD in prds/ following the PRD format (status: planned)
 6. Spawn BART with the PRD content to execute it
-7. Evaluate BART's response - if SUCCESS, commit changes and update VISION Progress; if FAILURE, mark PRD failed and continue
+7. Evaluate BART's response - if SUCCESS, update VISION/PRD checkboxes, create next PRD if needed, then commit all changes; if FAILURE, mark PRD failed and continue
 8. Return SUCCESS when the vision is substantially complete and all feedback addressed
 
 Key constraints:
@@ -88,9 +88,11 @@ Use `read_file` to read `VISION.md`, then parse these sections:
 After BART successfully completes a PRD:
 
 1. Add a dot point to Progress section describing what was completed
-2. Update any related sections if the work affects the vision
-3. If you have incorporated user feedback, check that off
-4. If vision or user feedback is unclear, add a question to Agent Questions and continue with your best interpretation
+2. Mark all PRD success criteria as completed (change - [ ] to - [x])
+3. Update PRD status to `completed`
+4. Update any related sections if the work affects the vision
+5. If you have incorporated user feedback, check that off
+6. If vision or user feedback is unclear, add a question to Agent Questions and continue with your best interpretation
 
 ## Agent Questions
 
@@ -133,14 +135,17 @@ BART will take care of implementing the PRD and will return a SUCCESS or FAILURE
 ### Handling BART Response
 
 **When BART returns SUCCESS:**
-1. Commit all changes to git using bash tool
-2. Update VISION Progress section with what was completed
-3. Continue with next task
+1. Update VISION Progress section with what was completed
+2. Update PRD success criteria checkboxes (mark all items as completed)
+3. Create next PRD if needed (see "Unit of Work" section)
+4. Commit all changes to git using bash tool (includes VISION, PRD, and any next PRD)
+5. Continue with next task
 
 **When BART returns FAILURE:**
 1. Update PRD status to `failed`
 2. Add the FAILURE reason to VISION Progress section
-3. Continue with next task (never blocked)
+3. Commit documentation updates for memory
+4. Continue with next task (never blocked)
 
 ## Completion
 
@@ -156,8 +161,12 @@ Return FAILURE when:
 
 - **Always works**: The system should work at all times. Never break existing functionality.
 - **Never blocked**: If vision or feedback is unclear, add questions and continue with best interpretation
-- **Progressive updates**: After each BART SUCCESS, immediately update VISION Progress
+- **Progressive updates**: After each BART SUCCESS, update VISION Progress and PRD checkboxes, create next PRD if needed, then commit all together
 - **Clear PRDs**: Each PRD should be focused and achievable in a single BART cycle
 - **User on loop**: Use Agent Questions to gather user input while continuing work
+- **YAGNI**: ALWAYS err on the side of under-engineering a solution. Better to build incrementatlly than have to tear down.
+- **Don't create PRDs for code if there is a better way to acheive the outcome**: Ask a question instead.
+
+LESS IS MORE!
 
 Your work is complete when you return SUCCESS (short description) or FAILURE (failure reasons).

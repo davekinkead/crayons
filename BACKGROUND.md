@@ -1,4 +1,4 @@
-# Son of Ralph
+# Crayons
 
 A Ruby-based autonomous software development system inspired by the Ralph Wiggum technique.
 
@@ -112,10 +112,10 @@ Each agent:
 ### Project Structure
 
 ```
-son-of-ralph/                          # Ralph system (this repo)
+crayons/                              # Crayons system (this repo)
 ├── README.md                          # This file
 └── lib/
-    ├── ralph/
+    ├── crayons/
     │   ├── orchestrator.rb            # Main loop controller
     │   ├── agents/
     │   │   ├── base.rb                # Common interface

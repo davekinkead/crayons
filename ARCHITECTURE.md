@@ -1,6 +1,6 @@
-# Architecture of Ralph
+# Architecture of Crayons
 
-Ralph is a Ruby-based autonomous software development system that follows the Ralph Wiggum technique.
+Crayons is a Ruby-based autonomous software development system that follows the Ralph Wiggum technique.
 
 ## Core Components
 
@@ -35,7 +35,7 @@ end
 Tools are defined as RubyLLM::Tool subclasses with a DSL for description and parameters.
 
 ```ruby
-module Ralph
+module Crayons
   class ReadFileTool < RubyLLM::Tool
     description "Read the contents of a file"
 
@@ -53,9 +53,9 @@ module Ralph
 end
 ```
 
-Tools are registered in `Ralph::Tools`:
+Tools are registered in `Crayons::Tools`:
 ```ruby
-Ralph::Tools.register(:read_file, Ralph::ReadFileTool)
+Crayons::Tools.register(:read_file, Crayons::ReadFileTool)
 ```
 
 Available built-in tools:
@@ -70,8 +70,8 @@ Available built-in tools:
 ## Directory Structure
 
 ```
-son-of-ralph/
-├── lib/ralph/
+crayons/
+├── lib/crayons/
 │   ├── agent.rb           # Agent class loads personas from markdown
 │   ├── client.rb          # Client factory for LLM backends
 │   ├── clients/
@@ -98,11 +98,11 @@ Clients are configured via environment variables:
 - `ZAI_API_KEY` - API key for Zai (falls back to `OPENAI_API_KEY`)
 - `OPENAI_BASE_URL` - Base URL for OpenAI-compatible API
 - `OPENAI_MODEL` - Model to use (optional)
-- `RALPH_CLIENT` - Client implementation to use (defaults to `:zai`)
+- `CRAYONS_CLIENT` - Client implementation to use (defaults to `:zai`)
 
 ## Client Factory Pattern
 
-The `Ralph::Client.new` factory selects the client implementation based on the `RALPH_CLIENT` environment variable, defaulting to `Zai`. New clients can be added by:
+The `Crayons::Client.new` factory selects the client implementation based on the `CRAYONS_CLIENT` environment variable, defaulting to `Zai`. New clients can be added by:
 
-1. Creating `lib/ralph/clients/your_client.rb` inheriting from `Ralph::Clients::Base`
-2. Setting `ENV['RALPH_CLIENT'] = 'your_client'`
+1. Creating `lib/crayons/clients/your_client.rb` inheriting from `Crayons::Clients::Base`
+2. Setting `ENV['CRAYONS_CLIENT'] = 'your_client'`

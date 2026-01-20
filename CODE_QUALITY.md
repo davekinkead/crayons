@@ -1,6 +1,6 @@
 # Code Quality Standards
 
-These standards define quality requirements for all code in the Son of Ralph project.
+These standards define quality requirements for all code in the Crayons project.
 
 ## Ruby Code Style
 

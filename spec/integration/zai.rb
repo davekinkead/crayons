@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 require "dotenv/load"
-require_relative "../../lib/ralph"
+require_relative "../../lib/crayons"
 
 puts "=== Haiku Agent Integration Test ==="
 puts ""
 
-agent = Ralph::Agent.new("HAIKU")
+agent = Crayons::Agent.new("HAIKU")
 puts "Loaded agent: #{agent.name}"
 puts "Description: #{agent.description}"
 puts "Tools: #{agent.tools.join(', ')}"

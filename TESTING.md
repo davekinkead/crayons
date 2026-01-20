@@ -1,6 +1,6 @@
-# Testing Ralph
+# Testing Crayons
 
-This document describes how to test the Ralph system itself.
+This document describes how to test the Crayons system itself.
 
 ## Test Structure
 

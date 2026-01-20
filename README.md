@@ -1,10 +1,10 @@
-# Son of Ralph
+# Crayons
 
-A Ruby-based autonomous software development system using the Ralph Wiggum technique.
+A Ruby-based autonomous software development system using the Ralph technique.
 
 ## Overview
 
-Son of Ralph enables autonomous software development through simple agents defined as markdown files. Each agent has its own persona, instructions, and tools, connecting to LLM services via RubyLLM.
+Crayons enables autonomous software development through simple agents defined as markdown files. Each agent has its own persona, instructions, and tools, connecting to LLM services via RubyLLM.
 
 Inspired by [Geoffrey Huntley](https://ghuntley.com/ralph/).
 
@@ -18,8 +18,8 @@ Inspired by [Geoffrey Huntley](https://ghuntley.com/ralph/).
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/son-of-ralph.git
-cd son-of-ralph
+git clone https://github.com/yourusername/crayons.git
+cd crayons
 bundle install
 ```
 
@@ -36,9 +36,9 @@ export OPENAI_MODEL="your-model"  # optional
 ## Usage
 
 ```ruby
-require 'ralph'
+require 'crayons'
 
-agent = Ralph::Agent.new :coder
+agent = Crayons::Agent.new :coder
 response = agent.call "Implement a function to reverse a string"
 puts response
 ```

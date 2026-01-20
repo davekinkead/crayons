@@ -1,4 +1,4 @@
-# Son of Ralph
+# Crayons
 
 Autonomous agent development system. Agents defined in markdown files connect to LLM services and use tools to accomplish tasks.
 
@@ -18,7 +18,7 @@ Always run `bundle exec rspec` after changes. Ensure all tests pass.
 Agents are defined in `agents/*.md` with YAML frontmatter specifying name, description, and tools.
 
 ```ruby
-agent = Ralph::Agent.new :coder
+agent = Crayons::Agent.new :coder
 response = agent.call "your instructions"
 ```
 

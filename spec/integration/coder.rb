@@ -3,7 +3,7 @@
 #
 # This is a full integration test that checks the system can implement a PRD
 require "dotenv/load"
-require_relative "../../lib/ralph"
+require_relative "../../lib/crayons"
 
 puts "=== Coder Agent Integration Test ==="
 puts ""
@@ -13,7 +13,7 @@ puts "Test PRD:"
 puts prd_content
 puts ""
 
-agent = Ralph::Agent.new("CODER")
+agent = Crayons::Agent.new("CODER")
 puts "Loaded agent: #{agent.name}"
 puts "Description: #{agent.description}"
 puts "Tools: #{agent.tools.join(', ')}"

@@ -36,7 +36,7 @@ RSpec.configure do |config|
   # Set up logging for tests
   config.before(:suite) do
     # Set test-specific log file
-    ENV["RALPH_LOG_FILE"] = "logs/test_ralph.log"
-    ENV["RALPH_LOG_LEVEL"] = "DEBUG"
+    ENV["CRAYONS_LOG_FILE"] = "logs/test_crayons.log"
+    ENV["CRAYONS_LOG_LEVEL"] = "DEBUG"
   end
 end

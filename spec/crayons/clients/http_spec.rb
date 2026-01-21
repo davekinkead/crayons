@@ -117,7 +117,7 @@ RSpec.describe Crayons::Clients::HTTP do
         expect(HTTPX).to receive(:post).with(
           endpoint,
           hash_including(
-            headers: { Authorization: "Bearer #{api_key}", "Content-Type": "application/json" }
+            headers: hash_including(Authorization: "Bearer #{api_key}")
           )
         ).and_return(mock_response)
 
@@ -130,7 +130,20 @@ RSpec.describe Crayons::Clients::HTTP do
         expect(HTTPX).to receive(:post).with(
           endpoint,
           hash_including(
-            headers: { Authorization: "Bearer #{api_key}", "Content-Type": "application/json" }
+            headers: hash_including("Content-Type": "application/json")
+          )
+        ).and_return(mock_response)
+
+        client.post(endpoint, payload)
+      end
+
+      it "sets User-Agent header with version" do
+        mock_response = double("response", status: 200, body: "{}")
+
+        expect(HTTPX).to receive(:post).with(
+          endpoint,
+          hash_including(
+            headers: hash_including("User-Agent": "opencode/#{Crayons::VERSION}")
           )
         ).and_return(mock_response)
 

@@ -76,9 +76,9 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 - [x] Remove async logic - it is causing network issues that we will fix later.
 - [x] Create WILLIE the explorer agent
 - [x] Readfile tool should accept mutliple file arguments
-- [ ] Add a user agent to the http client and set it to User-Agent: opencode/{VERSION}
-- [ ] Create a verification tool to run `rspec` and `rubocop -A` - less thinking for agents.
-- [ ] Remove earlier tool calls from message history if they are duplicates
+- [x] Add a user agent to the http client and set it to User-Agent: opencode/{VERSION}
+- [ ] Create a verification tool to run `rspec` and `rubocop -A` - less thinking for agents. Give it to all agents
+- [ ] Remove tool calls from message history if they are duplicates.
 - [x] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
 
 
@@ -115,3 +115,4 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 - Refined sanitization rules: now allow cp, mv, brew, wget, curl; allow rm without recursive flags but block rm -r, -rf, etc.
 - Created WILLIE explorer agent with minimal output format (file paths + one-line relevance) and ExploreTool wrapper with integration test
 - Updated ReadFileTool to accept multiple file arguments (string or array) with backwards compatibility; added comprehensive test suite with 30 tests covering single/multiple files, error scenarios, and edge cases
+- Added User-Agent header to HTTP client with format "opencode/{VERSION}" using dynamic Crayons::VERSION constant; includes test coverage

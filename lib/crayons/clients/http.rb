@@ -2,6 +2,7 @@
 require "httpx"
 require "json"
 require_relative "../logger"
+require_relative "../version"
 
 module Crayons
   module Clients
@@ -24,7 +25,8 @@ module Crayons
           url,
           headers: {
             Authorization: "Bearer #{@api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "opencode/#{Crayons::VERSION}"
           },
           body: payload.to_json,
           timeout: { connect_timeout: 10, operation_timeout: 60 }

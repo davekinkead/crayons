@@ -23,5 +23,9 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 
 **INVESTIGATE**
 
+- use async http
 - look at async-process to spawn commands with chdir
 - [ ] Instantiate agents with a `dir` (required, no default). Pass this to tool calls so tools have a dir context. Don't do anything with it for now but add current dir to tool error messages. bin/agent and CLANCY should spawn as `dir: "./"`
+
+- batch tool calling
+- use a common tool return shape to make converstion easier.

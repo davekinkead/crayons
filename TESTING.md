@@ -1,36 +1,47 @@
 # Testing Crayons
 
-This document describes how to test the Crayons system itself.
-
 ## Test Structure
 
 Tests are located in `spec/` directory.
 
-## Testing Process
+FIX: show dir structure with explaination
 
-1. Start by reading the individual PRD or instructions you have been given
-2. Write acceptance criterica using empty `it "does something"` statements
-3. Stop and reflect ...
-  - do these specs accurately reflect what's required by the PRD?
-  - am I testing the right things - outputs & behaviours, not implementation
-  - am I testing the right areas - unit tests for isolated behaviour
-4. Update your tests if needed
-5. Implement ONE TEST ONLY so that if fails
-6. Implement the code so the test passes
-7. Repeat until all tests are implemented and passing
+## Testing Driven Development
+
+When writing code, follow these TDD principles:
+
+1. Understand the requirements
+2. Describe the BEHAVIOUR of the requirements in clear statements like `it "returns nil when user is not found"`
+3. Implement ONE TEST ONLY so that if fails
+4. Implement the code so the test passes
+5. Repeat until all tests are implemented and passing
 
 ## Running Tests
 
+Use rspec to run specify specs
+
 ```bash
-bundle exec rspec
+bundle exec rspec path_to_spec.rb
 ```
 
-## Test Categories
+Or run all specs and lints at once with:
+
+```bash
+bin/verify
+```
+
+## Test Quality
+
+Follow these requirements closely:
+
+### All Tests
+- only test public methods
+- test behaviour not implementation
+- keep tests independent - don't have dependencies between tests
 
 ### Unit Tests
-- Individual agent behavior
-- Context management
-- Tool execution
+- Test individual classes
+- Mock any dependencies
 
 ### Integration Tests
 - Agent orchestration

@@ -276,4 +276,211 @@ RSpec.describe Crayons::Agent do
         .to raise_error(/max_iterations must be a positive integer/)
     end
   end
+
+  describe ".deduplicate_tool_calls" do
+    it "removes previous tool call and response when duplicate is detected" do
+      tool_call_1 = {
+        "id" => "call_1",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      tool_call_2 = {
+        "id" => "call_2",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      messages = [
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_1]),
+        Crayons::Message.new(role: :tool, tool_call_id: "call_1", content: '{"result": "file1.txt"}'),
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_2])
+      ]
+
+      result = Crayons::Agent.deduplicate_tool_calls(messages, tool_call_2)
+
+      expect(result.length).to eq(1)
+      expect(result.first.role).to eq(:assistant)
+      expect(result.first.tool_calls.first["id"]).to eq("call_2")
+    end
+
+    it "keeps different tool calls with same name but different arguments" do
+      tool_call_1 = {
+        "id" => "call_1",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      tool_call_2 = {
+        "id" => "call_2",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "pwd"}'
+        }
+      }
+
+      messages = [
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_1]),
+        Crayons::Message.new(role: :tool, tool_call_id: "call_1", content: '{"result": "file1.txt"}'),
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_2])
+      ]
+
+      result = Crayons::Agent.deduplicate_tool_calls(messages, tool_call_2)
+
+      expect(result.length).to eq(3)
+      expect(result[0].tool_calls.first["function"]["arguments"]).to eq('{"command": "ls"}')
+      expect(result[1].tool_call_id).to eq("call_1")
+      expect(result[2].tool_calls.first["function"]["arguments"]).to eq('{"command": "pwd"}')
+    end
+
+    it "removes only the most recent duplicate when multiple exist" do
+      tool_call_1 = {
+        "id" => "call_1",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      tool_call_2 = {
+        "id" => "call_2",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      tool_call_3 = {
+        "id" => "call_3",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      messages = [
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_1]),
+        Crayons::Message.new(role: :tool, tool_call_id: "call_1", content: '{"result": "file1.txt"}'),
+        Crayons::Message.new(role: :user, content: "Check this"),
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_2]),
+        Crayons::Message.new(role: :tool, tool_call_id: "call_2", content: '{"result": "file2.txt"}'),
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_3])
+      ]
+
+      result = Crayons::Agent.deduplicate_tool_calls(messages, tool_call_3)
+
+      expect(result.length).to eq(4)
+      expect(result[0].tool_calls.first["id"]).to eq("call_1")
+      expect(result[2].role).to eq(:user)
+      expect(result[3].tool_calls.first["id"]).to eq("call_3")
+    end
+
+    it "keeps earlier duplicates when removing most recent" do
+      tool_call_1 = {
+        "id" => "call_1",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      tool_call_2 = {
+        "id" => "call_2",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls"}'
+        }
+      }
+
+      messages = [
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_1]),
+        Crayons::Message.new(role: :tool, tool_call_id: "call_1", content: '{"result": "file1.txt"}'),
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_2])
+      ]
+
+      result = Crayons::Agent.deduplicate_tool_calls(messages, tool_call_2)
+
+      expect(result.length).to eq(1)
+      expect(result.first.tool_calls.first["id"]).to eq("call_2")
+    end
+
+    it "handles complex nested arguments correctly" do
+      tool_call_1 = {
+        "id" => "call_1",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls", "options": {"all": true, "long": true}}'
+        }
+      }
+
+      tool_call_2 = {
+        "id" => "call_2",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls", "options": {"all": true, "long": true}}'
+        }
+      }
+
+      messages = [
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_1]),
+        Crayons::Message.new(role: :tool, tool_call_id: "call_1", content: '{"result": "files"}'),
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_2])
+      ]
+
+      result = Crayons::Agent.deduplicate_tool_calls(messages, tool_call_2)
+
+      expect(result.length).to eq(1)
+      expect(result.first.tool_calls.first["id"]).to eq("call_2")
+    end
+
+    it "keeps different nested argument structures" do
+      tool_call_1 = {
+        "id" => "call_1",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls", "options": {"all": true}}'
+        }
+      }
+
+      tool_call_2 = {
+        "id" => "call_2",
+        "function" => {
+          "name" => "bash",
+          "arguments" => '{"command": "ls", "options": {"all": false}}'
+        }
+      }
+
+      messages = [
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_1]),
+        Crayons::Message.new(role: :tool, tool_call_id: "call_1", content: '{"result": "files"}'),
+        Crayons::Message.new(role: :assistant, content: nil, tool_calls: [tool_call_2])
+      ]
+
+      result = Crayons::Agent.deduplicate_tool_calls(messages, tool_call_2)
+
+      expect(result.length).to eq(3)
+    end
+  end
+
+  describe "execute_tool with duplicate removal" do
+    let(:client) { instance_double("Crayons::Clients::Zai") }
+    let(:agent) { Crayons::Agent.new("MARGE", client: client) }
+    let(:tool_instance) { instance_double("Crayons::BashTool") }
+
+    before do
+      allow(Crayons::BashTool).to receive(:new).and_return(tool_instance)
+      messages_before = agent.messages.length
+      agent.send(:execute_tool, tool_call_2)
+      messages_after = agent.messages.length
+
+      expect(messages_after).to eq(messages_before)
+      expect(agent.messages.last.tool_call_id).to eq("call_2")
+    end
+  end
 end

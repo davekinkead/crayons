@@ -74,6 +74,8 @@ module Crayons
     end
 
     def execute_tool(tool_call)
+      @messages = self.class.deduplicate_tool_calls(@messages, tool_call)
+
       tool_name = tool_call["function"]["name"]
       tool_args = JSON.parse(tool_call["function"]["arguments"]).transform_keys(&:to_sym)
 
@@ -95,6 +97,56 @@ module Crayons
         tool_call_id: tool_call["id"],
         content: result.to_json
       )
+    end
+
+    def self.deduplicate_tool_calls(messages, tool_call)
+      tool_name = tool_call["function"]["name"]
+      tool_args = tool_call["function"]["arguments"]
+      tool_call_id = tool_call["id"]
+
+      return messages if messages.empty?
+
+      parsed_args = JSON.parse(tool_args)
+
+      duplicate_index = nil
+      duplicate_call_id = nil
+
+      messages.each_with_index.reverse_each do |message, idx|
+        next unless message.role == :assistant
+        next unless message.tool_call?
+
+        matching_call = message.tool_calls.find do |existing_call|
+          next unless existing_call["function"]["name"] == tool_name
+          next if existing_call["id"] == tool_call_id
+
+          begin
+            existing_args = JSON.parse(existing_call["function"]["arguments"])
+            existing_args == parsed_args
+          rescue JSON::ParserError
+            false
+          end
+        end
+
+        next unless matching_call
+        duplicate_index = idx
+        duplicate_call_id = matching_call["id"]
+        break
+      end
+
+      return messages unless duplicate_index
+
+      result = messages.dup
+
+      tool_response_index = result.index do |message|
+        message.role == :tool && message.tool_call_id == duplicate_call_id
+      end
+
+      result.delete_at(tool_response_index) if tool_response_index
+
+      duplicate_index -= 1 if tool_response_index && tool_response_index < duplicate_index
+      result.delete_at(duplicate_index)
+
+      result
     end
 
     def load_agent_config(file_path)

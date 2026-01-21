@@ -2,23 +2,6 @@
 
 These standards define quality requirements for all code in the Crayons project.
 
-## Ruby Code Style
-
-### Formatting
-- Use standard Ruby indentation (2 spaces)
-- Maximum line length: 100 characters
-- One statement per line
-- Empty lines between methods
-- Spaces around operators
-
-### Naming Conventions
-- **Classes**: PascalCase (e.g., `AgentManager`)
-- **Methods**: snake_case (e.g., `spawn_agent`)
-- **Variables**: snake_case (e.g., `agent_name`)
-- **Constants**: SCREAMING_SNAKE_CASE (e.g., `MAX_ITERATIONS`)
-- **Booleans**: Predicates end with `?` (e.g., `valid?`)
-- **Destructive methods**: End with `!` (e.g., `update_status!`)
-
 ### Method Design
 - Single responsibility: One thing, well
 - Max 20 lines per method
@@ -35,10 +18,12 @@ These standards define quality requirements for all code in the Crayons project.
 - Each component has clear boundaries
 
 ### Interface Design
-- Use dependency injection
 - Define clear public APIs
-- Hide implementation details
 - Favor composition over inheritance
+- Design for testing
+- Use dependency injection
+- Public class methods over private instance methods
+- Hide implementation details
 
 ### Error Handling
 - Raise specific exceptions

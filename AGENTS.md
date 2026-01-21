@@ -5,8 +5,8 @@ Autonomous agent development system. Agents defined in markdown files connect to
 ## Key Documentation
 
 - **ARCHITECTURE.md** - System architecture, components, configuration
-- **TESTING.md** - Testing guidelines and TDD process
-- **BACKGROUND.md** - Project background and Ralph Wiggum technique
+- **TESTING.md** - Testing guidelines and quality standards
+- **CODE_QUALITY.md** - Code standards you must adhere to
 - **README.md** - Project overview
 
 ## Verification

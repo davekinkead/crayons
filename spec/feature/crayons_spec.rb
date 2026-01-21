@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require "spec_helper"
-require_relative "../lib/crayons"
+require_relative "../../lib/crayons"
 
 RSpec.describe Crayons do
   it "has a version number" do

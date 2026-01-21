@@ -2,11 +2,30 @@
 
 ## Test Structure
 
-Tests are located in `spec/` directory.
+Tests are located in `spec/` directory:
 
-FIX: show dir structure with explaination
+```
+spec/
+├── unit/          # Full isolated tests
+│   ├── agent_spec.rb
+│   ├── clients/
+│   │   └── http_spec.rb
+│   └── tools/
+│       ├── bash_spec.rb
+│       ├── edit_file_spec.rb
+│       └── ...
+├── feature/       # Workflow behaviours
+│   └── crayons_spec.rb
+├── integration/   # Integration tests that require API keys. No `_spec.rb` suffix.
+│   ├── coder.rb
+│   ├── willie.rb
+│   └── zai.rb
+├── support/       # Test utilities and configuration
+│   └── quiet_formatter.rb
+└── spec_helper.rb
+```
 
-## Testing Driven Development
+## Test Driven Development
 
 When writing code, follow these TDD principles:
 
@@ -38,27 +57,27 @@ Follow these requirements closely:
 - only test public methods
 - test behaviour not implementation
 - keep tests independent - don't have dependencies between tests
+- 1 red and 1 green test for each scenario
 
 ### Unit Tests
 - Test individual classes
-- Mock any dependencies
+- File names match tested classes ... `agents.rb` => `agents_spec.rb`
+- Mock all dependencies
+
+## Feature Tests
+- Test workflows and behaviour between classes
+- Stub external services
 
 ### Integration Tests
-- Agent orchestration
-- End-to-end workflows
-- Context window management
-- Requires API keys
-- Maunually run
-- Tests actual LLM agent behavior
+- Requires external services
+- Manually run
+- Tests real behavior with real data
 - do not use the `_spec.rb` suffix
 
-## Test Requirements
-
-- All tests must pass before commits
-- No tests should depend on external state
-- Mock LLM calls unless testing actual integration
-
-## Test Limits
+## Limits to Testing
 
 - Agents rely on external LLM APIs.
 - Automated tests of behaviour that relies on LLMs is impossible.
+- Don't test frameworks or external services
+
+**All tests must pass before commits**

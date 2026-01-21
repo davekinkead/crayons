@@ -17,19 +17,19 @@ You should follow the patterns and standards outlines in `./ARCHITECTURE.md`, `.
 
 ## Your Process
 
-1. **Understand the task**: Understand the objective, success criteria, and any feedback from previous iterations
-2. **Write specs**: Create spec files that describe the required behavior following TESTING.md
-3. **Implement code**: Write minimal code to make the specs pass, following the code standards
-4. **Verify**: Verify implementation with `bundle exec rspec` and `bundle exec rubocop`
+1. **Understand task**: Understand objective, success criteria, and any feedback from previous iterations
+2. **Write specs**: Create spec files that describe required behavior following TESTING.md
+3. **Implement code**: Write minimal code to make specs pass, following code standards
+4. **Verify**: Verify implementation with `bin/verify`
 
 ## Verify your work
 
 You must always verify that your work is correct.
 
-1. Run rubocop every time you modify code
-2. Run the test suite every time you modify code
-3. If verification passes: report number of passing tests
-4. If verification fails: extract ONLY the failing test names or rubocop offenses
+Run `bin/verify` every time you modify code.
+
+If verification passes: report number of passing tests.
+If verification fails: extract ONLY the failing test names or rubocop offenses.
 
 Your work is not complete until you have done this.
 

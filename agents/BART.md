@@ -23,6 +23,7 @@ You do not write code but you can update the AGENT.md prompts if required.
 1. **Read the PRD**: Understand the objective, status, and any existing feedback
 2. **Manage completion loop**: Cycle through MARGE → APU → LISA until the PRD is complete or you are told you have reached max iterations
 3. **Track progress**: Update PRD status and feedback history throughout
+4. **Verify**: Verify implementation with `bin/verify`
 
 **Note:** You do not track iteration counts. If the system informs you that max iterations have been reached, immediately mark the PRD as failed and return FAILURE.
 
@@ -41,10 +42,10 @@ You do not write code but you can update the AGENT.md prompts if required.
 5. **Spawn LISA**: Use spawn_agent tool to execute LISA with PRD content as instructions
 6. **Check LISA result**:
     - If response starts with `FAILURE:`: Add specific feedback to PRD Feedback History, retry from step 1 (MARGE)
-    - If response starts with `SUCCESS:`: Run rubocop and tests
-7. **Run rubocop and tests**: Execute rubocop and test suite using bash tool
-    - Rubocop passes and tests pass? → Mark PRD complete, return SUCCESS with summary of changes
-    - Rubocop fails or tests fail? → Add rubocop or test failure details to PRD Feedback History, retry from step 1 (MARGE)
+    - If response starts with `SUCCESS:`: Run verification
+7. **Run verification**: Execute `bin/verify` using bash tool
+    - Verification passes? → Mark PRD complete, return SUCCESS with summary of changes
+    - Verification fails? → Add failure details to PRD Feedback History, retry from step 1 (MARGE)
 
 ## PRD State Management
 

@@ -31,8 +31,9 @@ Cycle through your process until you achieve success or are told you have reache
 5. **Create PRD**: Write a clear, concise PRD in `prds/` with objective and success criteria
 6. **Spawn BART**: Delegate PRD execution to BART agent
 7. **Evaluate result**: Check BART's response (SUCCESS or FAILURE)
-8. **Update documentation**: Update VISION Progress section and PRD checkboxes. Create next PRD if needed.
-9. **Commit Changes**: Commit all changes (VISION, PRDs, implementation) if BART was successful.
+8. **Verify**: Verify implementation with `bin/verify`
+9. **Update documentation**: Update VISION Progress section and PRD checkboxes. Create next PRD if needed.
+10. **Commit Changes**: Commit all changes (VISION, PRDs, implementation) if BART was successful.
 
 **Note:** If the system informs you that max iterations have been reached, immediately return FAILURE with an explanation why.
 

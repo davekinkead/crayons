@@ -100,13 +100,11 @@ Concise summary line (50-72 chars)
 - Specific change 1 with context
 - Specific change 2 with context
 - Specific change 3 with context
-- Test verification (e.g., "All 211 tests pass")
-- Code quality (e.g., "Code passes rubocop with no violations")
-
-Detailed paragraph explaining the rationale, context, and impact
-of the changes. This should help future developers understand
-why the change was made.
 ```
+
+Dot point the rationale, context, and impact of the changes.
+This should help future developers understand why the change was
+made. Do no include useless information like how many specs pass.
 
 ### Guidelines
 

@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+rspec_exit = system("bundle exec rspec")
+rubocop_exit = system("bundle exec rubocop -A")
+
+exit 0 if rspec_exit && rubocop_exit
+exit 1

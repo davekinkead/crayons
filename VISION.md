@@ -77,7 +77,7 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 - [x] Create WILLIE the explorer agent
 - [x] Readfile tool should accept mutliple file arguments
 - [x] Add a user agent to the http client and set it to User-Agent: opencode/{VERSION}
-- [ ] Create a verification tool to run `rspec` and `rubocop -A` - less thinking for agents. Give it to all agents
+- [x] Create a verification tool to run `rspec` and `rubocop -A` - less thinking for agents. Give it to all agents
 - [ ] Remove tool calls from message history if they are duplicates.
 - [x] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
 

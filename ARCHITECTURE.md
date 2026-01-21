@@ -55,16 +55,55 @@ end
 
 Tools are registered in `Crayons::Tools`:
 ```ruby
-Crayons::Tools.register(:read_file, Crayons::ReadFileTool)
+Crayons::Tools.register(:read, Crayons::ReadTool)
 ```
+
+### Batch Tooling
+
+The `batch` tool enables concurrent execution of multiple tools, significantly improving performance when multiple independent operations are needed.
+
+```ruby
+Crayons::BatchTool.new.execute(
+  calls: [
+    { tool_name: "read", arguments: { file_path: "/path/to/file1.rb" } },
+    { tool_name: "read", arguments: { file_path: "/path/to/file2.rb" } },
+    { tool_name: "bash", arguments: { command: "ls -la" } }
+  ]
+)
+
+# Returns:
+# {
+#   success: true,
+#   results: [
+#     { tool_name: "read", arguments: {...}, result: {...}, success: true, error: nil },
+#     { tool_name: "read", arguments: {...}, result: {...}, success: true, error: nil },
+#     { tool_name: "bash", arguments: {...}, result: {...}, success: true, error: nil }
+#   ],
+#   errors: []
+# }
+```
+
+**Key features:**
+- Concurrent execution using the `async` gem
+- Deduplication of identical tool calls within batch
+- Ordered results (same order as input calls)
+- Continues execution even when individual tools fail
+- Returns structured results with success status for each call
+
+**Error handling:**
+- Individual tool failures don't stop batch execution
+- Each result includes `success: true/false` and `error` field if failed
+- Overall `success` is false if any tool fails
+- `errors` array contains details of all failed calls
 
 Available built-in tools:
 - `bash` - Execute bash commands
-- `read_file` - Read file contents
-- `write_file` - Write new files
-- `edit_file` - Edit existing files
+- `read` - Read file contents
+- `write` - Write new files
+- `edit` - Edit existing files
 - `grep` - Search file contents
 - `glob` - Find files by pattern
+- `batch` - Execute multiple tools concurrently
 - `haiku` - Generate haikus (example tool)
 
 ## Directory Structure
@@ -79,9 +118,9 @@ crayons/
 │   ├── tools.rb           # Tool registry
 │   └── tools/             # Tool implementations
 │       ├── bash.rb
-│       ├── read_file.rb
-│       ├── write_file.rb
-│       ├── edit_file.rb
+│       ├── read.rb
+│       ├── write.rb
+│       ├── edit.rb
 │       ├── grep.rb
 │       ├── glob.rb
 │       └── haiku.rb

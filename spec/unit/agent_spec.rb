@@ -14,7 +14,7 @@ RSpec.describe Crayons::Agent do
     it "loads tools from agent frontmatter" do
       allow(Crayons::Clients::Zai).to receive(:new).and_return(instance_double("Crayons::Clients::Zai"))
       agent = Crayons::Agent.new("MARGE")
-      expect(agent.tools).to contain_exactly("explore", "bash", "read_file", "write_file", "edit_file", "grep", "glob")
+      expect(agent.tools).to contain_exactly("batch", "explore", "bash", "read", "write", "edit", "grep", "glob")
     end
 
     it "loads agent instructions from markdown content" do

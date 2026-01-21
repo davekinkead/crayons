@@ -12,6 +12,7 @@ Inspired by [Geoffrey Huntley](https://ghuntley.com/ralph/).
 
 - Simple agent definitions with YAML frontmatter
 - Tool DSL for file operations, bash commands, and more
+- Concurrent tool execution via batch tooling for performance
 - Deterministic context management
 - Test-first development with RSpec
 
@@ -58,7 +59,7 @@ name: MY_AGENT
 description: Brief description
 tools:
   - bash
-  - read_file
+  - read
 ---
 
 You are an agent. Your instructions go here.

@@ -2,8 +2,8 @@
 require "spec_helper"
 require_relative "../../../lib/crayons"
 
-RSpec.describe Crayons::WriteFileTool do
-  let(:tool) { Crayons::WriteFileTool.new }
+RSpec.describe Crayons::WriteTool do
+  let(:tool) { Crayons::WriteTool.new }
   let(:temp_file) { "/tmp/test_#{Time.now.to_i}.txt" }
 
   after do

@@ -2,8 +2,8 @@
 require "spec_helper"
 require_relative "../../../lib/crayons"
 
-RSpec.describe Crayons::ReadFileTool do
-  let(:tool) { Crayons::ReadFileTool.new }
+RSpec.describe Crayons::ReadTool do
+  let(:tool) { Crayons::ReadTool.new }
   let(:nonexistent_file) { "/nonexistent/file.txt" }
   let(:temp_dir) { "/tmp/crayons_test_#{Time.now.to_i}" }
   let(:test_file_content) { "This is test content" }

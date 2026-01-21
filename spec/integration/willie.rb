@@ -21,7 +21,7 @@ puts "Loaded tool: #{tool.name}"
 puts "Description: #{tool.description}"
 puts ""
 
-puts "Exploring codebase for haiku information..."
+puts "Exploring codebase for haiku information. Use the batch tool for speed."
 puts ""
 
 response = tool.execute(problem: "Find information about haikus in this codebase")

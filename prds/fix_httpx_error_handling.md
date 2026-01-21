@@ -19,7 +19,7 @@ Fix the HTTP client to properly handle HTTPX::ErrorResponse objects that don't h
 ### MARGE: FAILURE
 **Date:** 2025-06-18
 
-ArgumentError: unknown keyword: :section when trying to execute read_file tool. This appears to be a tool implementation issue.
+ArgumentError: unknown keyword: :section when trying to execute read tool. This appears to be a tool implementation issue.
 
 ### APU: FAILURE
 **Date:** 2025-06-18

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Crayons
-  class EditFileTool < Tool
+  class EditTool < Tool
     description "Edit a file by replacing old_string with new_string"
 
     params do

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 module Crayons
-  class ReadFileTool < Tool
-    description "Read the contents of a file"
+  class ReadTool < Tool
+    description "Read the contents of a file. IMPORTANT: Pass an array of file paths to read multiple files in a single call for optimal performance."
 
     params do
-      string :file_path, description: "The absolute path to the file(s) to read. Can be a single file path or an array of file paths"
+      string :file_path, description: "The absolute path to the file(s) to read. Pass an array of file paths to read multiple files efficiently."
     end
 
     def execute(file_path:)

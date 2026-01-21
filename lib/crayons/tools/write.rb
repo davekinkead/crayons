@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Crayons
-  class WriteFileTool < Tool
+  class WriteTool < Tool
     description "Write content to a file (overwrites existing content)"
 
     params do

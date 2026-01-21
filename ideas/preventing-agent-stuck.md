@@ -25,8 +25,8 @@ find . -name "*.md" 2>/dev/null
 
 **Example:**
 ```
-read_file("./wrong/path.md") → File not found
-read_file("prds/fix-httpx-error-response.md") → File not found
+read("./wrong/path.md") → File not found
+read("prds/fix-httpx-error-response.md") → File not found
 glob("./*httpx*") → No matches
 (find loops through 10 variations)
 ```
@@ -129,9 +129,9 @@ Add to all agent personas:
 
 When working with files:
 1. Use `glob` tool first to find files (broader pattern)
-2. Then use `grep` or `read_file` for specific content
+2. Then use `grep` or `read` for specific content
 3. File paths are relative to current directory (starts with ./ or just filename)
-4. Avoid bash commands for file operations - prefer glob/grep/read_file tools
+4. Avoid bash commands for file operations - prefer glob/grep/read tools
 
 ## Error Recovery
 
@@ -159,7 +159,7 @@ BART should detect stuck agents and:
 ```
 For file operations:
 ❌ Don't use: bash find/grep/head/tail/cat
-✅ Use: glob, grep, read_file tools
+✅ Use: glob, grep, read tools
 
 For directory operations:
 ❌ Don't use: bash ls/cd/pwd

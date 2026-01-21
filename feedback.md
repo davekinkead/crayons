@@ -25,7 +25,7 @@ Good:
 ```
 Refactor tool file naming and add tests
 - Rename tool files from *_tool.rb to *.rb for consistency
-- Add specs for bash, edit_file, haiku, read_file, write_file tools
+- Add specs for bash, edit, haiku, read, write tools
 - Remove obsolete built_in_spec.rb
 - Update spec_helper.rb for new tool file structure
 - Remove examples.txt (test output file)

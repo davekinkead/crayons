@@ -12,7 +12,7 @@ spec/
 │   │   └── http_spec.rb
 │   └── tools/
 │       ├── bash_spec.rb
-│       ├── edit_file_spec.rb
+│       ├── edit_spec.rb
 │       └── ...
 ├── feature/       # Workflow behaviours
 │   └── crayons_spec.rb

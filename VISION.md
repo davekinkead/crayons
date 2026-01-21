@@ -36,13 +36,13 @@ Important requirements are that:
 
 Agents have access to tools to do their job. The tool access is defined in their markdown file.
 
-Tools should enable bulk calling eg `read_file` with mutliple file arguments.
+Tools should enable bulk calling eg `read` with mutliple file arguments.
 
 Tools should return the minumal amount of information to do the job to prevent context polution.
 - Large returns must be truncated with a warning.
 - If the same tool is repeatedly called, only the latest is needed
-  - `read_file a ... read_file b` => keep both
-  - `read_file a ... read_file a` => remove the first tool call from the message history.
+  - `read a ... read b` => keep both
+  - `read a ... read a` => remove the first tool call from the message history.
 
 ## Agent Context
 
@@ -74,7 +74,7 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 ## User Feedback
 
 - [x] Remove tool calls from message history if they are duplicates.
-- [ ] Ensure agent prompts make it clear to batch read_files.
+- [ ] Ensure agent prompts make it clear to batch reads.
 - [x] Create a verification tool to run `rspec` and `rubocop -A` - less thinking for agents. Give it to all agents
 - [x] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
 

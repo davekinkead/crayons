@@ -30,6 +30,20 @@ Important requirements are that:
 
 **LISA** validates that implementation code meets project quality standards and architectural requirements—checking code style, architecture compliance, error handling, code organization, dependencies, and documentation—without reading specs (APU handles that).
 
+**WILLI** is an explorer agent. Given a problem description, he finds all relevant files and provides clear sign posts for other agents including file names, paths, and key code snippets to grep for. Other agents can use WILLI to get this info and pass it on down the agent chain to limit API use.
+
+## Tools
+
+Agents have access to tools to do their job. The tool access is defined in their markdown file.
+
+Tools should enable bulk calling eg `read_file` with mutliple file arguments.
+
+Tools should return the minumal amount of information to do the job to prevent context polution.
+- Large returns must be truncated with a warning.
+- If the same tool is repeatedly called, only the latest is needed
+  - `read_file a ... read_file b` => keep both
+  - `read_file a ... read_file a` => remove the first tool call from the message history.
+
 ## Agent Context
 
 Agents are disposable and ephemeral. They often get stuck in loops so it is ok to have them fail early and then just re-start them. The system needs to be designed around the inevitablility of agent failure.
@@ -49,44 +63,18 @@ Non-ERROR log lines are truncated to 500 characters. Large payloads (like HTTP r
 
 ## Concurrency
 
-Performance will be enhanced through the use of `async` Ruby so that calls to LLMs and agent completions do not block the process. HTTP clients will leverage Ruby's async capabilities with fiber-based concurrency, maintaining a synchronous interface for callers while enabling non-blocking I/O operations under the hood to improve throughput when multiple agents run concurrently.
-
-HTTP clients must handle errors gracefully by rescuing from StandardError and raising appropriate NetworkError exceptions with meaningful context, avoiding direct exposure of library-specific error objects.
-
-Concurrent agents should be possible throught the use of git worktrees. This means that agents need to be instantiated with a required 'workdir' param, this value is injected into ALL took execution. For security purposes, tool calls with argument paths not containing the workdir MUST be rejected with an appropriate message.
-
-CLANCY will need to create git worktrees for BART. The worktree names should reflect the RPD name and the `workdir` agent param.
+In the initial stages of the project, there will be no concurrency. It is acceptable for agents to block each other.
 
 ## Git
 
-Concurrent agents require a specific git workflow involving git worktrees.
-
-CLANCY works from `main` and should be created with `dir: "./"`.  CLANCY creates git worktrees that match the PRD file name. He can then spawn BART with the worktree as the dir param.
-
-BART should be working in the context of a worktree. The allows BART to commit frequently as a way of persisting memory between agent processes (agents are ephemeral and have no memory). All tooling must therefore enforce `dir` compliance.
-
-Bart can commit all code on success or just udpates to the PRD on failure. This way BART can keep a record of failures until he returns SUCCESS
-
-CLANCY should decide what to merge based on BART's success or failure. If BART succeeds, CLANCY should squash-merge the worktree back into main as a single commit with a comprehensive message. If BART fails, CLANCY can commit document updates for memory and just spawn another BART.
-
+All agents will work off main. CLANCY is soley reponsible for git commits when BART is successfull.
 
 ---
 
 ## User Feedback
 
-- [x] Bash sanitization isn't correct. Allow cp mv brew wget curl. Allow `rm` but not with recursive flags. Extract this logic into a stand alone module that can be used by bash, glob and grep tools
-- [ ] Dont create unit tests for processes. Unit tests should match the class they are testing
-- [x] URGENT: Somewhere a long the way the santization of the bash tool was removed. Forbid dangerous actions that agents with full access should be banned from.
-- [x] BUG: NEVER log during specs - if tests pass, they should only show the test summary. See http_spec.rb
-- [x] Implement async. use the async gem and httpx plugin. Wrap agent instantiation in spawn_agent tool as this is where blocking starts.
-- [x] Better HTTPX error management. We need to get the actual error from ErrorResponse and throw that, not `undefined method 'status' for an instance of HTTPX::ErrorResponse`
-- [x] Runtime error still occurring. See `[2026-01-20 17:17:38] [ERROR] [AGENT:BART:488]` in logs.
-    ```
-    Crayons::Clients::HTTP::NetworkError: Network error: undefined method 'status' for an instance of HTTPX::ErrorResponse
-    /Users/davekinkead/Projects/crayons/lib/crayons/clients/http.rb:83:in 'Crayons::Clients::HTTP#handle_response'
-    ```
-    The implementation needs to properly check for HTTPX::ErrorResponse type before attempting to call `.status` on the response object. The error indicates that line 83 is still trying to call `.status` on an HTTPX::ErrorResponse object without proper type checking.
-    It might be a very good idea to create a small wrapper for the response that normalizes the different HTTPX::Response and HTTPX::ErrorResponse objects.
+- [ ] Create WILLI the explorer agent
+- [ ] Readfile tool should accept mutliple file arguments
 - [ ] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
 
 
@@ -123,3 +111,4 @@ CLANCY should decide what to merge based on BART's success or failure. If BART s
 - Added command sanitization to BashTool to forbid dangerous commands (rm, rmdir, dd, mkfs, kill, sudo, chmod, chown, apt-get, yum, brew, mv, cp) while allowing safe development commands (echo, ls, cat, grep, find, git, ruby, rspec)
 - Extracted command sanitization logic into Crayons::CommandSanitizer module for reuse across bash, grep, and glob tools
 - Refined sanitization rules: now allow cp, mv, brew, wget, curl; allow rm without recursive flags but block rm -r, -rf, etc.
+- Created PRD for WILLI explorer agent (pending: LLM service timeout during BART execution - PRD needs retry)

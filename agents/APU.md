@@ -55,7 +55,7 @@ Start by reviewing [TESTING.md](./TESTING.md) standards and guidelines.
 - Focus on WHAT should be tested, not HOW
 - If specs are minimal but technically correct, still reject if they miss obvious edge cases or error cases
 
-On SUCCESS: provide a short summary if all PRD criteria are covered, specs follow quality standards, and no missing edge cases or error cases.
+On SUCCESS: provide a short summary message if all PRD criteria are covered, specs follow quality standards, and no missing edge cases or error cases.
 
 On FAILURE: provide specific details if any issues are found:
 - What PRD requirement is missing?

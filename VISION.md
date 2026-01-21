@@ -73,9 +73,12 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 
 ## User Feedback
 
+- [x] Remove async logic - it is causing network issues that we will fix later.
 - [ ] Create WILLI the explorer agent
 - [ ] Readfile tool should accept mutliple file arguments
-- [ ] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
+- [ ] Create a verifications tool to run rspec and rubocup - less thinking for agents.
+- [ ] Remove earlier tool calls from message history if they are duplicates
+- [x] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.
 
 
 ## Agent Questions
@@ -84,7 +87,7 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 ## Progress
 
 - Implemented basic Agent class loading personas from markdown files with YAML frontmatter
-- Created HTTP client for LLM API integration with async HTTPX support
+- Created HTTP client for LLM API integration with synchronous HTTPX
 - Built Tool DSL for defining tool interfaces with description and parameters
 - Implemented BashTool for command execution and file operations
 - Created file tools: ReadFileTool, WriteFileTool, EditFileTool for code manipulation
@@ -105,9 +108,7 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 - Updated logging format: tool CALL/RESPONSE format, HTTP payload summary, 500-char truncation for non-ERROR logs
 - Fixed HTTPX ErrorResponse type checking before accessing status method to prevent 'undefined method' errors
 - Added comprehensive error message extraction for ErrorResponse objects with multiple fallback strategies
-- Implemented async/await support using async gem with fiber-based concurrency in HTTP client and SpawnAgentTool
-- Maintained synchronous interface for callers while enabling non-blocking I/O operations internally
-- Fixed Async logging during specs by handling exceptions inside Async blocks to prevent stderr warnings
+- Removed async/await logic to resolve network issues; HTTP client and SpawnAgentTool now synchronous
 - Added command sanitization to BashTool to forbid dangerous commands (rm, rmdir, dd, mkfs, kill, sudo, chmod, chown, apt-get, yum, brew, mv, cp) while allowing safe development commands (echo, ls, cat, grep, find, git, ruby, rspec)
 - Extracted command sanitization logic into Crayons::CommandSanitizer module for reuse across bash, grep, and glob tools
 - Refined sanitization rules: now allow cp, mv, brew, wget, curl; allow rm without recursive flags but block rm -r, -rf, etc.

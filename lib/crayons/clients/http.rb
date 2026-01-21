@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require "async"
 require "httpx"
 require "json"
 require_relative "../logger"
@@ -21,33 +20,20 @@ module Crayons
         @logger.debug("HTTP", "POST #{url}")
         @logger.debug("HTTP", format_payload_summary(payload))
 
-        result = nil
-        error = nil
+        response = HTTPX.post(
+          url,
+          headers: {
+            Authorization: "Bearer #{@api_key}",
+            "Content-Type": "application/json"
+          },
+          body: payload.to_json,
+          timeout: { connect_timeout: 10, operation_timeout: 60 }
+        )
 
-        Async do
-          response = HTTPX.post(
-            url,
-            headers: {
-              Authorization: "Bearer #{@api_key}",
-              "Content-Type": "application/json"
-            },
-            body: payload.to_json,
-            timeout: { connect_timeout: 10, operation_timeout: 60 }
-          )
-
-          result = handle_response(response)
-        rescue HTTPX::TimeoutError, HTTPX::ConnectionError, Errno::ECONNREFUSED => e
-          @logger.error("HTTP", "Network error: #{e.message}")
-          error = NetworkError.new("Network error: #{e.message}")
-        rescue Exception => e # rubocop:disable Lint/RescueException
-          # Catch all exceptions (including StandardError and its subclasses)
-          # This prevents Async from logging unhandled exceptions to stderr
-          # We'll re-raise them outside the async block
-          error = e
-        end.wait
-
-        raise error if error
-        result
+        handle_response(response)
+      rescue HTTPX::TimeoutError, HTTPX::ConnectionError, Errno::ECONNREFUSED => e
+        @logger.error("HTTP", "Network error: #{e.message}")
+        raise NetworkError, "Network error: #{e.message}"
       end
 
       private

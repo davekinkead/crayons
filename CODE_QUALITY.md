@@ -87,3 +87,37 @@ These standards define quality requirements for all code in the Crayons project.
 - Complex logic explained
 - README for major components
 - Changelog for breaking changes
+
+## Git Commit Standards
+
+### Commit Message Format
+
+Follow this pattern for all commit messages:
+
+```
+Concise summary line (50-72 chars)
+
+- Specific change 1 with context
+- Specific change 2 with context
+- Specific change 3 with context
+- Test verification (e.g., "All 211 tests pass")
+- Code quality (e.g., "Code passes rubocop with no violations")
+
+Detailed paragraph explaining the rationale, context, and impact
+of the changes. This should help future developers understand
+why the change was made.
+```
+
+### Guidelines
+
+- **Summary line**: Present tense, imperative mood (e.g., "Remove async logic", not "Removed" or "Removes")
+- **Bullet points**: Present tense, describe what changed and why
+- **Verification**: Always include test results and code quality checks
+- **Rationale**: Explain the why, not just the what
+- **Length**: Keep message focused but informative
+```
+
+Examples:
+- "Remove async logic to resolve network issues" (good)
+- "Fix: async removed" (too vague)
+- "Removed async because it was broken" (wrong tense, weak rationale)

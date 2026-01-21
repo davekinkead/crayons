@@ -9,6 +9,7 @@ require_relative "tools/haiku"
 require_relative "tools/grep"
 require_relative "tools/glob"
 require_relative "tools/spawn_agent"
+require_relative "tools/explore"
 
 module Crayons
   class Tools
@@ -32,6 +33,7 @@ module Crayons
         register(:grep, Crayons::GrepTool)
         register(:glob, Crayons::GlobTool)
         register(:spawn_agent, Crayons::SpawnAgentTool)
+        register(:explore, Crayons::ExploreTool)
       end
     end
 

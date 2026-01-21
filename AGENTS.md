@@ -29,6 +29,9 @@ response = agent.call "your instructions"
 - [Lisa](agents/LISA.md) - Evaluates specs & PRDs
 - [Apu](agents/APU.md) - Validates test quality and coverage
 - [Haiku](agents/HAIKU.md) - Generate haikus for testing
+- [Willie](agents/WILLIE.md) - Explorer agent that finds relevant files and provides signposts
+
+You can run individual agents with the script `bin/agent --agent LISA --call "instructions for LISA"`
 
 ## Behavioral Guidelines
 

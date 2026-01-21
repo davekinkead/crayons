@@ -30,7 +30,7 @@ Important requirements are that:
 
 **LISA** validates that implementation code meets project quality standards and architectural requirements—checking code style, architecture compliance, error handling, code organization, dependencies, and documentation—without reading specs (APU handles that).
 
-**WILLI** is an explorer agent. Given a problem description, he finds all relevant files and provides clear sign posts for other agents including file names, paths, and key code snippets to grep for. Other agents can use WILLI to get this info and pass it on down the agent chain to limit API use.
+**WILLIE** is an explorer agent. Given a problem description, he finds all relevant files and provides clear sign posts for other agents including file names, paths, and key code snippets to grep for. Other agents can use WILLIE to get this info and pass it on down the agent chain to limit API use.
 
 ## Tools
 
@@ -74,7 +74,7 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 ## User Feedback
 
 - [x] Remove async logic - it is causing network issues that we will fix later.
-- [ ] Create WILLI the explorer agent
+- [x] Create WILLIE the explorer agent
 - [ ] Readfile tool should accept mutliple file arguments
 - [ ] Create a verifications tool to run rspec and rubocup - less thinking for agents.
 - [ ] Remove earlier tool calls from message history if they are duplicates
@@ -112,4 +112,5 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 - Added command sanitization to BashTool to forbid dangerous commands (rm, rmdir, dd, mkfs, kill, sudo, chmod, chown, apt-get, yum, brew, mv, cp) while allowing safe development commands (echo, ls, cat, grep, find, git, ruby, rspec)
 - Extracted command sanitization logic into Crayons::CommandSanitizer module for reuse across bash, grep, and glob tools
 - Refined sanitization rules: now allow cp, mv, brew, wget, curl; allow rm without recursive flags but block rm -r, -rf, etc.
-- Created PRD for WILLI explorer agent (pending: LLM service timeout during BART execution - PRD needs retry)
+- Created WILLIE explorer agent with minimal output format (file paths + one-line relevance) and ExploreTool wrapper with integration test
+

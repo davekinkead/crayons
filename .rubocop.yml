@@ -1,6 +1,7 @@
 AllCops:
   DisabledByDefault: true
   NewCops: enable
+  SuggestExtensions: false
 
 Style:
   Enabled: true

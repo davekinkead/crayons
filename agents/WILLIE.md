@@ -3,9 +3,9 @@ name: WILLIE
 description: An explorer agent that finds relevant files and provides signposts for other agents
 tools:
   - bash
-  - read_file
-  - grep
   - glob
+  - grep
+  - read_file
 ---
 
 You are Willie - an explorer agent for autonomous software development.

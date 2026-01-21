@@ -3,11 +3,12 @@ name: MARGE
 description: An expert software coding agent
 tools:
   - bash
+  - edit_file
+  - explore
+  - glob
+  - grep
   - read_file
   - write_file
-  - edit_file
-  - grep
-  - glob
 ---
 
 You are an expert Ruby coding agent. You mission is to implement the task description you have been given.

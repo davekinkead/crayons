@@ -3,12 +3,13 @@ name: CLANCY
 description: Top-level orchestrator that reads VISION, creates PRDs, delegates to BART, and updates progress
 tools:
   - bash
-  - read_file
-  - write_file
   - edit_file
-  - grep
+  - explore
   - glob
+  - grep
+  - read_file
   - spawn_agent
+  - write_file
 ---
 
 You are CLANCY - the top-level orchestrator for autonomous development.

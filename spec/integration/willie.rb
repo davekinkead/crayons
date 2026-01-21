@@ -48,7 +48,7 @@ end
 
 puts "=== Verification ==="
 
-haiku_files = ["lib/crayons/tools/haiku.rb", "spec/crayons/tools/haiku_spec.rb"]
+haiku_files = ["lib/crayons/tools/haiku.rb", "spec/unit/tools/haiku_spec.rb"]
 all_found = true
 
 haiku_files.each do |file|

@@ -3,288 +3,173 @@ require "spec_helper"
 require_relative "../../../lib/crayons/clients/http"
 
 RSpec.describe Crayons::Clients::HTTP do
-  describe "#initialize" do
-    it "stores API key" do
-      client = described_class.new(api_key: "test-key", base_url: "https://test.com")
-      expect(client.instance_variable_get(:@api_key)).to eq("test-key")
-    end
+  let(:api_key) { "test-api-key" }
+  let(:base_url) { "https://api.test.com/v1" }
+  let(:endpoint) { "#{base_url}/chat/completions" }
+  let(:http_client) { double("http_client") }
+  let(:payload) { { model: "test-model", messages: [] } }
+  let(:client) { described_class.new(api_key:, base_url:, http_client:) }
 
-    it "stores base URL" do
-      client = described_class.new(api_key: "test-key", base_url: "https://test.com")
-      expect(client.instance_variable_get(:@base_url)).to eq("https://test.com")
+  describe "#initialize" do
+    context "validates configuration through behaviour" do
+      it "uses stored API key when making requests" do
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return('{"result":"ok"}')
+        allow(mock_response).to receive(:close)
+        expect(http_client).to receive(:post).with(
+          "https://test.com/endpoint",
+          satisfy { |headers| headers.is_a?(Array) && headers.any? { |h| h == ["authorization", "Bearer test-key"] } },
+          anything
+        ).and_return(mock_response)
+
+        client = described_class.new(api_key: "test-key", base_url: "https://test.com", http_client:)
+        client.post("https://test.com/endpoint", payload)
+      end
+
+      it "uses stored base URL when making requests" do
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return('{"result":"ok"}')
+        allow(mock_response).to receive(:close)
+        expect(http_client).to receive(:post).with(
+          "https://example.com/api/endpoint",
+          anything,
+          anything
+        ).and_return(mock_response)
+
+        client = described_class.new(api_key: api_key, base_url: "https://example.com/api", http_client:)
+        client.post("https://example.com/api/endpoint", payload)
+      end
     end
   end
 
   describe "#post" do
-    let(:api_key) { "test-api-key" }
-    let(:base_url) { "https://api.test.com/v1" }
-    let(:endpoint) { "#{base_url}/chat/completions" }
-    let(:client) { described_class.new(api_key:, base_url:) }
-    let(:payload) { { model: "test-model", messages: [] } }
-
-    context "produces no output to stderr" do
-      it "does not write to stderr during successful requests" do
-        mock_response = double("response", status: 200, body: "{}")
-        allow(HTTPX).to receive(:post).and_return(mock_response)
-
-        expect do
-          client.post(endpoint, payload)
-        end.to_not output.to_stderr
-      end
-
-      it "does not write to stderr when APIError is raised" do
-        mock_response = double("response", status: 400, body: "Bad Request")
-        allow(HTTPX).to receive(:post).and_return(mock_response)
-
-        expect do
-          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::APIError)
-        end.to_not output.to_stderr
-      end
-
-      it "does not write to stderr when ResponseError is raised" do
-        mock_response = double("response", status: 200, body: "invalid json")
-        allow(HTTPX).to receive(:post).and_return(mock_response)
-
-        expect do
-          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::ResponseError)
-        end.to_not output.to_stderr
-      end
-
-      it "does not write to stderr when NetworkError is raised for ErrorResponse" do
-        error = StandardError.new("Connection reset by peer")
-        error_response = double("HTTPX::ErrorResponse",
-                                error: error,
-                                to_s: error.message)
-        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
-        allow(HTTPX).to receive(:post).and_return(error_response)
-
-        expect do
-          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
-        end.to_not output.to_stderr
-      end
-
-      it "does not write to stderr when NetworkError is raised for TimeoutError" do
-        allow(HTTPX).to receive(:post).and_raise(HTTPX::TimeoutError.new(60, "Request timed out"))
-
-        expect do
-          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
-        end.to_not output.to_stderr
-      end
-
-      it "does not write to stderr when NetworkError is raised for ConnectionError" do
-        allow(HTTPX).to receive(:post).and_raise(HTTPX::ConnectionError.new("Connection failed"))
-
-        expect do
-          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
-        end.to_not output.to_stderr
-      end
-
-      it "does not write to stderr when NetworkError is raised for ECONNREFUSED" do
-        allow(HTTPX).to receive(:post).and_raise(Errno::ECONNREFUSED, "Connection refused")
-
-        expect do
-          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
-        end.to_not output.to_stderr
-      end
-
-      it "does not write to stderr when unexpected exception occurs in async block" do
-        # Simulate an unexpected error that happens inside the async block
-        allow(HTTPX).to receive(:post) do
-          # This simulates an error that occurs after HTTPX.post is called but inside the async block
-          raise HTTPX::TimeoutError.new(60, "Unexpected timeout")
-        end
-
-        expect do
-          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::NetworkError)
-        end.to_not output.to_stderr
-      end
-    end
-
     context "successful request" do
       it "returns parsed JSON response" do
         response_body = { "choices" => [{ "message" => { "content" => "test response" } }] }
-        mock_response = double("response", status: 200, body: response_body.to_json)
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return(response_body.to_json)
+        allow(mock_response).to receive(:close)
 
-        allow(HTTPX).to receive(:post).and_return(mock_response)
+        allow(http_client).to receive(:post).and_return(mock_response)
 
         result = client.post(endpoint, payload)
         expect(result).to eq(response_body)
       end
 
       it "sets Bearer authentication header" do
-        mock_response = double("response", status: 200, body: "{}")
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return("{}")
+        allow(mock_response).to receive(:close)
 
-        expect(HTTPX).to receive(:post).with(
+        expect(http_client).to receive(:post).with(
           endpoint,
-          hash_including(
-            headers: hash_including(Authorization: "Bearer #{api_key}")
-          )
+          satisfy { |headers| headers.is_a?(Array) && headers.any? { |h| h == ["authorization", "Bearer #{api_key}"] } },
+          anything
         ).and_return(mock_response)
 
         client.post(endpoint, payload)
       end
 
       it "sets JSON content-type header" do
-        mock_response = double("response", status: 200, body: "{}")
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return("{}")
+        allow(mock_response).to receive(:close)
 
-        expect(HTTPX).to receive(:post).with(
+        expect(http_client).to receive(:post).with(
           endpoint,
-          hash_including(
-            headers: hash_including("Content-Type": "application/json")
-          )
+          satisfy { |headers| headers.is_a?(Array) && headers.any? { |h| h == ["content-type", "application/json"] } },
+          anything
         ).and_return(mock_response)
 
         client.post(endpoint, payload)
       end
 
       it "sets User-Agent header with version" do
-        mock_response = double("response", status: 200, body: "{}")
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return("{}")
+        allow(mock_response).to receive(:close)
 
-        expect(HTTPX).to receive(:post).with(
+        expect(http_client).to receive(:post).with(
           endpoint,
-          hash_including(
-            headers: hash_including("User-Agent": "opencode/#{Crayons::VERSION}")
-          )
+          satisfy { |headers| headers.is_a?(Array) && headers.any? { |h| h == ["user-agent", "opencode/#{Crayons::VERSION}"] } },
+          anything
         ).and_return(mock_response)
 
         client.post(endpoint, payload)
       end
     end
 
-    context "error responses" do
-      it "raises APIError when response status is 400 or higher" do
-        mock_response = double("response", status: 400, body: "Bad Request")
-        allow(HTTPX).to receive(:post).and_return(mock_response)
+    context "API error responses" do
+      it "raises ClientError when response status is 400 or higher and does not write to stderr" do
+        mock_response = double("response", status: 400)
+        allow(mock_response).to receive(:read).and_return("Bad Request")
+        allow(mock_response).to receive(:close)
+        allow(http_client).to receive(:post).and_return(mock_response)
 
         expect do
-          client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::APIError, /API error \(400\)/)
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::ClientError, /API error \(400\)/)
+        end.to_not output.to_stderr
       end
 
-      it "raises ResponseError when JSON parsing fails" do
-        mock_response = double("response", status: 200, body: "invalid json")
-        allow(HTTPX).to receive(:post).and_return(mock_response)
+      it "raises ClientError with status code in message for 500" do
+        mock_response = double("response", status: 500)
+        allow(mock_response).to receive(:read).and_return("Internal Server Error")
+        allow(mock_response).to receive(:close)
+        allow(http_client).to receive(:post).and_return(mock_response)
 
         expect do
           client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::ResponseError, /Invalid JSON response/)
+        end.to raise_error(Crayons::Clients::HTTP::ClientError, /API error \(500\)/)
       end
     end
 
-    context "HTTPX ErrorResponse handling" do
-      it "raises NetworkError for HTTPX::ErrorResponse with error having message" do
-        # Create a mock that behaves like HTTPX::ErrorResponse
-        error = StandardError.new("Connection reset by peer")
-        error_response = double("HTTPX::ErrorResponse",
-                                error: error,
-                                to_s: error.message)
-
-        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
-
-        allow(HTTPX).to receive(:post).and_return(error_response)
+    context "response parsing errors" do
+      it "raises ClientError when response body is not valid JSON and does not write to stderr" do
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return("not valid json")
+        allow(mock_response).to receive(:close)
+        allow(http_client).to receive(:post).and_return(mock_response)
 
         expect do
-          client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Connection reset by peer/)
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::ClientError, /Invalid JSON response/)
+        end.to_not output.to_stderr
       end
 
-      it "raises NetworkError for HTTPX::ErrorResponse when error doesn't have message method" do
-        # Create an error object that doesn't respond to :message
-        error_without_message = Object.new
-        error_response = double("HTTPX::ErrorResponse",
-                                error: error_without_message,
-                                to_s: "Fallback error message from to_s")
-
-        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
-
-        allow(HTTPX).to receive(:post).and_return(error_response)
+      it "raises ClientError when response body is empty" do
+        mock_response = double("response", status: 200)
+        allow(mock_response).to receive(:read).and_return("")
+        allow(mock_response).to receive(:close)
+        allow(http_client).to receive(:post).and_return(mock_response)
 
         expect do
           client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Fallback error message from to_s/)
-      end
-
-      it "raises NetworkError when ErrorResponse doesn't respond to :error attribute" do
-        # Create a mock ErrorResponse without error attribute
-        error_response = double("HTTPX::ErrorResponse",
-                                to_s: "Error from to_s method")
-
-        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
-        allow(error_response).to receive(:respond_to?).with(:error).and_return(false)
-
-        allow(HTTPX).to receive(:post).and_return(error_response)
-
-        expect do
-          client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Error from to_s method/)
-      end
-
-      it "raises NetworkError when ErrorResponse error is nil" do
-        # Create a mock ErrorResponse with nil error
-        error_response = double("HTTPX::ErrorResponse",
-                                error: nil,
-                                to_s: "Error with nil error object")
-
-        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
-
-        allow(HTTPX).to receive(:post).and_return(error_response)
-
-        expect do
-          client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: Error with nil error object/)
-      end
-
-      it "raises NetworkError for HTTPX::ErrorResponse with empty error message" do
-        # Create an error with empty message
-        error = StandardError.new("")
-        error_response = double("HTTPX::ErrorResponse",
-                                error: error,
-                                to_s: "Error representation")
-
-        allow(error_response).to receive(:is_a?).with(HTTPX::ErrorResponse).and_return(true)
-
-        allow(HTTPX).to receive(:post).and_return(error_response)
-
-        expect do
-          client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error: $/)
-      end
-
-      it "raises NetworkError when response object is missing required methods" do
-        # Simulate any object that doesn't respond to :status
-        invalid_object = Object.new
-
-        allow(HTTPX).to receive(:post).and_return(invalid_object)
-
-        expect do
-          client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+        end.to raise_error(Crayons::Clients::HTTP::ClientError, /Invalid JSON response/)
       end
     end
 
     context "network errors" do
-      it "raises NetworkError for HTTPX::TimeoutError" do
-        allow(HTTPX).to receive(:post).and_raise(HTTPX::TimeoutError.new(60, "Request timed out"))
+      it "raises ClientError for client errors and does not write to stderr" do
+        allow(http_client).to receive(:post).and_raise(StandardError.new("Connection failed"))
 
         expect do
-          client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+          expect { client.post(endpoint, payload) }.to raise_error(Crayons::Clients::HTTP::ClientError, /Connection failed/)
+        end.to_not output.to_stderr
       end
 
-      it "raises NetworkError for HTTPX::ConnectionError" do
-        allow(HTTPX).to receive(:post).and_raise(HTTPX::ConnectionError.new("Connection failed"))
+      it "raises ClientError for timeout errors" do
+        allow(http_client).to receive(:post).and_raise(Timeout::Error.new("Request timed out"))
 
         expect do
           client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+        end.to raise_error(Crayons::Clients::HTTP::ClientError, /Request timed out/)
       end
 
-      it "raises NetworkError for Errno::ECONNREFUSED" do
-        allow(HTTPX).to receive(:post).and_raise(Errno::ECONNREFUSED, "Connection refused")
+      it "raises ClientError for connection refused errors" do
+        allow(http_client).to receive(:post).and_raise(Errno::ECONNREFUSED, "Connection refused")
 
         expect do
           client.post(endpoint, payload)
-        end.to raise_error(Crayons::Clients::HTTP::NetworkError, /Network error/)
+        end.to raise_error(Crayons::Clients::HTTP::ClientError, /Connection refused/)
       end
     end
   end

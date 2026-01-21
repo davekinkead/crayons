@@ -73,7 +73,7 @@ All agents will work off main. CLANCY is soley reponsible for git commits when B
 
 ## User Feedback
 
-- [ ] Remove tool calls from message history if they are duplicates.
+- [x] Remove tool calls from message history if they are duplicates.
 - [ ] Ensure agent prompts make it clear to batch read_files.
 - [x] Create a verification tool to run `rspec` and `rubocop -A` - less thinking for agents. Give it to all agents
 - [x] Add a `dir` param to agent.rb. `Crayons::Agent.new(:coder, fir: "/path/to/worktree")`. For now, dir should always be './'.  This is a required param with no defaults. Ensure tool use limits all actions to relative paths based on this. Tools should give error feedback that the caller is in `dir`. This will make git worktree (to do later) easier to use.

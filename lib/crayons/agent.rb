@@ -59,46 +59,6 @@ module Crayons
       response
     end
 
-    private
-
-    def create_client_from_config
-      client_type = @client_type || ENV["CRAYONS_CLIENT"] || :zai
-      model = @model || ENV["ZAI_MODEL"] || "GLM-4.7"
-      api_key = ENV.fetch("ZAI_API_KEY", nil)
-
-      client_class_name = client_type.to_s.split("_").map(&:capitalize).join
-      client_class = const_get("Crayons::Clients::#{client_class_name}")
-      client_class.new(api_key:, model:)
-    rescue NameError
-      Crayons::Clients::Zai.new(api_key:, model:)
-    end
-
-    def execute_tool(tool_call)
-      @messages = self.class.deduplicate_tool_calls(@messages, tool_call)
-
-      tool_name = tool_call["function"]["name"]
-      tool_args = JSON.parse(tool_call["function"]["arguments"]).transform_keys(&:to_sym)
-
-      @logger.debug(@id, "[#{tool_name}] CALL #{tool_args.to_json}")
-
-      tool_instance = @tool_instances.find { |t| t.name == tool_name }
-
-      unless tool_instance
-        @logger.warn(@id, "Tool not found: #{tool_name}")
-        return
-      end
-
-      result = tool_instance.execute(**tool_args)
-
-      @logger.debug(@id, "[#{tool_name}] RESPONSE #{result.to_json}")
-
-      @messages << Message.new(
-        role: :tool,
-        tool_call_id: tool_call["id"],
-        content: result.to_json
-      )
-    end
-
     def self.deduplicate_tool_calls(messages, tool_call)
       tool_name = tool_call["function"]["name"]
       tool_args = tool_call["function"]["arguments"]
@@ -147,6 +107,46 @@ module Crayons
       result.delete_at(duplicate_index)
 
       result
+    end
+
+    private
+
+    def create_client_from_config
+      client_type = @client_type || ENV["CRAYONS_CLIENT"] || :zai
+      model = @model || ENV["ZAI_MODEL"] || "GLM-4.7"
+      api_key = ENV.fetch("ZAI_API_KEY", nil)
+
+      client_class_name = client_type.to_s.split("_").map(&:capitalize).join
+      client_class = const_get("Crayons::Clients::#{client_class_name}")
+      client_class.new(api_key:, model:)
+    rescue NameError
+      Crayons::Clients::Zai.new(api_key:, model:)
+    end
+
+    def execute_tool(tool_call)
+      @messages = self.class.deduplicate_tool_calls(@messages, tool_call)
+
+      tool_name = tool_call["function"]["name"]
+      tool_args = JSON.parse(tool_call["function"]["arguments"]).transform_keys(&:to_sym)
+
+      @logger.debug(@id, "[#{tool_name}] CALL #{tool_args.to_json}")
+
+      tool_instance = @tool_instances.find { |t| t.name == tool_name }
+
+      unless tool_instance
+        @logger.warn(@id, "Tool not found: #{tool_name}")
+        return
+      end
+
+      result = tool_instance.execute(**tool_args)
+
+      @logger.debug(@id, "[#{tool_name}] RESPONSE #{result.to_json}")
+
+      @messages << Message.new(
+        role: :tool,
+        tool_call_id: tool_call["id"],
+        content: result.to_json
+      )
     end
 
     def load_agent_config(file_path)

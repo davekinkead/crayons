@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-require "httpx"
+require "async"
+require "async/http/internet"
 require "json"
 require_relative "../logger"
 require_relative "../version"
@@ -7,13 +8,12 @@ require_relative "../version"
 module Crayons
   module Clients
     class HTTP
-      NetworkError = Class.new(StandardError)
-      APIError = Class.new(StandardError)
-      ResponseError = Class.new(StandardError)
+      ClientError = Class.new(StandardError)
 
-      def initialize(api_key:, base_url:)
+      def initialize(api_key:, base_url:, http_client: Async::HTTP::Internet.new)
         @api_key = api_key
         @base_url = base_url
+        @http_client = http_client
         @logger = Crayons::Logger.instance
       end
 
@@ -21,21 +21,36 @@ module Crayons
         @logger.debug("HTTP", "POST #{url}")
         @logger.debug("HTTP", format_payload_summary(payload))
 
-        response = HTTPX.post(
-          url,
-          headers: {
-            Authorization: "Bearer #{@api_key}",
-            "Content-Type": "application/json",
-            "User-Agent": "opencode/#{Crayons::VERSION}"
-          },
-          body: payload.to_json,
-          timeout: { connect_timeout: 10, operation_timeout: 60 }
-        )
+        Sync do |task|
+          task.annotate "Crayons::HTTP POST #{url}"
 
-        handle_response(response)
-      rescue HTTPX::TimeoutError, HTTPX::ConnectionError, Errno::ECONNREFUSED => e
-        @logger.error("HTTP", "Network error: #{e.message}")
-        raise NetworkError, "Network error: #{e.message}"
+          response = @http_client.post(
+            url,
+            [
+              ["authorization", "Bearer #{@api_key}"],
+              ["content-type", "application/json"],
+              ["user-agent", "opencode/#{Crayons::VERSION}"]
+            ],
+            payload.to_json
+          )
+
+          begin
+            result = handle_response(response)
+          ensure
+            response&.close
+          end
+
+          result
+        rescue Async::TimeoutError, Timeout::Error => e
+          @logger.error("HTTP", "Request timeout: #{e.message}")
+          raise ClientError, "Request timeout: #{e.message}"
+        rescue Errno::ECONNREFUSED => e
+          @logger.error("HTTP", "Connection refused: #{e.message}")
+          raise ClientError, "Connection refused: #{e.message}"
+        rescue StandardError => e
+          @logger.error("HTTP", "Client error: #{e.message}")
+          raise ClientError, e.message
+        end
       end
 
       private
@@ -43,56 +58,33 @@ module Crayons
       def format_payload_summary(payload)
         summary_parts = []
 
-        # Add model if present
         summary_parts << "model=#{payload[:model]}" if payload[:model]
-
-        # Add messages count if present
         summary_parts << "messages=#{payload[:messages].length}" if payload[:messages]
-
-        # Add tools count if present
         summary_parts << "tools=#{payload[:tools].length}" if payload[:tools]
 
         summary_parts.join(", ")
       end
 
       def handle_response(response)
-        # Check if response is an HTTPX::ErrorResponse (doesn't have status method)
-        if response.is_a?(HTTPX::ErrorResponse)
-          error_message = extract_error_message(response)
-          @logger.error("HTTP", "ErrorResponse: #{error_message}")
-          raise NetworkError, "Network error: #{error_message}"
-        end
-
         status = response.status
-        body = response.body.to_s
+        body = response.read
 
         @logger.debug("HTTP", "Response status: #{status}")
 
         if status >= 400
           @logger.error("HTTP", "Error body: #{body[0..500]}...")
-          raise APIError, "API error (#{status}): #{body}"
+          raise ClientError, "API error (#{status}): #{body}"
         end
 
         JSON.parse(body)
       rescue JSON::ParserError => e
         @logger.error("HTTP", "JSON parse error: #{e.message}")
-        raise ResponseError, "Invalid JSON response: #{e.message}"
-      rescue APIError, ResponseError
+        raise ClientError, "Invalid JSON response: #{e.message}"
+      rescue ClientError
         raise
       rescue StandardError => e
         @logger.error("HTTP", "Response handling error: #{e.message}")
-        raise NetworkError, "Network error: #{e.message}"
-      end
-
-      def extract_error_message(error_response)
-        # HTTPX::ErrorResponse has an error attribute with the wrapped exception
-        if error_response.respond_to?(:error)
-          error = error_response.error
-          return error.message if error.respond_to?(:message)
-        end
-
-        # Fallback to to_s if error method doesn't work
-        error_response.to_s
+        raise ClientError, "Network error: #{e.message}"
       end
     end
   end

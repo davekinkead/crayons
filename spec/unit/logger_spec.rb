@@ -4,7 +4,7 @@ require_relative "../../lib/crayons"
 require "fileutils"
 
 RSpec.describe Crayons::Logger do
-  let(:log_dir) { File.join(Dir.tmpdir, "crayons_logs_#{Time.now.to_i}") }
+  let(:log_dir) { File.join("/tmp", "crayons_logs_#{Time.now.to_i}") }
   let(:log_file) { File.join(log_dir, "test.log") }
 
   before do
@@ -49,7 +49,7 @@ RSpec.describe Crayons::Logger do
 
   describe "#initialize" do
     it "creates log directory if it does not exist" do
-      new_log_file = File.join(Dir.tmpdir, "crayons_new_#{Time.now.to_i}/test.log")
+      new_log_file = File.join("/tmp", "crayons_new_#{Time.now.to_i}/test.log")
       ENV["CRAYONS_LOG_FILE"] = new_log_file
 
       described_class.new

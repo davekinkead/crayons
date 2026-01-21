@@ -57,7 +57,9 @@ Follow these requirements closely:
 - only test public methods
 - test behaviour not implementation
 - keep tests independent - don't have dependencies between tests
+- Look for dependency coupling. Use DI to decouple external classes
 - 1 red and 1 green test for each scenario
+- No duplicate tests
 
 ### Unit Tests
 - Test individual classes

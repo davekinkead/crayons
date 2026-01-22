@@ -1,79 +1,26 @@
 # Crayons
 
-A Ruby-based autonomous software development system using the Ralph technique.
+![I'm in everything now](ralphy.jpg)
 
-## Overview
+Crayons is an **experimental** ralph-loop for autonomous software development via simple agents defined as markdown files.
 
-Crayons enables autonomous software development through simple agents defined as markdown files. Each agent has its own persona, instructions, and tools, connecting to LLM services via RubyLLM.
+## Principle
+
+* Expect failure. LLMs are non-deterministic - design around the inevitability of failure.
+* Agents are tools. A unified interface means agents can use other agent like they use deterministic tools.
+* Keep 'em stupid. Agents should do one thing and do it well.
+* Context is king. Keep it lean and don't leak it.
+* Performance through parallelisation. Design for concurrency.
 
 Inspired by [Geoffrey Huntley](https://ghuntley.com/ralph/).
 
 ## Features
 
-- Simple agent definitions with YAML frontmatter
-- Tool DSL for file operations, bash commands, and more
+- Define agents via markdown.
+- A common DSL for agents and tool
 - Concurrent tool execution via batch tooling for performance
 - Deterministic context management
 - Test-first development with RSpec
-
-## Installation
-
-```bash
-git clone https://github.com/yourusername/crayons.git
-cd crayons
-bundle install
-```
-
-## Configuration
-
-Set required environment variables:
-
-```bash
-export ZAI_API_KEY="your-api-key"  # or OPENAI_API_KEY
-export OPENAI_BASE_URL="https://your-api-endpoint.com"  # optional
-export OPENAI_MODEL="your-model"  # optional
-```
-
-## Usage
-
-```ruby
-require 'crayons'
-
-agent = Crayons::Agent.new :coder
-response = agent.call "Implement a function to reverse a string"
-puts response
-```
-
-## Available Agents
-
-- **Coder** - Implements code to pass specs
-- **Haiku** - Generates haikus (for testing)
-
-## Creating Agents
-
-Define agents in `agents/AGENT.md`:
-
-```yaml
----
-name: MY_AGENT
-description: Brief description
-tools:
-  - bash
-  - read
----
-
-You are an agent. Your instructions go here.
-
-## Task completion
-
-Return `<promise>COMPLETE</promise>` when finished.
-```
-
-## Testing
-
-```bash
-bundle exec rspec
-```
 
 ## Documentation
 
@@ -83,4 +30,4 @@ bundle exec rspec
 
 ## License
 
-MIT
+Copyright Dave Kinkead 2026

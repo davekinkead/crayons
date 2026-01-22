@@ -213,6 +213,6 @@ Missing critical edge case tests for error message extraction. The spec has 2 te
 
 - Total log lines analyzed: ~1,300 across both log files
 - Time period: January 20-21, 2026
-- Most affected agents: CLANCY, MARGE, LISA, BART
+- Most affected agents: RALPH, MARGE, LISA, BART
 - System overall health: Agents complete many tasks successfully but face recurring blocking issues
 - Pattern: Many issues stem from HTTP client integration and error handling gaps

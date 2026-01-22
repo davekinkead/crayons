@@ -182,7 +182,7 @@ RSpec.describe Crayons::BashTool do
   end
 
   it "allows safe commands like grep" do
-    result = tool.execute(command: "grep 'test' README.md")
+    result = tool.execute(command: "grep 'Crayons' README.md")
     expect(result[:exit_status]).to eq(0)
   end
 

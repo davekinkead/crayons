@@ -151,7 +151,7 @@ Agent is considered "stuck" if:
 
 BART should detect stuck agents and:
 1. Log warning: [WARN] [AGENT:name] Agent appears stuck (N iterations without progress)
-2. Pause the cycle and report to CLANCY
+2. Pause the cycle and report to RALPH
 3. Continue with next PRD if available
 ```
 
@@ -175,5 +175,5 @@ For network operations:
 Add to logging system:
 ```
 [WARN] [BART] Agent {name} stuck in loop at iteration {n}
-[WARN] [CLANCY] Multiple agents experiencing issues, check logs
+[WARN] [RALPH] Multiple agents experiencing issues, check logs
 ```

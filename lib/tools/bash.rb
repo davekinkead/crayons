@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "open3"
+require "timeout"
 require_relative "../tool"
 
 module Crayons
@@ -21,9 +23,6 @@ module Crayons
         timeout = input[:timeout] || 120
 
         raise KeyError, "command is required" if command.nil?
-
-        require "open3"
-        require "timeout"
 
         ::Timeout.timeout(timeout) do
           result = Open3.popen3(command) do |stdin, stdout, stderr, wait_thread|

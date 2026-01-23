@@ -12,4 +12,6 @@ Crayons is an experiment in autonymous agentic coding based on the Ralph Wiggum 
 
 ## Important
 
-- Always verify your work with `bin/verify`.
+- If you are writing code, ALWAYS follow TDD red before green.
+- ALWAYS verify your work with `bin/verify`.
+- NEVER delete a file without asking the user.

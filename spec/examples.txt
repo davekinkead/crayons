@@ -1,12 +1,35 @@
-example_id                             | status | run_time        |
--------------------------------------- | ------ | --------------- |
-./spec/unit/tools/haiku_spec.rb[1:1:1] | passed | 0.00002 seconds |
-./spec/unit/tools/haiku_spec.rb[1:2:1] | passed | 0.00003 seconds |
-./spec/unit/tools/haiku_spec.rb[1:3:1] | passed | 0.00003 seconds |
-./spec/unit/tools/haiku_spec.rb[1:4:1] | passed | 0.00013 seconds |
-./spec/unit/tools/haiku_spec.rb[1:4:2] | passed | 0.00003 seconds |
-./spec/unit/tools/tool_spec.rb[1:1:1]  | passed | 0.00003 seconds |
-./spec/unit/tools/tool_spec.rb[1:1:2]  | passed | 0.00002 seconds |
-./spec/unit/tools/tool_spec.rb[1:1:3]  | passed | 0.00002 seconds |
-./spec/unit/tools/tool_spec.rb[1:2:1]  | passed | 0.00026 seconds |
-./spec/unit/tools/tool_spec.rb[1:3:1]  | passed | 0.00064 seconds |
+example_id                                       | status | run_time        |
+------------------------------------------------ | ------ | --------------- |
+./spec/integration/write_haiku_read_bash.rb[1:1] | passed | 0.00341 seconds |
+./spec/unit/tools/bash_spec.rb[1:1:1]            | passed | 0.00002 seconds |
+./spec/unit/tools/bash_spec.rb[1:2:1]            | passed | 0.00002 seconds |
+./spec/unit/tools/bash_spec.rb[1:3:1]            | passed | 0.00003 seconds |
+./spec/unit/tools/bash_spec.rb[1:4:1]            | passed | 0.01933 seconds |
+./spec/unit/tools/bash_spec.rb[1:4:2]            | passed | 0.0115 seconds  |
+./spec/unit/tools/bash_spec.rb[1:4:3]            | passed | 10.01 seconds   |
+./spec/unit/tools/bash_spec.rb[1:4:4]            | passed | 0.00024 seconds |
+./spec/unit/tools/haiku_spec.rb[1:1:1]           | passed | 0.00002 seconds |
+./spec/unit/tools/haiku_spec.rb[1:2:1]           | passed | 0.00003 seconds |
+./spec/unit/tools/haiku_spec.rb[1:3:1]           | passed | 0.00002 seconds |
+./spec/unit/tools/haiku_spec.rb[1:4:1]           | passed | 0.00003 seconds |
+./spec/unit/tools/haiku_spec.rb[1:4:2]           | passed | 0.00002 seconds |
+./spec/unit/tools/read_file_spec.rb[1:1:1]       | passed | 0.00002 seconds |
+./spec/unit/tools/read_file_spec.rb[1:2:1]       | passed | 0.00004 seconds |
+./spec/unit/tools/read_file_spec.rb[1:3:1]       | passed | 0.00004 seconds |
+./spec/unit/tools/read_file_spec.rb[1:4:1]       | passed | 0.00017 seconds |
+./spec/unit/tools/read_file_spec.rb[1:4:2]       | passed | 0.00014 seconds |
+./spec/unit/tools/read_file_spec.rb[1:4:3]       | passed | 0.00019 seconds |
+./spec/unit/tools/read_file_spec.rb[1:4:4]       | passed | 0.00032 seconds |
+./spec/unit/tools/tool_spec.rb[1:1:1]            | passed | 0.00002 seconds |
+./spec/unit/tools/tool_spec.rb[1:1:2]            | passed | 0.00002 seconds |
+./spec/unit/tools/tool_spec.rb[1:1:3]            | passed | 0.00002 seconds |
+./spec/unit/tools/tool_spec.rb[1:2:1]            | passed | 0.00003 seconds |
+./spec/unit/tools/tool_spec.rb[1:3:1]            | passed | 0.00004 seconds |
+./spec/unit/tools/write_file_spec.rb[1:1:1]      | passed | 0.00002 seconds |
+./spec/unit/tools/write_file_spec.rb[1:2:1]      | passed | 0.00075 seconds |
+./spec/unit/tools/write_file_spec.rb[1:3:1]      | passed | 0.00004 seconds |
+./spec/unit/tools/write_file_spec.rb[1:4:1]      | passed | 0.00038 seconds |
+./spec/unit/tools/write_file_spec.rb[1:4:2]      | passed | 0.00094 seconds |
+./spec/unit/tools/write_file_spec.rb[1:4:3]      | passed | 0.00059 seconds |
+./spec/unit/tools/write_file_spec.rb[1:4:4]      | passed | 0.00015 seconds |
+./spec/unit/tools/write_file_spec.rb[1:4:5]      | passed | 0.00071 seconds |

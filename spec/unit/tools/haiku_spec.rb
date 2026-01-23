@@ -2,7 +2,7 @@
 
 require_relative "../../../lib/tools/haiku"
 
-RSpec.describe Crayons::Haiku do
+RSpec.describe Crayons::Tools::Haiku do
   describe "#name" do
     it "returns 'haiku'" do
       expect(subject.name).to eq("haiku")

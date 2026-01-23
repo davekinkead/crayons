@@ -1,8 +1,9 @@
 # Crayons Architecture
 
-
-/lib for code
+/lib for code (everything in Crayons namespace)
+  - tool.rb                → Crayons::Tool (base class)
+  - errors.rb              → Crayons::ToolNotFoundError (exceptions)
+  - tools.rb               → Crayons::Tools (factory module)
   - tools/
-    - haiku.rb
-  - tool.rb
+    - haiku.rb            → Crayons::Tools::Haiku (individual tool)
 /spec for tests

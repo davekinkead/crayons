@@ -11,6 +11,7 @@ Crayons is an **experimental** ralph-loop for autonomous software development vi
 * Keep 'em stupid. Agents should do one thing and do it well.
 * Context is king. Keep it lean and don't leak it.
 * Performance through parallelisation. Design for concurrency.
+* Correctness over completeness. Implementation is incremental but always production ready.
 
 Inspired by [Geoffrey Huntley](https://ghuntley.com/ralph/).
 
@@ -25,8 +26,8 @@ Inspired by [Geoffrey Huntley](https://ghuntley.com/ralph/).
 ## Documentation
 
 - [AGENTS.md](AGENTS.md) - Quick start guide for agents
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture and components
-- [TESTING.md](TESTING.md) - Testing guidelines and structure
+- [docs/architecture.md](docs/architecture.md) - System architecture and components
+- [docs/testing.md](docs/testing.md) - Testing guidelines and structure
 
 ## License
 

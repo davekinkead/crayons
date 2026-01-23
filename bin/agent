@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "dotenv/load"
+require_relative "../lib/agent"
+require "optparse"
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: bin/agent --agent NAME --call 'prompt message'"
+
+  opts.on("-a", "--agent NAME", "Agent name (e.g., MARGE, TEST)") do |name|
+    options[:agent] = name
+  end
+
+  opts.on("-c", "--call PROMPT", "Prompt to send to the agent") do |prompt|
+    options[:prompt] = prompt
+  end
+
+  opts.on("-m", "--mock", "Use mock client (no API key required)") do
+    options[:mock] = true
+  end
+
+  opts.on("-h", "--help", "Prints this help") do
+    puts opts
+    exit
+  end
+end.parse!
+
+if options[:agent].nil? || options[:prompt].nil?
+  puts "Error: Both --agent and --call are required"
+  puts ""
+  puts "Usage: bin/agent --agent NAME --call 'prompt message'"
+  puts "  bin/agent --agent MARGE --call 'implement a new feature'"
+  exit 1
+end
+
+begin
+  agent = Crayons::Agent.new(options[:agent].to_sym)
+  response = agent.call(options[:prompt])
+
+  puts response.content
+  exit 0
+rescue RuntimeError => e
+  puts "Error: #{e.message}"
+  exit 1
+rescue StandardError => e
+  puts "Error: #{e.class} - #{e.message}"
+  exit 1
+end

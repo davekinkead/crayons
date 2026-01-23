@@ -1,8 +1,6 @@
 ---
 name: HAIKU
 description: An agent for internal tests only
-tools:
-  - haiku
 max_iterations: 5
 ---
 

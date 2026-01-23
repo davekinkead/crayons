@@ -47,6 +47,7 @@ GEM
     json (2.18.0)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
+    logger (1.7.0)
     metrics (0.15.0)
     parallel (1.27.0)
     parser (3.3.10.1)
@@ -120,6 +121,7 @@ DEPENDENCIES
   async-http
   debug (~> 1.0)
   dotenv (~> 3.0)
+  logger
   pp
   rspec (~> 3.0)
   rubocop (~> 1.0)
@@ -146,6 +148,7 @@ CHECKSUMS
   json (2.18.0) sha256=b10506aee4183f5cf49e0efc48073d7b75843ce3782c68dbeb763351c08fd505
   language_server-protocol (3.17.0.5) sha256=fd1e39a51a28bf3eec959379985a72e296e9f9acfce46f6a79d31ca8760803cc
   lint_roller (1.1.0) sha256=2c0c845b632a7d172cb849cc90c1bce937a28c5c8ccccb50dfd46a485003cc87
+  logger (1.7.0)
   metrics (0.15.0) sha256=61ded5bac95118e995b1bc9ed4a5f19bc9814928a312a85b200abbdac9039072
   parallel (1.27.0) sha256=4ac151e1806b755fb4e2dc2332cbf0e54f2e24ba821ff2d3dcf86bf6dc4ae130
   parser (3.3.10.1) sha256=06f6a725d2cd91e5e7f2b7c32ba143631e1f7c8ae2fb918fc4cebec187e6a688

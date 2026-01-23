@@ -51,7 +51,8 @@ lib/
     ├── bash.rb
     ├── read_file.rb
     ├── write_file.rb
-    └── search.rb
+    ├── find.rb       # Find files by glob pattern
+    └── grep.rb       # Search file contents with regex
 ```
 
 ## Built-in Tools
@@ -77,10 +78,15 @@ lib/
 - Parameters: filepath (required), content (required)
 - Create or overwrite file
 
-### 5. Search Tool (`tools/search.rb`)
-- Search file contents using ripgrep
+### 5. Find Tool (`tools/find.rb`)
+- Find files matching a glob pattern
 - Parameters: pattern (required), path (optional)
-- Return matching lines and file paths
+- Return matching file paths
+
+### 6. Grep Tool (`tools/grep.rb`)
+- Search file contents using regex patterns
+- Parameters: pattern (required), path (optional), include (optional)
+- Return matching lines with file paths
 
 ## Key Design Decisions
 
@@ -90,3 +96,41 @@ lib/
 - **Immutable context**: Tools receive context but never mutate it
 - **Test-first**: Every component has RSpec tests before implementation
 - **Explicit errors**: `ToolNotFoundError` for unknown tools
+
+---
+
+## Next Steps
+
+### 1. Batch Tool with Async Execution
+- Implement `tools/batch.rb` to execute multiple tools concurrently
+- Use Async gem for fiber-based parallel execution
+- Maintain standard tool interface: `batch(tools: [{name: :haiku, input: nil}, ...])`
+- Return aggregated results with success/failure status per tool
+- Add comprehensive error handling for partial failures
+
+### 2. Workdir Parameter Support
+- Update Tool base class to accept `workdir` parameter
+- Enforce workdir compliance in all tools (bash, read_file, write_file, find, grep)
+- Reject tool calls with paths outside the workdir
+- Required for git worktree-based concurrent agent execution
+
+### 3. Agent System
+- Implement agent base class in `lib/agent.rb`
+- Create LLM client (`lib/client/http.rb`) with async-http
+- Add agent executor/loop with iteration limits
+- Support agent configuration from markdown files (`agents/` directory)
+- Integrate batch tool for parallel tool execution
+
+### 4. Context Management
+- Implement token counting and message truncation
+- Add context compaction with sliding window pruning
+- Create AI-powered summarization for overflow scenarios
+- Protect critical messages from pruning (last 40k tokens)
+- Track and log token usage
+
+### 5. Enhanced Error Handling
+- HTTP client: Handle HTTPX::ErrorResponse properly
+- Implement retry logic with exponential backoff
+- Add rate limiting middleware
+- Improve timeout handling with configuration
+- Better error messages and recovery suggestions

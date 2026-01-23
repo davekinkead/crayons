@@ -2,3 +2,5 @@
 .env
 .ruby-lsp
 logs/*
+
+examples.txt

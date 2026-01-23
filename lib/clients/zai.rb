@@ -3,6 +3,7 @@ require_relative "base"
 require_relative "http"
 require_relative "../message"
 require_relative "../logger"
+require_relative "../utils"
 
 module Crayons
   module Clients
@@ -56,7 +57,7 @@ module Crayons
                 description: tool.description,
                 parameters: {
                   type: "object",
-                  properties: tool.parameters || {},
+                  properties: convert_params_to_hash(tool.params),
                   required: []
                 }
               }
@@ -73,8 +74,23 @@ module Crayons
             role: message_data["role"].to_sym,
             content: message_data["content"],
             complete: finish_reason == "stop",
-            tool_calls: message_data["tool_calls"]
+            tool_calls: convert_tool_calls_to_symbols(message_data["tool_calls"])
           )
+        end
+
+        def convert_tool_calls_to_symbols(tool_calls)
+          return nil unless tool_calls
+
+          tool_calls.map { |tool_call| Utils.symbolize_keys(tool_call) }
+        end
+
+        def convert_params_to_hash(params)
+          params.each_with_object({}) do |param, hash|
+            hash[param[:name].to_sym] = {
+              type: "string",
+              description: param[:description]
+            }
+          end
         end
       end
     end

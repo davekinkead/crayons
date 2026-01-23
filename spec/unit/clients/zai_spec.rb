@@ -77,7 +77,7 @@ RSpec.describe Crayons::Clients::Zai do
     end
 
     it "converts tools to schema format" do
-      test_tool = double(name: "test_tool", description: "A test tool", parameters: { type: "string" })
+      test_tool = double(name: "test_tool", description: "A test tool", params: [{ name: "param1", description: "A parameter", required: true }])
       tools = [test_tool]
 
       expected_tools = [
@@ -88,7 +88,7 @@ RSpec.describe Crayons::Clients::Zai do
             description: "A test tool",
             parameters: {
               type: "object",
-              properties: { type: "string" },
+              properties: { param1: { type: "string", description: "A parameter" } },
               required: []
             }
           }
@@ -146,12 +146,22 @@ RSpec.describe Crayons::Clients::Zai do
     end
 
     it "includes tool_calls in response if present" do
-      api_response["choices"][0]["message"]["tool_calls"] = [{ id: "call_123" }]
-      
+      api_response["choices"][0]["message"]["tool_calls"] = [{
+        "function" => { "name" => "test_tool", "arguments" => "{}" },
+        "id" => "call_123",
+        "type" => "function",
+        "index" => 0
+      }]
+
       result = subject.chat(system: system, messages: messages, tools: tools)
 
       expect(result.tool_call?).to be true
-      expect(result.tool_calls).to eq([{ id: "call_123" }])
+      expect(result.tool_calls).to eq([{
+        function: { name: "test_tool", arguments: "{}" },
+        id: "call_123",
+        type: "function",
+        index: 0
+      }])
     end
   end
 
@@ -191,7 +201,7 @@ RSpec.describe Crayons::Clients::Zai do
 
   describe ".convert_tools_to_schemas" do
     it "converts tools to function schema format" do
-      tool = double(name: "test_tool", description: "A test tool", parameters: { type: "string" })
+      tool = double(name: "test_tool", description: "A test tool", params: [{ name: "param1", description: "A parameter", required: true }])
 
       result = described_class.convert_tools_to_schemas([tool])
 
@@ -203,7 +213,7 @@ RSpec.describe Crayons::Clients::Zai do
             description: "A test tool",
             parameters: {
               type: "object",
-              properties: { type: "string" },
+              properties: { param1: { type: "string", description: "A parameter" } },
               required: []
             }
           }
@@ -212,7 +222,7 @@ RSpec.describe Crayons::Clients::Zai do
     end
 
     it "handles tools without parameters" do
-      tool = double(name: "test_tool", description: "A test tool", parameters: nil)
+      tool = double(name: "test_tool", description: "A test tool", params: [])
 
       result = described_class.convert_tools_to_schemas([tool])
 
@@ -231,11 +241,21 @@ RSpec.describe Crayons::Clients::Zai do
     end
 
     it "handles tool_calls in response" do
-      api_response["choices"][0]["message"]["tool_calls"] = [{ id: "call_123" }]
+      api_response["choices"][0]["message"]["tool_calls"] = [{
+        "function" => { "name" => "test_tool", "arguments" => "{}" },
+        "id" => "call_123",
+        "type" => "function",
+        "index" => 0
+      }]
 
       result = described_class.parse_response(api_response)
 
-      expect(result.tool_calls).to eq([{ id: "call_123" }])
+      expect(result.tool_calls).to eq([{
+        function: { name: "test_tool", arguments: "{}" },
+        id: "call_123",
+        type: "function",
+        index: 0
+      }])
       expect(result.tool_call?).to be true
     end
   end

@@ -2,6 +2,7 @@
 name: TEST
 description: An agent for internal tests only
 max_iterations: 5
+tools: [find]
 ---
 
-You are a Haiku bot. Brighten the user's day with a Haiku about hyperactive squirrels with kitchen knives.
+You are a helpful assistant that uses tools to find files and information.

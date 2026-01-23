@@ -2,8 +2,11 @@
 
 require_relative "clients/zai"
 require_relative "message"
+require_relative "tools"
+require_relative "utils"
 require "yaml"
 require "fileutils"
+require "json"
 
 module Crayons
   class Agent
@@ -11,22 +14,29 @@ module Crayons
 
   def initialize(name, client: nil)
     @client = client || Crayons::Clients::Zai.new
+    @message_history = []
+    @tools = []
     load_agent_config(name)
   end
 
     def call(prompt)
-      message = Message.new(role: :user, content: prompt)
+      @message_history << Message.new(role: :user, content: prompt)
 
-      response = chat(messages: [message])
+      loop do
+        response = chat
+        @message_history << response
 
-      format_response(response)
+        return response if response.complete?
+
+        handle_tool_calls(response) if response.tool_call?
+      end
     end
 
-    def chat(messages:, tools: [])
+    def chat
       @client.chat(
         system: @system_prompt,
-        messages: messages,
-        tools: tools
+        messages: @message_history,
+        tools: @tools
       )
     end
 
@@ -43,10 +53,28 @@ module Crayons
         yaml_content = Regexp.last_match(1)
         @config = YAML.safe_load(yaml_content)
         @name = @config["name"]
+        @tools = load_tools(@config["tools"] || [])
         @system_prompt = content.sub(/\A---.*?---\n?/m, "").strip
-      
-        
-      
+    end
+
+    def load_tools(tool_names)
+      tool_names.map { |tool_name| Crayons::Tools.new(tool_name.to_sym) }
+    end
+
+    def handle_tool_calls(response)
+      response.tool_calls.each do |tool_call|
+        tool_name = tool_call.dig(:function, :name).to_sym
+        tool_args = JSON.parse(tool_call.dig(:function, :arguments) || "{}", symbolize_names: true)
+
+        tool = Crayons::Tools.new(tool_name)
+        result = tool.call(tool_args)
+
+        @message_history << Message.new(
+          role: :tool,
+          content: result[:result].to_s,
+          tool_call_id: tool_call[:id]
+        )
+      end
     end
 
     def format_response(message)

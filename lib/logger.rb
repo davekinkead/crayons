@@ -13,7 +13,6 @@ module Crayons
     INFO = 1
     WARN = 2
     ERROR = 3
-    MAX_CONTEXT_LENGTH = 100
     MAX_MESSAGE_LENGTH = 500
 
     class << self
@@ -23,6 +22,13 @@ module Crayons
 
       def remove_instance
         @instance = nil
+      end
+
+      def truncate_message(message, level)
+        message = message.to_s.gsub(/\s+/, " ").strip
+        return message if level == ERROR
+        return message if message.length <= MAX_MESSAGE_LENGTH
+        message[0...MAX_MESSAGE_LENGTH]
       end
     end
 
@@ -37,9 +43,8 @@ module Crayons
     def log(level, agent_id, message)
       return unless @logger
 
-      context = truncate_context(agent_id.to_s)
-      truncated_message = truncate_message(message.to_s, level)
-      @logger.add(level, "[#{context}] #{truncated_message}")
+      truncated_message = self.class.truncate_message(message.to_s, level)
+      @logger.add(level, "[#{agent_id}] #{truncated_message}")
     end
 
     def debug(agent_id, message)
@@ -90,17 +95,6 @@ module Crayons
       when :error then ERROR
       else DEBUG
       end
-    end
-
-    def truncate_context(context)
-      return context if context.length <= MAX_CONTEXT_LENGTH
-      context[0...MAX_CONTEXT_LENGTH]
-    end
-
-    def truncate_message(message, level)
-      return message if level == ERROR
-      return message if message.length <= MAX_MESSAGE_LENGTH
-      message[0...MAX_MESSAGE_LENGTH]
     end
   end
 end

@@ -5,10 +5,56 @@ require_relative "../../lib/logger"
 
 RSpec.describe Crayons::Logger do
   describe "singleton instance" do
-    it "returns the same instance on multiple calls" do
+    it "returns same instance on multiple calls" do
       instance1 = described_class.instance
       instance2 = described_class.instance
       expect(instance1).to be(instance2)
+    end
+  end
+
+  describe ".truncate_message" do
+    it "formats multiline text to single line" do
+      text = "Line 1\nLine 2\nLine 3"
+      expect(described_class.truncate_message(text, 1)).to eq("Line 1 Line 2 Line 3")
+    end
+
+    it "removes leading/trailing whitespace" do
+      text = "  \nLine 1\n  "
+      expect(described_class.truncate_message(text, 1)).to eq("Line 1")
+    end
+
+    it "handles multiple spaces between words" do
+      text = "Word1   Word2    Word3"
+      expect(described_class.truncate_message(text, 1)).to eq("Word1 Word2 Word3")
+    end
+
+    it "converts tabs to spaces" do
+      text = "Word1\tWord2\tWord3"
+      expect(described_class.truncate_message(text, 1)).to eq("Word1 Word2 Word3")
+    end
+
+    it "handles mixed whitespace" do
+      text = "Line 1\n\t  Line 2\n   Line 3"
+      expect(described_class.truncate_message(text, 1)).to eq("Line 1 Line 2 Line 3")
+    end
+
+    it "does not truncate ERROR level messages" do
+      long_message = "X" * 600
+      result = described_class.truncate_message(long_message, 3)
+      expect(result.length).to eq(600)
+      expect(result).to eq(long_message)
+    end
+
+    it "truncates non-ERROR messages to max length" do
+      long_message = "X" * 600
+      result = described_class.truncate_message(long_message, 1)
+      expect(result.length).to eq(500)
+      expect(result).to eq("X" * 500)
+    end
+
+    it "does not truncate messages within max length" do
+      short_message = "X" * 100
+      expect(described_class.truncate_message(short_message, 1)).to eq(short_message)
     end
   end
 
@@ -46,17 +92,6 @@ RSpec.describe Crayons::Logger do
         subject.log(3, "TestAgent", long_message)
         log_content = File.read(log_file)
         expect(log_content).to include("X" * 600)
-      end
-    end
-
-    context "context truncation" do
-      it "truncates context to 100 characters" do
-        long_context = "A" * 150
-        subject.log(1, long_context, "Test message")
-        log_content = File.read(log_file)
-        truncated_context = "A" * 100
-        expect(log_content).to include("[#{truncated_context}]")
-        expect(log_content).not_to include("A" * 150)
       end
     end
   end

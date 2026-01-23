@@ -25,6 +25,14 @@ RSpec.describe Crayons::Agent do
     end
   end
 
+  describe "#id" do
+    it "returns the agent id in lowercase format with object id number" do
+      agent = described_class.new(:test)
+
+      expect(agent.id).to eq "test-#{agent.object_id}"
+    end
+  end
+
   describe "#chat" do
     it "sends the system prompt, message history, and available tools to the client" do
       allow(mock_client).to receive(:chat).and_return(success_message)

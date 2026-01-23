@@ -51,16 +51,6 @@ Concise summary line (50-72 chars)
 
 Use present tense, explain WHY not just WHAT.
 
-## Your Tools
-
-Use all available tools to complete your work:
-- `haiku`: Generate haikus (for testing)
-- `bash`: Execute shell commands and run tests
-- `read_file`: Read any file in the project
-- `write_file`: Write or update files
-- `find`: Find files by glob pattern
-- `grep`: Search file contents with regex
-
 ## Before You Start
 
 Always verify your work by running `bin/verify` to ensure:

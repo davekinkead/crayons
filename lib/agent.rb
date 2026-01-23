@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "clients/zai"
+require_relative "logger"
 require_relative "message"
 require_relative "tools"
 require_relative "utils"
@@ -16,15 +17,24 @@ module Crayons
     @client = client || Crayons::Clients::Zai.new
     @message_history = []
     @tools = []
+    @logger = Crayons::Logger.instance
     load_agent_config(name)
   end
 
+  def id
+    "#{name.downcase}-#{object_id}"
+  end
+
     def call(prompt)
+      @logger.info(id, "Prompt: #{prompt}")
+
       @message_history << Message.new(role: :user, content: prompt)
 
       loop do
         response = chat
         @message_history << response
+
+        @logger.info(id, "Response: #{response.content}") if response.content
 
         return response if response.complete?
 
@@ -66,8 +76,12 @@ module Crayons
         tool_name = tool_call.dig(:function, :name).to_sym
         tool_args = JSON.parse(tool_call.dig(:function, :arguments) || "{}", symbolize_names: true)
 
+        @logger.debug(id, "Tool: #{tool_name} #{tool_args}")
+
         tool = Crayons::Tools.new(tool_name)
         result = tool.call(tool_args)
+
+        @logger.debug(id, "Tool Result: #{result[:success] ? 'success' : 'failure'}")
 
         @message_history << Message.new(
           role: :tool,

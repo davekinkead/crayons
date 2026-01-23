@@ -19,4 +19,8 @@ RSpec.configure do |config|
 
   config.order = :random
   Kernel.srand config.seed
+
+  config.before(:suite) do
+    ENV["CRAYONS_LOG_FILE"] = "logs/test.log"
+  end
 end

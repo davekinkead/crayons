@@ -47,7 +47,7 @@ RSpec.describe Crayons::Tools::Bash do
     end
 
     it "handles timeout" do
-      result = subject.call(command: "sleep 10", timeout: 0.1)
+      result = subject.call(command: "sleep 0.2", timeout: 0.1)
 
       expect(result[:success]).to be false
       expect(result[:result]).to have_key(:error)

@@ -41,7 +41,7 @@ end
 
 **Rules:**
 - Use real implementations of internal components
-- Mock external services (LLM APIs, network calls)
+- Mock external services (LLM APIs, network calls) - see below
 - Test behavior and collaboration contracts but not implementation
 - Focus on success/error paths
 
@@ -133,6 +133,47 @@ spec/
 ├── support/              # Test utilities and configuration
 │   └── quiet_formatter.rb
 └── spec_helper.rb
+```
+
+## Mocking & Stubbing
+
+Mocking and stubbing in unit tests indicates poor code design.
+
+Avoid it whenever possibile. If you need to mock, redesign your code first.
+
+Example:
+
+**Bad - mocks implementation**
+
+```ruby
+class Find < Tool
+  def call(input)
+    dir = input[:path] || Dir.pwd
+    # ...
+  end
+end
+
+it "calls Open3 with correct command" do
+  allow(Open3).to receive(:capture3).with("find /path -name '*.rb'")
+  subject.call(pattern: "*.rb", path: "/path")
+end
+```
+
+**Good - tests observable state**
+```ruby
+class Find < Tool
+  attr_reader :dir
+
+  def call(input)
+    @dir = input[:path] || Dir.pwd
+    # ...
+  end
+end
+
+it "defaults to the project dir" do
+  subject.call(pattern: "*.rb", path: "/project")
+  expect(subject.dir).to eq("/project")
+end
 ```
 
 ## General

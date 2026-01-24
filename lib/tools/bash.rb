@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "async"
 require "open3"
 require "timeout"
 require_relative "../tool"

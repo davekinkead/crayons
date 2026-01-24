@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "async"
 require_relative "clients/zai"
 require_relative "logger"
 require_relative "message"
@@ -86,22 +87,34 @@ module Crayons
     end
 
     def handle_tool_calls(response)
-      response.tool_calls.each do |tool_call|
-        tool_name = tool_call.dig(:function, :name).to_sym
-        tool_args = JSON.parse(tool_call.dig(:function, :arguments) || "{}", symbolize_names: true)
+      Async do
+        tasks = response.tool_calls.map do |tool_call|
+          Async do
+            tool_name = tool_call.dig(:function, :name).to_sym
+            tool_args = JSON.parse(tool_call.dig(:function, :arguments) || "{}", symbolize_names: true)
 
-        @logger.debug(id, "Tool: #{tool_name} #{tool_args}")
+            @logger.debug(id, "Tool: #{tool_name} #{tool_args}")
 
-        tool = Crayons::Tools.new(tool_name)
-        result = tool.call(tool_args)
+            tool = Crayons::Tools.new(tool_name)
+            result = tool.call(tool_args)
 
-        @logger.debug(id, "Tool Result: #{result[:success] ? 'SUCCESS' : 'FAILURE'} - #{result[:result]}")
+            @logger.debug(id, "Tool Result: #{result[:success] ? 'SUCCESS' : 'FAILURE'} - #{result[:result]}")
 
-        @message_history << Message.new(
-          role: :tool,
-          content: result[:result].to_s,
-          tool_call_id: tool_call[:id]
-        )
+            { tool_call: tool_call, result: result }
+          rescue StandardError => e
+            @logger.error(id, "Tool Error: #{e.message}")
+            { tool_call: tool_call, result: { success: false, result: e.message } }
+          end
+        end
+
+        tasks.each do |task|
+          task_result = task.wait
+          @message_history << Message.new(
+            role: :tool,
+            content: task_result[:result][:result].to_s,
+            tool_call_id: task_result[:tool_call][:id]
+          )
+        end
       end
     end
   end

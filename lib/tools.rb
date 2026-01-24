@@ -2,7 +2,7 @@
 
 require_relative "tool"
 require_relative "errors"
-require_relative "tools/agent_tool"
+require_relative "tools/agent"
 require "yaml"
 
 Dir[File.join(__dir__, "tools", "*.rb")].each { |file| require_relative file }

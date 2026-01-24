@@ -13,6 +13,20 @@ module Crayons
   class Agent
     attr_reader :name
 
+    def self.common_system_prompt
+      <<~PROMPT
+        ## CRITICAL
+
+        When responding to a task, you MUST indicate the outcome by starting your response with either:
+        - SUCCESS: [followed by your success message]
+        - FAILURE: [followed by your failure message and explanation]
+
+        Examples:
+        SUCCESS: Code review passed with 2 minor suggestions
+        FAILURE: Critical security vulnerability found in authentication logic
+      PROMPT
+    end
+
   def initialize(name, client: nil)
     @client = client || Crayons::Clients::Zai.new
     @message_history = []
@@ -26,7 +40,7 @@ module Crayons
   end
 
     def call(prompt)
-      @logger.info(id, "Prompt: #{prompt}")
+      @logger.info(id, "PROMPT: #{prompt}")
 
       @message_history << Message.new(role: :user, content: prompt)
 
@@ -34,7 +48,7 @@ module Crayons
         response = chat
         @message_history << response
 
-        @logger.info(id, "Response: #{response.content}") if response.content
+        @logger.info(id, response.content) if response.content
 
         return response if response.complete?
 
@@ -64,7 +78,7 @@ module Crayons
         @config = YAML.safe_load(yaml_content)
         @name = @config["name"]
         @tools = load_tools(@config["tools"] || [])
-        @system_prompt = content.sub(/\A---.*?---\n?/m, "").strip
+        @system_prompt = "#{content.sub(/\A---.*?---\n?/m, '').strip}\n\n#{self.class.common_system_prompt}"
     end
 
     def load_tools(tool_names)
@@ -81,21 +95,13 @@ module Crayons
         tool = Crayons::Tools.new(tool_name)
         result = tool.call(tool_args)
 
-        @logger.debug(id, "Tool Result: #{result[:success] ? 'success' : 'failure'}")
+        @logger.debug(id, "Tool Result: #{result[:success] ? 'SUCCESS' : 'FAILURE'} - #{result[:result]}")
 
         @message_history << Message.new(
           role: :tool,
           content: result[:result].to_s,
           tool_call_id: tool_call[:id]
         )
-      end
-    end
-
-    def format_response(message)
-      if message.content
-        "SUCCESS: #{message.content}"
-      else
-        "FAILURE: No response content received"
       end
     end
   end

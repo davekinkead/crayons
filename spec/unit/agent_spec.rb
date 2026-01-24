@@ -7,6 +7,20 @@ RSpec.describe Crayons::Agent do
   let(:mock_client) { instance_double(Crayons::Clients::Zai) }
   let(:success_message) { Crayons::Message.new(role: :assistant, content: "Task completed", complete: true) }
   let(:failure_message) { Crayons::Message.new(role: :assistant, content: "An error occurred", complete: true) }
+
+  describe ".common_system_prompt" do
+    it "returns a system prompt with SUCCESS/FAILURE instructions" do
+      prompt = described_class.common_system_prompt
+
+      expect(prompt).to include("SUCCESS:")
+      expect(prompt).to include("FAILURE:")
+    end
+
+    it "returns a heredoc string" do
+      expect(described_class.common_system_prompt).to be_a(String)
+    end
+  end
+
   describe ".new" do
     it "instantiates a named agent" do
       agent = described_class.new(:test)

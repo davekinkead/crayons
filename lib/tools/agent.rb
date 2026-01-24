@@ -22,8 +22,15 @@ module Crayons
       def call(input)
         prompt = input.to_s
         message = @agent.call(prompt)
+        content = message.content || ""
 
-        { success: true, result: message.content || "" }
+        if content.start_with?("FAILURE:")
+          { success: false, result: content.sub(/^FAILURE:\s*/, "").strip }
+        elsif content.start_with?("SUCCESS:")
+          { success: true, result: content.sub(/^SUCCESS:\s*/, "").strip }
+        else
+          { success: true, result: content }
+        end
       rescue StandardError => e
         { success: false, result: e.message }
       end

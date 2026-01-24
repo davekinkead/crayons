@@ -10,6 +10,14 @@ Crayons is an experiment in autonymous agentic coding based on the Ralph Wiggum 
 - [docs/testing.md](docs/testing.md) - Testing guidelines and structure
 
 
+## Custom Agents
+
+There are a range of custom agents defined in `agents/*.md`.
+
+To run one of these agents, use `bin/agent --agent NAME --call "prompt message"`.
+
+If told to use a custom or crayon agent, or a upcased name like "Use MARGE to ...", this is what you should do.
+
 ## Important
 
 - If you are writing code, ALWAYS follow TDD red before green.

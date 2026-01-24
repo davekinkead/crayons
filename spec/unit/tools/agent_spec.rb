@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/tools/agent_tool"
+require_relative "../../../lib/tools/agent"
 require_relative "../../../lib/message"
 
 RSpec.describe Crayons::Tools::AgentTool do
@@ -56,6 +56,38 @@ RSpec.describe Crayons::Tools::AgentTool do
 
       tool = described_class.new(:test, client: mock_client)
       result = tool.call("test prompt")
+
+      expect(result[:success]).to be true
+      expect(result[:result]).to eq("Agent response")
+    end
+
+    it "parses FAILURE: marker and returns success: false" do
+      failure_response = Crayons::Message.new(role: :assistant, content: "FAILURE: Something went wrong", complete: true)
+      allow(mock_client).to receive(:chat).and_return(failure_response)
+
+      tool = described_class.new(:test, client: mock_client)
+      result = tool.call("test")
+
+      expect(result[:success]).to be false
+      expect(result[:result]).to eq("Something went wrong")
+    end
+
+    it "parses SUCCESS: marker and returns success: true with stripped message" do
+      success_response = Crayons::Message.new(role: :assistant, content: "SUCCESS: Task completed successfully", complete: true)
+      allow(mock_client).to receive(:chat).and_return(success_response)
+
+      tool = described_class.new(:test, client: mock_client)
+      result = tool.call("test")
+
+      expect(result[:success]).to be true
+      expect(result[:result]).to eq("Task completed successfully")
+    end
+
+    it "defaults to success when no marker is present" do
+      allow(mock_client).to receive(:chat).and_return(success_message)
+
+      tool = described_class.new(:test, client: mock_client)
+      result = tool.call("test")
 
       expect(result[:success]).to be true
       expect(result[:result]).to eq("Agent response")

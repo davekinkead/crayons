@@ -24,7 +24,7 @@ RSpec.describe "Agent logging" do
 
       agent.call("Do something")
 
-      expect(mock_logger).to have_received(:info).with(agent.id, "Prompt: Do something")
+      expect(mock_logger).to have_received(:info).with(agent.id, "PROMPT: Do something")
     end
 
     it "logs response content at INFO level" do
@@ -33,7 +33,7 @@ RSpec.describe "Agent logging" do
 
       agent.call("Do something")
 
-      expect(mock_logger).to have_received(:info).with(agent.id, "Response: Task completed")
+      expect(mock_logger).to have_received(:info).with(agent.id, "Task completed")
     end
   end
 
@@ -81,7 +81,7 @@ RSpec.describe "Agent logging" do
 
       agent.call("Run command")
 
-      expect(mock_logger).to have_received(:debug).with(agent.id, "Tool Result: success")
+      expect(mock_logger).to have_received(:debug).with(agent.id, "Tool Result: SUCCESS - file1.rb\nfile2.rb")
     end
 
     it "logs failed tool result at DEBUG level" do
@@ -106,7 +106,7 @@ RSpec.describe "Agent logging" do
 
       agent.call("Run command")
 
-      expect(mock_logger).to have_received(:debug).with(agent.id, "Tool Result: failure")
+      expect(mock_logger).to have_received(:debug).with(agent.id, "Tool Result: FAILURE - Command failed")
     end
   end
 end

@@ -10,53 +10,73 @@ Choosing the right test level depends on what you're testing:
 
 **Choose when:**
 - Testing a single class or method in isolation
-- Testing pure logic without external dependencies
 - Fast, deterministic behavior required
 - You need to verify edge cases and error handling
+- Dependencies (if any) can be injected
 
 **Rules:**
-- Stub all external dependencies (HTTP, database, file system)
+- ONLY test the subject class
+- ALL dependencies must be injected as stubs/doubles
 - Test only public methods
 - Test behaviour and/or state
 - Map class to spec file (agent.rb => unit/agent_spec.rb)
+- IMPORTANT - Ruby standard library does not need to be stubbed!
 
 **Example:**
+
+Good Unit Test
 ```ruby
-describe Crayons::CommandSanitizer do
-  describe ".validate" do
-    it "returns nil for safe commands" do
-      expect(described_class.validate("ls -la")).to be_nil
-    end
+describe Thingy do
+  it "returns FOO when the logger fails" do
+    logger = instance_double(Logger, info: false)
+    thingy = described_class.new(logger: logger)
+
+    expect(thingy.generate).to eq("FOO")
   end
 end
 ```
 
-### Feature Tests
+Bad Unit Test
+```ruby
+describe Thingy do
+  subject { described_class.new }
+
+  it "returns FOO when the logger fails" do
+    allow(ThingyLogger).to receive(:info).and_return(false)
+
+    result = subject.generate
+
+    expect(result).to eq("FOO")
+  end
+end
+```
+
+### Component Tests
 
 **Choose when:**
 - Testing workflows between multiple classes
 - Testing end-to-end behavior within a subsystem
-- External services exist but are too slow for unit tests
-- You need to verify interaction patterns
+- Verifying collaboration contracts between components
+- Multiple internal components working together
 
 **Rules:**
 - Use real implementations of internal components
-- Mock external services (LLM APIs, network calls) - see below
-- Test behavior and collaboration contracts but not implementation
+- Mock only external services (LLM APIs, HTTP, databases, network calls)
+- Test behavior and collaboration between components
+- Test contracts only - never test implementation of components.
 - Focus on success/error paths
+- Name based on flow being tested eg `spec/component/agent_call_loop_spec.rb`
 
 **Example:**
 ```ruby
 describe Crayons::Agent do
   describe "tool execution" do
     it "calls tool and returns result" do
-      tool = instance_double(Crayons::Tool, name: :read)
-      allow(tool).to receive(:execute).with(file_path: "test.rb").and_return(success: true)
+      # Real internal tool - no mocking
+      agent = described_class.new(:test, client: mock_llm_client)
+      agent.call("Read the file test.rb")
 
-      agent = described_class.new(:test, tools: [:read])
-      result = agent.execute_tool(tool_name: :read, arguments: { file_path: "test.rb" })
-
-      expect(result[:success]).to be true
+      expect(agent.tool_calls).to include(:read_file)
     end
   end
 end
@@ -100,16 +120,16 @@ end
 └─────────────────────────────────────┘
            │
            ├─ Single class/method? ────────────► Unit Test
-           │   - Mock everything external
+           │   - Inject all dependencies as stubs/doubles
            │   - Fast, isolated
            │
-           ├─ Multiple classes interacting? ────► Feature Test
-           │   - Real internal code
-           │   - Stubbed external services
+           ├─ Multiple internal classes? ──────► Component Test
+           │   - Real internal components
+           │   - Mock only external services
            │
            └─ Real external systems? ───────────► Integration Test
-               - Manual execution
-               - Requires API keys/real services
+                - Manual execution
+                - Requires API keys/real services
 ```
 
 ## Test Structure
@@ -125,8 +145,8 @@ spec/
 │   └── tools/
 │       ├── bash_spec.rb
 │       └── ...
-├── feature/              # Workflow behaviours
-│   └── crayons_spec.rb
+├── component/            # Multiple internal components working together
+│   └── logging_spec.rb
 ├── integration/          # Integration tests that require API keys. No `_spec.rb` suffix.
 │   ├── willie.rb
 │   └── ...
@@ -135,51 +155,10 @@ spec/
 └── spec_helper.rb
 ```
 
-## Mocking & Stubbing
-
-Mocking and stubbing in unit tests indicates poor code design.
-
-Avoid it whenever possibile. If you need to mock, redesign your code first.
-
-Example:
-
-**Bad - mocks implementation**
-
-```ruby
-class Find < Tool
-  def call(input)
-    dir = input[:path] || Dir.pwd
-    # ...
-  end
-end
-
-it "calls Open3 with correct command" do
-  allow(Open3).to receive(:capture3).with("find /path -name '*.rb'")
-  subject.call(pattern: "*.rb", path: "/path")
-end
-```
-
-**Good - tests observable state**
-```ruby
-class Find < Tool
-  attr_reader :dir
-
-  def call(input)
-    @dir = input[:path] || Dir.pwd
-    # ...
-  end
-end
-
-it "defaults to the project dir" do
-  subject.call(pattern: "*.rb", path: "/project")
-  expect(subject.dir).to eq("/project")
-end
-```
-
 ## General
 
-Tests provide important feedback for agents. Agents should always verify their work with `bin/verify`.
-
-Successful tests should be quite - just returning the summary data (dots are ok too).
-
-Failing test should be loud - returning the full trace.
+- Tests provide important feedback for agents. Agents should always verify their work with `bin/verify`.
+- `instance_variable_get` is a code smell in tests. If you need to test for state, make the state public via an `attr_reader`.
+- Successful tests should be quiet - just returning the summary data (dots are ok too).
+- Failing test should be loud - returning the full trace.
+- You should always consider what a method is supposed to do before evaluating the test.

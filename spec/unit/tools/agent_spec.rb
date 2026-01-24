@@ -4,9 +4,6 @@ require_relative "../../../lib/tools/agent"
 require_relative "../../../lib/message"
 
 RSpec.describe Crayons::Tools::AgentTool do
-  let(:mock_client) { instance_double(Crayons::Clients::Zai) }
-  let(:success_message) { Crayons::Message.new(role: :assistant, content: "Agent response", complete: true) }
-
   describe ".new" do
     it "instantiates an agent tool wrapper" do
       tool = described_class.new(:test)
@@ -27,7 +24,7 @@ RSpec.describe Crayons::Tools::AgentTool do
   end
 
   describe "#name" do
-    it "returns the agent name from config" do
+    it "returns agent name from config" do
       tool = described_class.new(:test)
 
       expect(tool.name).to eq("TEST")
@@ -35,7 +32,7 @@ RSpec.describe Crayons::Tools::AgentTool do
   end
 
   describe "#description" do
-    it "returns the agent description from config" do
+    it "returns agent description from config" do
       tool = described_class.new(:test)
 
       expect(tool.description).to eq("An agent for internal tests only")
@@ -51,6 +48,9 @@ RSpec.describe Crayons::Tools::AgentTool do
   end
 
   describe "#call" do
+    let(:mock_client) { instance_double(Crayons::Clients::Zai) }
+    let(:success_message) { Crayons::Message.new(role: :assistant, content: "Agent response", complete: true) }
+
     it "sends string prompt to agent" do
       allow(mock_client).to receive(:chat).and_return(success_message)
 
@@ -126,6 +126,8 @@ RSpec.describe Crayons::Tools::AgentTool do
     end
 
     it "returns hash with success and result keys" do
+      mock_client = instance_double(Crayons::Clients::Zai)
+      success_message = Crayons::Message.new(role: :assistant, content: "Agent response", complete: true)
       allow(mock_client).to receive(:chat).and_return(success_message)
 
       tool = described_class.new(:test, client: mock_client)

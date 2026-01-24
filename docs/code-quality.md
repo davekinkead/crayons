@@ -9,27 +9,15 @@ These standards define quality requirements for all code in the Crayons project.
 - Return early for guard clauses
 - Avoid deep nesting (max 3 levels)
 
-## Architecture Principles
-
-### Separation of Concerns
-- Agents: Orchestrate and manage tasks
-- Clients: Handle LLM API communication
-- Tools: Perform specific actions
-- Each component has clear boundaries
-
-### Interface Design
-- Define clear public APIs
-- Favor composition over inheritance
-- Design for testing
-- Use dependency injection
-- Public class methods over private instance methods
-- Hide implementation details
-
-### Error Handling
+## Error Handling
 - Raise specific exceptions
 - Include context in error messages
 - Handle expected errors gracefully
 - Don't swallow exceptions
+
+## Design Principles
+
+For SOLID principles and architectural design patterns, see [architecture.md](architecture.md).
 
 ## Code Organization
 

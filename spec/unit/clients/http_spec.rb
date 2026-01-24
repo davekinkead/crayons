@@ -23,20 +23,6 @@ RSpec.describe Crayons::Clients::HTTP do
 
   subject { described_class.new(api_key: api_key, base_url: base_url, http_client: mock_http_client) }
 
-  describe "#initialize" do
-    it "stores the api_key" do
-      expect(subject.instance_variable_get(:@api_key)).to eq(api_key)
-    end
-
-    it "stores the base_url" do
-      expect(subject.instance_variable_get(:@base_url)).to eq(base_url)
-    end
-
-    it "stores the http_client" do
-      expect(subject.instance_variable_get(:@http_client)).to eq(mock_http_client)
-    end
-  end
-
   describe "#post" do
     before do
       allow(mock_http_client).to receive(:post).and_return(mock_response)

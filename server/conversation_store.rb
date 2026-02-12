@@ -6,15 +6,18 @@ require "fileutils"
 
 module Server
   class ConversationStore
-    attr_reader :path
+    attr_reader :path, :conversations, :current_conversation_id
 
     def initialize(path)
+      FileUtils.mkdir_p(File.dirname(path))
+
       @path = path
-      @data = load_data
+      @conversations = load_conversations(path)
+      @current_conversation_id = load_current_conversation_id(path)
     end
 
     def all
-      @data[:conversations] || []
+      conversations.values
     end
 
     def create(agent_name)
@@ -22,16 +25,16 @@ module Server
       conversation = {
         id: id,
         agent: agent_name,
-        started_at: Time.now,
-        messages: []
+        started_at: Time.now.to_s
       }
-      @data[:conversations] << conversation
-      save_data
+      conversations[id] = conversation
+      append_log(:create, id:, agent: agent_name)
+      set_current_conversation(id)
       conversation
     end
 
     def find(id)
-      @data[:conversations].find { |c| c[:id] == id }
+      conversations[id]
     end
 
     def add_message(conversation_id, role:, content:)
@@ -41,42 +44,68 @@ module Server
       message = {
         role: role,
         content: content,
-        timestamp: Time.now
+        timestamp: Time.now.to_s
       }
+      conversation[:messages] ||= []
       conversation[:messages] << message
-      save_data
+      append_log(:message, conversation_id:, role:, content:)
       message
     end
 
-    def current_conversation_id
-      @data[:current_conversation_id]
-    end
-
     def set_current_conversation(id)
-      @data[:current_conversation_id] = id
-      save_data
+      @current_conversation_id = id
+      append_log(:set_current, id:)
     end
 
     private
 
-    def load_data
-      return default_data unless File.exist?(@path)
+    def load_conversations(path)
+      return {} unless File.exist?(path)
 
-      JSON.parse(File.read(@path), symbolize_names: true)
+      conversations = {}
+      File.foreach(path) do |line|
+        data = JSON.parse(line, symbolize_names: true)
+        case data[:type]
+        when "create"
+          conversations[data[:id]] = {
+            id: data[:id],
+            agent: data[:agent],
+            started_at: data[:started_at],
+            messages: []
+          }
+        when "message"
+          conv = conversations[data[:conversation_id]]
+          conv[:messages] ||= []
+          conv[:messages] << {
+            role: data[:role],
+            content: data[:content],
+            timestamp: data[:timestamp]
+          }
+        end
+      end
+      conversations
     rescue JSON::ParserError
-      default_data
+      {}
     end
 
-    def save_data
-      FileUtils.mkdir_p(File.dirname(@path))
-      File.write(@path, JSON.pretty_generate(@data))
+    def load_current_conversation_id(path)
+      return nil unless File.exist?(path)
+
+      current_id = nil
+      File.foreach(path) do |line|
+        data = JSON.parse(line, symbolize_names: true)
+        current_id = data[:id] if data[:type] == "set_current"
+      end
+      current_id
+    rescue JSON::ParserError
+      nil
     end
 
-    def default_data
-      {
-        conversations: [],
-        current_conversation_id: nil
-      }
+    def append_log(type, **data)
+      entry = { type:, **data }
+      File.open(path, "a") do |f|
+        f.puts(JSON.generate(entry))
+      end
     end
   end
 end

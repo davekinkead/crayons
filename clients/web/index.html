@@ -71,7 +71,7 @@
             });
           }
         })
-        .catch(err => console.log('No existing conversation'));
+        .catch(err => console.log('Failed to load conversation:', err.message));
     }
 
     document.getElementById('message-form').addEventListener('submit', async (e) => {

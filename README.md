@@ -29,6 +29,24 @@ Inspired by [Geoffrey Huntley](https://ghuntley.com/ralph/).
 - [docs/architecture.md](docs/architecture.md) - System architecture and components
 - [docs/testing.md](docs/testing.md) - Testing guidelines and structure
 
+## Usage
+
+### HTTP Server
+
+Start the web server with a chat interface:
+
+```bash
+bin/crayons
+```
+
+This will:
+- Start a Sinatra-based HTTP server with Puma
+- Automatically find an available port (defaults to 4567-4570, falls back to 3000-4000)
+- Open a browser with a chat UI
+- Persist conversations to JSONL format in `data/conversations.json`
+
+Conversations are stored in append-only JSONL format for thread-safe concurrent access.
+
 ## License
 
 Copyright Dave Kinkead 2026

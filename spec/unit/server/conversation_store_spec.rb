@@ -31,20 +31,12 @@ RSpec.describe Server::ConversationStore do
     end
 
     it "returns loaded conversations from file" do
-      data = {
-        "conversations" => [
-          {
-            "id" => "123",
-            "agent" => "GENERAL",
-            "started_at" => "2026-02-12T12:00:00Z",
-            "messages" => [
-              { "role" => "user", "content" => "Hello", "timestamp" => "2026-02-12T12:00:00Z" }
-            ]
-          }
-        ],
-        "current_conversation_id" => "123"
-      }
-      File.write(store_path, JSON.generate(data))
+      data = [
+        { "type" => "create", "id" => "123", "agent" => "GENERAL", "started_at" => "2026-02-12T12:00:00Z" },
+        { "type" => "message", "conversation_id" => "123", "role" => "user", "content" => "Hello", "timestamp" => "2026-02-12T12:00:00Z" },
+        { "type" => "set_current", "id" => "123" }
+      ]
+      File.write(store_path, "#{data.map { |d| JSON.generate(d) }.join("\n")}\n")
 
       conversations = store.all
 
@@ -59,8 +51,7 @@ RSpec.describe Server::ConversationStore do
 
       expect(conversation[:id]).to be_a(String)
       expect(conversation[:agent]).to eq("GENERAL")
-      expect(conversation[:messages]).to eq([])
-      expect(conversation[:started_at]).to be_a(Time)
+      expect(conversation[:started_at]).to be_a(String)
     end
 
     it "saves conversation to file" do
@@ -101,7 +92,7 @@ RSpec.describe Server::ConversationStore do
       expect(updated[:messages].length).to eq(1)
       expect(updated[:messages].first[:role]).to eq(:user)
       expect(updated[:messages].first[:content]).to eq("Hello")
-      expect(updated[:messages].first[:timestamp]).to be_a(Time)
+      expect(updated[:messages].first[:timestamp]).to be_a(String)
     end
 
     it "returns nil when conversation not found" do
@@ -127,11 +118,11 @@ RSpec.describe Server::ConversationStore do
     end
 
     it "returns the current conversation id from file" do
-      data = {
-        "conversations" => [],
-        "current_conversation_id" => "123"
-      }
-      File.write(store_path, JSON.generate(data))
+      data = [
+        { "type" => "create", "id" => "123", "agent" => "GENERAL", "started_at" => "2026-02-12T12:00:00Z" },
+        { "type" => "set_current", "id" => "123" }
+      ]
+      File.write(store_path, "#{data.map { |d| JSON.generate(d) }.join("\n")}\n")
 
       expect(store.current_conversation_id).to eq("123")
     end

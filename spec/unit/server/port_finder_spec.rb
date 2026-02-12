@@ -62,7 +62,13 @@ RSpec.describe Server::PortFinder do
     end
 
     it "returns false when port is already in use" do
-      skip "Need to implement port binding check"
+      server = TCPServer.new("127.0.0.1", 12_345)
+
+      result = described_class.port_available?(12_345)
+
+      expect(result).to be(false)
+    ensure
+      server&.close
     end
   end
 

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require "dotenv/load"
+require_relative "../lib/agent"
+require_relative "../lib/message"
+require_relative "../server/port_finder"
+require_relative "../server/conversation_store"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

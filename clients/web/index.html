@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crayons</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 { color: #333; }
+    #status { color: #666; margin: 1rem 0; }
+    #messages { 
+      margin: 1rem 0; 
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 200px;
+    }
+    .message { margin: 0.5rem 0; }
+    .user { color: #0066cc; }
+    .assistant { color: #006600; }
+    .system { color: #888; font-style: italic; }
+    #message-form { display: flex; gap: 0.5rem; }
+    #message-input { 
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Crayons</h1>
+  <div id="status">Loading...</div>
+  <div id="messages"></div>
+  <form id="message-form">
+    <input type="text" id="message-input" placeholder="Type a message...">
+    <button type="submit" id="send-button">Send</button>
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('status').textContent = 'Crayons is running on ' + window.location.origin;
+      loadConversation();
+    });
+
+    function addMessage(role, content) {
+      const messagesDiv = document.getElementById('messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${role}`;
+      msgDiv.textContent = content;
+      messagesDiv.appendChild(msgDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function loadConversation() {
+      fetch('/conversations')
+        .then(response => response.json())
+        .then(data => {
+          if (data.messages) {
+            data.messages.forEach(msg => {
+              addMessage(msg.role, msg.content);
+            });
+          }
+        })
+        .catch(err => console.log('No existing conversation'));
+    }
+
+    document.getElementById('message-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('message-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const button = document.getElementById('send-button');
+      button.disabled = true;
+      input.disabled = true;
+
+      addMessage('user', text);
+      input.value = '';
+
+      try {
+        const response = await fetch('/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const result = await response.json();
+        if (result.error) {
+          addMessage('system', 'Error: ' + result.error);
+        } else if (result.response) {
+          addMessage('assistant', result.response);
+        }
+      } catch (error) {
+        addMessage('system', 'Failed to send message: ' + error.message);
+      }
+
+      button.disabled = false;
+      input.disabled = false;
+      input.focus();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "dotenv/load"
+require "launchy"
+require_relative "../server/app"
+
+port = CrayonsServer.settings.port
+url = "http://localhost:#{port}"
+
+puts "Starting Crayons server on #{url}..."
+puts "Press Ctrl+C to stop"
+
+thread = Thread.new do
+  CrayonsServer.run!
+rescue Interrupt
+  puts "\nShutting down..."
+  exit 0
+end
+
+sleep 1
+Launchy.open(url)
+
+thread.join

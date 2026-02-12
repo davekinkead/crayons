@@ -37,13 +37,13 @@ RSpec.describe Crayons::Tools::Find do
     end
 
     it "stores the directory used" do
-      subject.call(pattern: "README*", path: "/Users/davekinkead/Projects/crayons")
+      subject.call(pattern: "README*", path: ".")
 
-      expect(subject.dir).to eq("/Users/davekinkead/Projects/crayons")
+      expect(subject.dir).to eq(".")
     end
 
     it "finds files matching pattern" do
-      result = subject.call(pattern: "*.rb", path: "/Users/davekinkead/Projects/crayons/lib/tools")
+      result = subject.call(pattern: "*.rb", path: "lib/tools")
 
       expect(result[:success]).to be true
       expect(result[:result][:matches]).to be_an(Array)
@@ -59,17 +59,17 @@ RSpec.describe Crayons::Tools::Find do
     end
 
     it "handles no matches" do
-      result = subject.call(pattern: "*.xyzxyz", path: "/Users/davekinkead/Projects/crayons/lib")
+      result = subject.call(pattern: "*.xyzxyz", path: "lib")
 
       expect(result[:success]).to be true
       expect(result[:result][:matches]).to eq([])
     end
 
     it "includes pattern and path in result" do
-      result = subject.call(pattern: "*.rb", path: "/Users/davekinkead/Projects/crayons/lib/tools")
+      result = subject.call(pattern: "*.rb", path: "lib/tools")
 
       expect(result[:result][:pattern]).to eq("*.rb")
-      expect(result[:result][:path]).to eq("/Users/davekinkead/Projects/crayons/lib/tools")
+      expect(result[:result][:path]).to eq("lib/tools")
     end
   end
 end

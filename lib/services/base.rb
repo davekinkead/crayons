@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Crayons
-  module Clients
+  module Services
     class Base
       def initialize(api_key:, url:, model:)
         raise NotImplementedError, "#{self.class} must implement #initialize"

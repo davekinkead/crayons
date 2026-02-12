@@ -6,7 +6,7 @@ require_relative "../logger"
 require_relative "../version"
 
 module Crayons
-  module Clients
+  module Services
     class HTTP
       ClientError = Class.new(StandardError)
 

@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/clients/zai"
+require_relative "../../../lib/services/zai"
 require_relative "../../../lib/message"
 require_relative "../../../lib/logger"
 
-RSpec.describe Crayons::Clients::Zai do
+RSpec.describe Crayons::Services::Zai do
   let(:api_key) { "test-api-key" }
   let(:base_url) { "https://api.test.com" }
   let(:model) { "test-model" }
-  let(:mock_http_client) { instance_double(Crayons::Clients::HTTP) }
-  
+  let(:mock_http_client) { instance_double(Crayons::Services::HTTP) }
+
   let(:system) { "You are a helpful assistant" }
   let(:messages) { [Crayons::Message.new(role: :user, content: "test message")] }
   let(:tools) { [] }
@@ -32,7 +32,7 @@ RSpec.describe Crayons::Clients::Zai do
   subject { described_class.new(api_key: api_key, url: base_url, model: model) }
 
   before do
-    allow(Crayons::Clients::HTTP).to receive(:new).and_return(mock_http_client)
+    allow(Crayons::Services::HTTP).to receive(:new).and_return(mock_http_client)
     allow(mock_http_client).to receive(:post).and_return(api_response)
   end
 
@@ -104,7 +104,7 @@ RSpec.describe Crayons::Clients::Zai do
 
     it "includes tool_call_id if present in message" do
       messages_with_id = [Crayons::Message.new(role: :tool, content: "result", tool_call_id: "call_123")]
-      
+
       expect(mock_http_client).to receive(:post)
         .with("#{base_url}/chat/completions", hash_including(model: model, tools: []))
         .and_return(api_response)
@@ -139,7 +139,7 @@ RSpec.describe Crayons::Clients::Zai do
 
     it "sets complete to false when finish_reason is not stop" do
       api_response["choices"][0]["finish_reason"] = "tool_calls"
-      
+
       result = subject.chat(system: system, messages: messages, tools: tools)
 
       expect(result.complete?).to be false

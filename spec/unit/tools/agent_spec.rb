@@ -48,7 +48,7 @@ RSpec.describe Crayons::Tools::AgentTool do
   end
 
   describe "#call" do
-    let(:mock_client) { instance_double(Crayons::Clients::Zai) }
+    let(:mock_client) { instance_double(Crayons::Services::Zai) }
     let(:success_message) { Crayons::Message.new(role: :assistant, content: "Agent response", complete: true) }
 
     it "sends string prompt to agent" do
@@ -126,7 +126,7 @@ RSpec.describe Crayons::Tools::AgentTool do
     end
 
     it "returns hash with success and result keys" do
-      mock_client = instance_double(Crayons::Clients::Zai)
+      mock_client = instance_double(Crayons::Services::Zai)
       success_message = Crayons::Message.new(role: :assistant, content: "Agent response", complete: true)
       allow(mock_client).to receive(:chat).and_return(success_message)
 

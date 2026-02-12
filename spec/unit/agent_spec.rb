@@ -4,7 +4,7 @@ require_relative "../../lib/agent"
 require_relative "../../lib/message"
 
 RSpec.describe Crayons::Agent do
-  let(:mock_client) { instance_double(Crayons::Clients::Zai) }
+  let(:mock_client) { instance_double(Crayons::Services::Zai) }
   let(:success_message) { Crayons::Message.new(role: :assistant, content: "Task completed", complete: true) }
   let(:failure_message) { Crayons::Message.new(role: :assistant, content: "An error occurred", complete: true) }
 

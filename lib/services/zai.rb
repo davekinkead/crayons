@@ -6,7 +6,7 @@ require_relative "../logger"
 require_relative "../utils"
 
 module Crayons
-  module Clients
+  module Services
     class Zai < Base
       def initialize(api_key: ENV.fetch("ZAI_API_KEY", nil), url: nil, model: nil)
         @api_key = api_key

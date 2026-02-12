@@ -2,21 +2,21 @@
 
 require "logger"
 require "async/http"
-require_relative "../../../lib/clients/http"
+require_relative "../../../lib/services/http"
 require_relative "../../../lib/logger"
 
-RSpec.describe Crayons::Clients::HTTP do
+RSpec.describe Crayons::Services::HTTP do
   let(:api_key) { "test-api-key" }
   let(:base_url) { "https://api.example.com" }
   let(:url) { "#{base_url}/v1/test" }
   let(:payload) { { model: "test-model", messages: [{ role: "user", content: "test" }] } }
-  
+
   let(:mock_response) do
-    double("response", 
+    double("response",
            status: 200,
            read: '{"result":"success"}')
   end
-  
+
   let(:mock_http_client) do
     instance_double(Async::HTTP::Internet)
   end

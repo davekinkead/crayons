@@ -3,38 +3,7 @@
 ## Overview
 Tools are the foundation of Crayons - wrappers that agents can call deterministically.
 
-## Status: ✅ Core System Complete
-
-## Completed Components
-
-### 1. Tool Interface (`lib/tool.rb`)
-✅ Abstract base class defining the tool contract
-
-### 2. Tool Factory (`lib/tools.rb`)
-✅ Factory pattern for creating tool instances
-```ruby
-Crayons::Tools.new(:haiku)     # Returns HaikuTool instance
-Crayons::Tools.new(:bash)      # Returns BashTool instance
-Crayons::Tools.new(:unknown)   # Raises ToolNotFoundError
-Crayons::Tools.new(:marge)     # Returns AgentTool (agent as tool)
-```
-
-### 3. Agent System (`lib/agent.rb`)
-✅ Agent class for tool calling orchestration
-✅ HTTP client with async-http (`lib/clients/http.rb`)
-✅ Zai API integration (`lib/clients/zai.rb`)
-✅ Custom logger with unique IDs (`lib/logger.rb`)
-✅ Message history management (`lib/message.rb`)
-✅ CLI interface with agent-as-tool capability
-
-### 4. Built-in Tools
-✅ Haiku Tool (`tools/haiku.rb`) - Generate haikus for testing
-✅ Bash Tool (`tools/bash.rb`) - Execute shell commands with timeout
-✅ Read File Tool (`tools/read_file.rb`) - Read file contents
-✅ Write File Tool (`tools/write_file.rb`) - Write content to files
-✅ Find Tool (`tools/find.rb`) - Find files by glob pattern
-✅ Grep Tool (`tools/grep.rb`) - Search file contents with regex
-✅ Agent Tool (`tools/agent_tool.rb`) - Call agents as tools
+## Status: ✅ Core System Complete + Multi-Agent Orchestration
 
 ## Directory Structure
 
@@ -58,11 +27,20 @@ lib/
     ├── write_file.rb
     ├── find.rb
     ├── grep.rb
-    └── agent_tool.rb     # Agent-as-tool wrapper
+    ├── batch.rb          # Concurrent tool execution
+    └── agent.rb          # Agent-as-tool wrapper
 
 agents/
-├── MARGE.md              # Management agent
-└── TEST.md               # Test agent
+├── RALPH.md              # Orchestration agent
+├── MARGE.md              # Implementation agent
+├── LISA.md               # Code review agent
+├── MILHOUSE.md           # Test review agent
+└── TEST.md               # Agent for test purposes
+
+docs/
+├── architecture.md       # SOLID principles and design patterns
+├── code-quality.md       # Code quality standards
+└── testing.md            # Testing standards and structure
 
 bin/
 └── verify                # Run tests and linting
@@ -72,27 +50,20 @@ bin/
 
 ## Remaining Work
 
-### 1. Batch Tool with Async Execution ⏳
-- Implement `tools/batch.rb` to execute multiple tools concurrently
-- Use Async gem for fiber-based parallel execution
-- Maintain standard tool interface
-- Return aggregated results with success/failure status per tool
-- Add comprehensive error handling for partial failures
-
-### 2. Workdir Parameter Support ⏳
-- Update Tool base class to accept `workdir` parameter
-- Enforce workdir compliance in all tools (bash, read_file, write_file, find, grep)
+### 1. Workdir Parameter Support ❌ NOT IMPLEMENTED
+- All tools need to accept a `dir` parameter (default "./") on init that constrains their behavior
+- Use a util class to enforce dir logic - should return simple things like true/false or the path
+-
+- Enforce workdir compliance in all tools execpt bash
 - Reject tool calls with paths outside the workdir
-- Required for git worktree-based concurrent agent execution
+- Required for git worktree-based concurrent agent execution (noted as "not relevant for implementation")
 
-### 3. Context Management ⏳
-- Implement token counting and message truncation
-- Add context compaction with sliding window pruning
-- Create AI-powered summarization for overflow scenarios
-- Protect critical messages from pruning (last 40k tokens)
-- Track and log token usage
+### 2. Context Management ⏳
+- Prune repeated tool calls. Only the latest tool-arg combo should remain
+  - eg `tool arg-a ... tool arg-b` => both remain
+  - eg `tool arg-a ... tool arg-a` => only keep last
 
-### 4. Enhanced Error Handling ⏳
+### 3. Enhanced Error Handling ⏳
 - Implement retry logic with exponential backoff
 - Add rate limiting middleware
 - Improve timeout handling with configuration
@@ -104,8 +75,11 @@ bin/
 
 - **Factory pattern**: Clean instantiation via `Crayons::Tools.new(:name)`
 - **Agent-as-tool**: Agents can be called as tools via AgentTool wrapper
+- **Multi-agent orchestration**: RALPH coordinates MARGE (implementation), LISA (code review), MILHOUSE (test review)
+- **Async parallel execution**: Batch tool and agent tool calls execute concurrently using Async gem
 - **Unique IDs**: Every agent instance gets unique ID for logging (name-object_id)
 - **Test-first**: Every component has RSpec tests before implementation
 - **Explicit errors**: `ToolNotFoundError` for unknown tools
 - **Immutable context**: Tools receive context but never mutate it
 - **Custom logger**: Unique IDs per agent instance for traceable logs
+- **SOLID principles**: Enforced through RALPH orchestration and LISA code review

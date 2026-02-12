@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "async"
-require_relative "clients/zai"
+require_relative "services/zai"
 require_relative "logger"
 require_relative "message"
 require_relative "tools"
@@ -29,7 +29,7 @@ module Crayons
     end
 
   def initialize(name, client: nil)
-    @client = client || Crayons::Clients::Zai.new
+    @client = client || Crayons::Services::Zai.new
     @message_history = []
     @tools = []
     @logger = Crayons::Logger.instance

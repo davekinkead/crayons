@@ -4,7 +4,7 @@ require_relative "../../lib/agent"
 require_relative "../../lib/message"
 
 RSpec.describe "Agent tool execution" do
-  let(:mock_client) { instance_double(Crayons::Clients::Zai) }
+  let(:mock_client) { instance_double(Crayons::Services::Zai) }
 
   it "loops to handle tool calls until complete" do
     tool_call_message = Crayons::Message.new(

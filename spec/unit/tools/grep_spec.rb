@@ -41,9 +41,9 @@ RSpec.describe Crayons::Tools::Grep do
     end
 
     it "stores the directory used" do
-      subject.call(pattern: "class", path: "/Users/davekinkead/Projects/crayons/lib/tools")
+      subject.call(pattern: "class", path: "lib/tools")
 
-      expect(subject.dir).to eq("/Users/davekinkead/Projects/crayons/lib/tools")
+      expect(subject.dir).to eq("lib/tools")
     end
 
     it "defaults to the current directory" do
@@ -54,7 +54,7 @@ RSpec.describe Crayons::Tools::Grep do
     end
 
     it "searches file contents by pattern" do
-      result = subject.call(pattern: "class Tool", path: "/Users/davekinkead/Projects/crayons/lib")
+      result = subject.call(pattern: "class Tool", path: "lib")
 
       expect(result[:success]).to be true
       expect(result[:result][:matches]).to be_an(Array)
@@ -62,7 +62,7 @@ RSpec.describe Crayons::Tools::Grep do
     end
 
     it "returns sorted matches" do
-      result = subject.call(pattern: "class", path: "/Users/davekinkead/Projects/crayons/lib/tools")
+      result = subject.call(pattern: "class", path: "lib/tools")
 
       expect(result[:success]).to be true
       expect(result[:result][:matches]).to eq(result[:result][:matches].sort)
@@ -76,21 +76,21 @@ RSpec.describe Crayons::Tools::Grep do
     end
 
     it "handles no matches" do
-      result = subject.call(pattern: "NONEXISTENT_PATTERN_XYZ", path: "/Users/davekinkead/Projects/crayons/lib")
+      result = subject.call(pattern: "NONEXISTENT_PATTERN_XYZ", path: "lib")
 
       expect(result[:success]).to be true
       expect(result[:result][:matches]).to eq([])
     end
 
     it "includes pattern and path in result" do
-      result = subject.call(pattern: "class", path: "/Users/davekinkead/Projects/crayons/lib/tools")
+      result = subject.call(pattern: "class", path: "lib/tools")
 
       expect(result[:result][:pattern]).to eq("class")
-      expect(result[:result][:path]).to eq("/Users/davekinkead/Projects/crayons/lib/tools")
+      expect(result[:result][:path]).to eq("lib/tools")
     end
 
     it "filters files by include pattern" do
-      result = subject.call(pattern: "class", path: "/Users/davekinkead/Projects/crayons/lib", include: "*.rb")
+      result = subject.call(pattern: "class", path: "lib", include: "*.rb")
 
       expect(result[:success]).to be true
       result[:result][:matches].each do |match|

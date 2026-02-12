@@ -5,7 +5,7 @@ require_relative "../../lib/agent"
 require_relative "../../lib/message"
 
 RSpec.describe "Agent logging" do
-  let(:mock_client) { instance_double(Crayons::Clients::Zai) }
+  let(:mock_client) { instance_double(Crayons::Services::Zai) }
   let(:mock_logger) { instance_double(Crayons::Logger) }
   let(:agent) { Crayons::Agent.new(:test, client: mock_client) }
 
